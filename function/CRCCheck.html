@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CRC 校验计算器</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔢</text></svg>">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <style>
+        /* ===== 复用图片取模工具的主题变量 ===== */
+        :root {
+            --bg-body: #f1f4f9;
+            --bg-container: #f1f4f9;
+            --bg-panel: #fafcff;
+            --bg-panel-accent: #f8faff;
+            --bg-input: #ffffff;
+            --bg-input-readonly: #f1f5f9;
+            --bg-code: #ffffff;
+            --bg-option-grid: #f8fafc;
+            --bg-swatch-border: #e2e8f0;
+            --bg-tag: #e2e8f0;
+            --bg-badge: #e0e7ff;
+
+            --text-primary: #0f172a;
+            --text-secondary: #1e293b;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --text-code: #000000;
+            --text-badge: #4338ca;
+
+            --border-light: #e9edf4;
+            --border-input: #d1d9e6;
+            --border-focus: #818cf8;
+
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06);
+            --shadow-swatch: 0 6px 16px rgba(0, 0, 0, 0.06);
+
+            --btn-primary: #1e293b;
+            --btn-primary-hover: #0f172a;
+            --btn-outline-border: #d1d9e6;
+            --btn-outline-hover-bg: #f1f4f9;
+
+            --status-ok-bg: #d1fae5;
+            --status-ok-text: #0b7e4b;
+            --status-error-bg: #fee2e2;
+            --status-error-text: #b91c1c;
+
+            --scrollbar-track: #f1f4f9;
+            --scrollbar-thumb: #cbd5e1;
+
+            --accent-blue: #818cf8;
+            --accent-blue-hover: #6366f1;
+
+            --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #1e1e1e;
+            --bg-container: #2c2c2c;
+            --bg-panel: #2c2c2c;
+            --bg-panel-accent: #2c2c2c;
+            --bg-input: #1e1e1e;
+            --bg-input-readonly: #1e1e1e;
+            --bg-code: #1a1a1a;
+            --bg-option-grid: #262626;
+            --bg-swatch-border: #3d3d3d;
+            --bg-tag: #3d3d3d;
+            --bg-badge: #1e2a4a;
+
+            --text-primary: #e6e6e6;
+            --text-secondary: #cccccc;
+            --text-muted: #888888;
+            --text-light: #666666;
+            --text-code: #e6e6e6;
+            --text-badge: #7a9eff;
+
+            --border-light: #3d3d3d;
+            --border-input: #3d3d3d;
+            --border-focus: #7a9eff;
+
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
+            --shadow-swatch: 0 6px 16px rgba(0, 0, 0, 0.4);
+
+            --btn-primary: #3d3d3d;
+            --btn-primary-hover: #4a4a4a;
+            --btn-outline-border: #4a4a4a;
+            --btn-outline-hover-bg: #333333;
+
+            --status-ok-bg: #0a3d2a;
+            --status-ok-text: #5ae0a0;
+            --status-error-bg: #4a1a1a;
+            --status-error-text: #f08080;
+
+            --scrollbar-track: #262626;
+            --scrollbar-thumb: #4a4a4a;
+
+            --accent-blue: #7a9eff;
+            --accent-blue-hover: #5a7fff;
+
+            --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: var(--bg-body);
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background 0.25s, color 0.25s;
+            color: var(--text-primary);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
+
+        .container {
+            max-width: 1400px;
+            width: 100%;
+            background: var(--bg-container);
+            padding: 32px 36px 40px;
+            transition: background 0.25s;
+        }
+
+        /* ===== 导航栏（复用样式） ===== */
+        .navbar {
+            width: 100%;
+            background: var(--bg-container);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background 0.25s, border-color 0.25s;
+        }
+        .navbar-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.02em;
+            background: var(--hero-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .navbar-brand .brand-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            background: var(--hero-gradient);
+        }
+        .navbar-brand .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
+        }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-panel);
+            padding: 6px 16px 6px 20px;
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: background 0.25s, border-color 0.25s;
+            user-select: none;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+        }
+        .theme-toggle .toggle-track {
+            width: 44px;
+            height: 24px;
+            background: var(--border-input);
+            border-radius: 40px;
+            position: relative;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .theme-toggle .toggle-thumb {
+            width: 18px;
+            height: 18px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: transform 0.3s, background 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+        [data-theme="dark"] .theme-toggle .toggle-track {
+            background: var(--accent-blue);
+        }
+        [data-theme="dark"] .theme-toggle .toggle-thumb {
+            transform: translateX(20px);
+            background: #e6e6e6;
+        }
+        .theme-toggle .theme-icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
+
+        /* ===== 页面标题 ===== */
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            transition: color 0.25s;
+            letter-spacing: -0.02em;
+        }
+        .subhead {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+            border-left: 3px solid var(--accent-blue);
+            padding-left: 16px;
+            background: var(--bg-panel);
+            border-radius: 0 10px 10px 0;
+            line-height: 1.6;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        /* ===== 网格 ===== */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        @media (max-width: 900px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ===== 面板 ===== */
+        .panel {
+            background: var(--bg-panel);
+            border-radius: 18px;
+            padding: 18px 20px 22px;
+            border: 1px solid transparent;
+            transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+        .panel:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        .panel-accent {
+            background: var(--bg-panel-accent);
+        }
+        .panel-title {
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 0;
+            margin-bottom: 14px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            transition: color 0.25s;
+        }
+        .panel-title small {
+            font-weight: 400;
+            font-size: 0.65rem;
+            color: var(--text-light);
+        }
+
+        /* ===== 输入 ===== */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .input-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .input-row label {
+            font-weight: 500;
+            color: var(--text-secondary);
+            min-width: 70px;
+            font-size: 0.78rem;
+            transition: color 0.25s;
+        }
+        .input-row input,
+        .input-row select,
+        .input-row textarea {
+            flex: 1;
+            min-width: 60px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border-input);
+            background: var(--bg-input);
+            color: var(--text-primary);
+            font-size: 0.8rem;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s;
+            outline: none;
+        }
+        .input-row input:focus,
+        .input-row select:focus,
+        .input-row textarea:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
+        }
+        .input-row textarea {
+            min-height: 80px;
+            resize: vertical;
+            font-size: 0.75rem;
+            line-height: 1.5;
+            flex: 2;
+        }
+        .input-row select {
+            flex: 0.7;
+            min-width: 100px;
+            cursor: pointer;
+        }
+        .input-row input[readonly] {
+            background: var(--bg-input-readonly);
+            color: var(--text-secondary);
+        }
+
+        .unit {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-width: 20px;
+        }
+        .hint-text {
+            font-size: 0.62rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
+        .tag {
+            background: var(--bg-tag);
+            padding: 2px 10px;
+            border-radius: 40px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: background 0.25s, color 0.25s;
+        }
+        .range-badge {
+            display: inline-block;
+            background: var(--bg-badge);
+            color: var(--text-badge);
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.62rem;
+            font-weight: 600;
+            transition: background 0.25s, color 0.25s;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn {
+            background: var(--btn-primary);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            font-weight: 500;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: 0.12s, background 0.25s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+        .btn:hover {
+            background: var(--btn-primary-hover);
+            transform: scale(0.97);
+        }
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--btn-outline-border);
+        }
+        .btn-outline:hover {
+            background: var(--btn-outline-hover-bg);
+            border-color: var(--border-focus);
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .btn-sm {
+            padding: 3px 12px;
+            font-size: 0.65rem;
+        }
+
+        /* ===== 代码输出 ===== */
+        .code-output {
+            background: var(--bg-code);
+            color: var(--text-code);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 0.7rem;
+            max-height: 130px;
+            overflow: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 6px;
+            transition: background 0.25s, color 0.25s;
+            line-height: 1.6;
+        }
+        .code-output::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .code-output::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        .code-output::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 8px;
+        }
+
+        .status-ok {
+            color: var(--status-ok-text);
+            background: var(--status-ok-bg);
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+        }
+        .error-msg {
+            color: var(--status-error-text);
+            background: var(--status-error-bg);
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+        }
+
+        .footer-note {
+            margin-top: 24px;
+            color: var(--text-light);
+            font-size: 0.7rem;
+            text-align: center;
+            border-top: 1px solid var(--border-light);
+            padding-top: 16px;
+            transition: color 0.25s, border-color 0.25s;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+
+        .crc-result-box {
+            background: var(--bg-option-grid);
+            border-radius: 12px;
+            padding: 12px 16px;
+            border: 1px solid var(--border-light);
+            transition: background 0.25s, border-color 0.25s;
+            margin-top: 6px;
+        }
+        .crc-result-box .result-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+        .crc-result-box .result-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+        }
+        .crc-result-box .result-sub {
+            font-size: 0.65rem;
+            color: var(--text-light);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 16px;
+            font-size: 0.72rem;
+            padding: 6px 0;
+        }
+        .detail-grid .key {
+            color: var(--text-muted);
+        }
+        .detail-grid .val {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="theme-toggle" id="themeToggle" title="切换主题">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">🔢 CRC 校验计算器</div>
+        <div class="subhead">
+            🔹 支持 CRC-8/16/32/64 多种算法 · 字节序可调 · 支持 HEX / ASCII / 文件
+        </div>
+
+        <div class="grid-2col">
+            <!-- 左侧：输入与参数 -->
+            <div class="panel panel-accent">
+                <div class="panel-title">① 输入数据 <small>HEX / ASCII / 文件</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>数据模式</label>
+                        <select id="inputMode">
+                            <option value="hex">HEX (空格分隔)</option>
+                            <option value="ascii">ASCII 文本</option>
+                        </select>
+                        <span class="hint-text">HEX 示例: 01 02 03 04</span>
+                    </div>
+                    <div class="input-row">
+                        <label>数据</label>
+                        <textarea id="dataInput" placeholder="01 02 03 04 或 123456">01 02 03 04</textarea>
+                    </div>
+                    <div class="input-row">
+                        <label>文件</label>
+                        <div class="file-input-wrapper">
+                            <button class="btn btn-outline btn-sm">📁 选择文件</button>
+                            <input type="file" id="fileInput">
+                        </div>
+                        <span id="fileInfo" style="font-size:0.65rem;color:var(--text-muted);">未选择</span>
+                        <button class="btn btn-outline btn-sm" id="clearFileBtn">清除</button>
+                    </div>
+                </div>
+
+                <div class="panel-title" style="margin-top:16px;">② CRC 参数</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>算法</label>
+                        <select id="crcAlgo">
+                            <option value="crc8">CRC-8</option>
+                            <option value="crc8_dallas">CRC-8/Dallas (1-Wire)</option>
+                            <option value="crc16_modbus" selected>CRC-16/Modbus</option>
+                            <option value="crc16_ccitt">CRC-16/CCITT (XMODEM)</option>
+                            <option value="crc16_ccitt_false">CRC-16/CCITT-FALSE</option>
+                            <option value="crc16_x25">CRC-16/X25</option>
+                            <option value="crc16_kermit">CRC-16/Kermit</option>
+                            <option value="crc32">CRC-32</option>
+                            <option value="crc32_mpeg2">CRC-32/MPEG-2</option>
+                            <option value="crc64_ecma">CRC-64/ECMA</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label>初始值</label>
+                        <input type="text" id="initVal" value="0xFFFF" style="flex:0.8;">
+                        <label>异或值</label>
+                        <input type="text" id="xorVal" value="0x0000" style="flex:0.8;">
+                    </div>
+                    <div class="input-row">
+                        <label>输入反转</label>
+                        <select id="refIn">
+                            <option value="false">否</option>
+                            <option value="true" selected>是</option>
+                        </select>
+                        <label>输出反转</label>
+                        <select id="refOut">
+                            <option value="false">否</option>
+                            <option value="true" selected>是</option>
+                        </select>
+                        <span class="hint-text">字节序反转</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="calcBtn">▶ 计算 CRC</button>
+                        <button class="btn btn-outline" id="resetAlgoBtn">↺ 重置参数</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：结果 -->
+            <div class="panel panel-accent">
+                <div class="panel-title">③ 校验结果 <small>CRC 值 & 详情</small></div>
+                <div class="crc-result-box">
+                    <div class="result-label">CRC 校验值</div>
+                    <div class="result-value" id="crcResult">—</div>
+                    <div class="result-sub" id="crcResultSub">等待计算</div>
+                </div>
+                <div class="detail-grid" style="margin-top:8px;">
+                    <span class="key">算法</span>
+                    <span class="val" id="detailAlgo">—</span>
+                    <span class="key">数据长度</span>
+                    <span class="val" id="detailLen">—</span>
+                    <span class="key">初始值</span>
+                    <span class="val" id="detailInit">—</span>
+                    <span class="key">异或值</span>
+                    <span class="val" id="detailXor">—</span>
+                    <span class="key">输入反转</span>
+                    <span class="val" id="detailRefIn">—</span>
+                    <span class="key">输出反转</span>
+                    <span class="val" id="detailRefOut">—</span>
+                </div>
+                <div style="margin-top:12px;">
+                    <div class="panel-title" style="margin-bottom:4px;">📋 数据预览 <small>前 32 字节</small></div>
+                    <div class="code-output" id="dataPreview">(无数据)</div>
+                </div>
+                <div class="btn-group" style="margin-top:8px;">
+                    <button class="btn btn-outline btn-sm" id="copyResultBtn">📋 复制结果</button>
+                    <button class="btn btn-outline btn-sm" id="copyFullBtn">📋 复制完整</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部参考 -->
+        <div class="panel" style="margin-top:18px;">
+            <div class="panel-title">④ 常用 CRC 参数参考 <small>点击快速加载</small></div>
+            <div class="btn-group" id="presetContainer">
+                <button class="btn btn-outline btn-sm" data-preset="crc16_modbus">CRC-16/Modbus</button>
+                <button class="btn btn-outline btn-sm" data-preset="crc16_ccitt">CRC-16/CCITT</button>
+                <button class="btn btn-outline btn-sm" data-preset="crc32">CRC-32</button>
+                <button class="btn btn-outline btn-sm" data-preset="crc8_dallas">CRC-8/Dallas</button>
+                <button class="btn btn-outline btn-sm" data-preset="crc64_ecma">CRC-64/ECMA</button>
+            </div>
+            <div class="hint-text" style="margin-top:8px;">
+                💡 点击预设将自动切换算法并填充对应的初始值/异或值/反转设置。
+            </div>
+        </div>
+
+        <div class="footer-note">
+            🔢 CRC 校验计算器 · 支持多种主流 CRC 算法与自定义参数<br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ============================================================
+            //  主题切换
+            // ============================================================
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
+
+            function setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                themeIcon.textContent = (theme === 'dark') ? '🌙' : '☀️';
+                localStorage.setItem('toolbox-theme', theme);
+            }
+            setTheme(localStorage.getItem('toolbox-theme') || 'light');
+            themeToggle.addEventListener('click', function() {
+                const cur = document.documentElement.getAttribute('data-theme');
+                setTheme(cur === 'dark' ? 'light' : 'dark');
+            });
+
+            // ============================================================
+            //  DOM 引用
+            // ============================================================
+            const inputMode = document.getElementById('inputMode');
+            const dataInput = document.getElementById('dataInput');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const clearFileBtn = document.getElementById('clearFileBtn');
+            const crcAlgo = document.getElementById('crcAlgo');
+            const initVal = document.getElementById('initVal');
+            const xorVal = document.getElementById('xorVal');
+            const refIn = document.getElementById('refIn');
+            const refOut = document.getElementById('refOut');
+            const calcBtn = document.getElementById('calcBtn');
+            const resetAlgoBtn = document.getElementById('resetAlgoBtn');
+            const crcResult = document.getElementById('crcResult');
+            const crcResultSub = document.getElementById('crcResultSub');
+            const detailAlgo = document.getElementById('detailAlgo');
+            const detailLen = document.getElementById('detailLen');
+            const detailInit = document.getElementById('detailInit');
+            const detailXor = document.getElementById('detailXor');
+            const detailRefIn = document.getElementById('detailRefIn');
+            const detailRefOut = document.getElementById('detailRefOut');
+            const dataPreview = document.getElementById('dataPreview');
+            const copyResultBtn = document.getElementById('copyResultBtn');
+            const copyFullBtn = document.getElementById('copyFullBtn');
+            const presetContainer = document.getElementById('presetContainer');
+
+            // ============================================================
+            //  CRC 算法预设
+            // ============================================================
+            const CRC_PRESETS = {
+                'crc8': { width: 8, poly: 0x07, init: 0x00, xor: 0x00, refIn: true, refOut: true },
+                'crc8_dallas': { width: 8, poly: 0x31, init: 0x00, xor: 0x00, refIn: true, refOut: true },
+                'crc16_modbus': { width: 16, poly: 0x8005, init: 0xFFFF, xor: 0x0000, refIn: true, refOut: true },
+                'crc16_ccitt': { width: 16, poly: 0x1021, init: 0x0000, xor: 0x0000, refIn: false, refOut: false },
+                'crc16_ccitt_false': { width: 16, poly: 0x1021, init: 0xFFFF, xor: 0x0000, refIn: false,
+                refOut: false },
+                'crc16_x25': { width: 16, poly: 0x1021, init: 0xFFFF, xor: 0xFFFF, refIn: true, refOut: true },
+                'crc16_kermit': { width: 16, poly: 0x1021, init: 0x0000, xor: 0x0000, refIn: true, refOut: true },
+                'crc32': { width: 32, poly: 0x04C11DB7, init: 0xFFFFFFFF, xor: 0xFFFFFFFF, refIn: true,
+                refOut: true },
+                'crc32_mpeg2': { width: 32, poly: 0x04C11DB7, init: 0xFFFFFFFF, xor: 0x00000000, refIn: false,
+                    refOut: false },
+                'crc64_ecma': { width: 64, poly: 0x42F0E1EBA9EA3693, init: 0x0000000000000000, xor: 0x0000000000000000,
+                    refIn: false, refOut: false }
+            };
+
+            // ============================================================
+            //  CRC 计算核心 (支持 8/16/32/64)
+            // ============================================================
+            function crcCompute(dataBytes, width, poly, init, xorOut, refIn, refOut) {
+                if (!dataBytes || dataBytes.length === 0) return { crc: 0, hex: '0x00' };
+
+                const is64 = width === 64;
+                const is32 = width === 32;
+                const is16 = width === 16;
+                const is8 = width === 8;
+
+                let crc = init;
+                const mask = is64 ? BigInt(0xFFFFFFFFFFFFFFFF) :
+                    is32 ? 0xFFFFFFFF :
+                    is16 ? 0xFFFF :
+                    0xFF;
+                const polyBig = is64 ? BigInt(poly) : poly;
+                const initBig = is64 ? BigInt(init) : init;
+                const xorBig = is64 ? BigInt(xorOut) : xorOut;
+                const widthBig = is64 ? 64 : width;
+
+                const refInBool = refIn === true || refIn === 'true';
+                const refOutBool = refOut === true || refOut === 'true';
+
+                // 使用 BigInt 统一处理
+                let crcBig = is64 ? BigInt(crc) : BigInt(crc);
+                const polyBigInt = is64 ? BigInt(poly) : BigInt(poly);
+                const maskBig = is64 ? (1n << 64n) - 1n :
+                    is32 ? BigInt(0xFFFFFFFF) :
+                    is16 ? BigInt(0xFFFF) :
+                    BigInt(0xFF);
+                const widthBigInt = BigInt(widthBig);
+
+                for (let byte of dataBytes) {
+                    let b = BigInt(byte & 0xFF);
+                    if (refInBool) {
+                        // 按位反转字节
+                        let rev = 0n;
+                        for (let i = 0; i < 8; i++) {
+                            rev = (rev << 1n) | (b & 1n);
+                            b >>= 1n;
+                        }
+                        b = rev;
+                    }
+                    if (is64) {
+                        crcBig ^= (b << 56n);
+                    } else if (is32) {
+                        crcBig ^= (b << 24n);
+                    } else if (is16) {
+                        crcBig ^= (b << 8n);
+                    } else {
+                        crcBig ^= b;
+                    }
+                    for (let i = 0; i < 8; i++) {
+                        if ((crcBig & (1n << BigInt(widthBig - 1))) !== 0n) {
+                            crcBig = ((crcBig << 1n) ^ polyBigInt) & maskBig;
+                        } else {
+                            crcBig = (crcBig << 1n) & maskBig;
+                        }
+                    }
+                }
+
+                let finalCrc = crcBig;
+                if (refOutBool) {
+                    // 按位反转整个 CRC 值
+                    let rev = 0n;
+                    let temp = finalCrc;
+                    for (let i = 0n; i < widthBigInt; i++) {
+                        rev = (rev << 1n) | (temp & 1n);
+                        temp >>= 1n;
+                    }
+                    finalCrc = rev;
+                }
+                finalCrc ^= (is64 ? xorBig : BigInt(xorOut));
+                finalCrc &= maskBig;
+
+                // 转为普通数字或字符串
+                let hexStr;
+                let numVal;
+                if (is64) {
+                    hexStr = '0x' + finalCrc.toString(16).padStart(16, '0').toUpperCase();
+                    numVal = finalCrc.toString(16);
+                } else if (is32) {
+                    hexStr = '0x' + finalCrc.toString(16).padStart(8, '0').toUpperCase();
+                    numVal = Number(finalCrc);
+                } else if (is16) {
+                    hexStr = '0x' + finalCrc.toString(16).padStart(4, '0').toUpperCase();
+                    numVal = Number(finalCrc);
+                } else {
+                    hexStr = '0x' + finalCrc.toString(16).padStart(2, '0').toUpperCase();
+                    numVal = Number(finalCrc);
+                }
+                return { crc: numVal, hex: hexStr, big: finalCrc };
+            }
+
+            // ============================================================
+            //  工具函数
+            // ============================================================
+            function parseHexString(str) {
+                const cleaned = str.replace(/,/g, ' ').replace(/0x/g, '').trim();
+                if (cleaned === '') return [];
+                const parts = cleaned.split(/\s+/);
+                const bytes = [];
+                for (let p of parts) {
+                    if (p === '') continue;
+                    const val = parseInt(p, 16);
+                    if (!isNaN(val) && val >= 0 && val <= 255) bytes.push(val);
+                }
+                return bytes;
+            }
+
+            function stringToBytes(str) {
+                const encoder = new TextEncoder();
+                return Array.from(encoder.encode(str));
+            }
+
+            function formatBytes(bytes, limit) {
+                limit = limit || 32;
+                const slice = bytes.slice(0, limit);
+                const hex = slice.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+                if (bytes.length > limit) return hex + ' ... (' + bytes.length + ' 字节)';
+                return hex + (bytes.length === 0 ? ' (空)' : ' (' + bytes.length + ' 字节)');
+            }
+
+            function getCrcPreset(name) {
+                return CRC_PRESETS[name] || null;
+            }
+
+            function applyPreset(name) {
+                const preset = getCrcPreset(name);
+                if (!preset) return;
+                crcAlgo.value = name;
+                const initHex = '0x' + (preset.init.toString(16).toUpperCase());
+                const xorHex = '0x' + (preset.xor.toString(16).toUpperCase());
+                initVal.value = initHex;
+                xorVal.value = xorHex;
+                refIn.value = preset.refIn ? 'true' : 'false';
+                refOut.value = preset.refOut ? 'true' : 'false';
+                // 触发计算
+                calculateCrc();
+            }
+
+            // ============================================================
+            //  主计算函数
+            // ============================================================
+            function calculateCrc() {
+                const mode = inputMode.value;
+                let raw = dataInput.value;
+                let bytes = [];
+
+                // 检查是否有文件数据
+                if (window._fileBytes && window._fileBytes.length > 0) {
+                    bytes = window._fileBytes;
+                } else if (mode === 'hex') {
+                    bytes = parseHexString(raw);
+                } else {
+                    bytes = stringToBytes(raw);
+                }
+
+                if (bytes.length === 0) {
+                    crcResult.textContent = '—';
+                    crcResultSub.textContent = '无有效数据';
+                    dataPreview.textContent = '(无数据)';
+                    detailLen.textContent = '0';
+                    return;
+                }
+
+                const algoName = crcAlgo.value;
+                const preset = getCrcPreset(algoName);
+                if (!preset) {
+                    crcResult.textContent = '❌';
+                    crcResultSub.textContent = '未知算法';
+                    return;
+                }
+
+                // 解析自定义参数（允许覆盖预设）
+                let initValStr = initVal.value.trim();
+                let xorValStr = xorVal.value.trim();
+                let init = preset.init;
+                let xor = preset.xor;
+                let refInVal = refIn.value === 'true';
+                let refOutVal = refOut.value === 'true';
+                const width = preset.width;
+
+                try {
+                    if (initValStr.startsWith('0x') || initValStr.startsWith('0X')) {
+                        init = parseInt(initValStr, 16);
+                    } else {
+                        init = parseInt(initValStr, 10);
+                    }
+                    if (isNaN(init)) init = preset.init;
+                } catch (e) { init = preset.init; }
+
+                try {
+                    if (xorValStr.startsWith('0x') || xorValStr.startsWith('0X')) {
+                        xor = parseInt(xorValStr, 16);
+                    } else {
+                        xor = parseInt(xorValStr, 10);
+                    }
+                    if (isNaN(xor)) xor = preset.xor;
+                } catch (e) { xor = preset.xor; }
+
+                // 确保 init/xor 在有效范围内
+                const mask = (width === 64) ? BigInt(0xFFFFFFFFFFFFFFFF) :
+                    (width === 32) ? 0xFFFFFFFF :
+                    (width === 16) ? 0xFFFF :
+                    0xFF;
+                if (width === 64) {
+                    init = BigInt(init);
+                    xor = BigInt(xor);
+                } else {
+                    init = init & mask;
+                    xor = xor & mask;
+                }
+
+                const result = crcCompute(bytes, width, preset.poly, init, xor, refInVal, refOutVal);
+
+                // 显示结果
+                crcResult.textContent = result.hex;
+                const decStr = (width === 64) ? result.big.toString(10) : result.crc.toString(10);
+                crcResultSub.textContent = `十进制: ${decStr} · 位数: ${width} bit`;
+
+                // 详情
+                detailAlgo.textContent = algoName;
+                detailLen.textContent = bytes.length + ' 字节';
+                detailInit.textContent = '0x' + (width === 64 ? BigInt(init).toString(16).toUpperCase() : init.toString(16)
+                    .toUpperCase());
+                detailXor.textContent = '0x' + (width === 64 ? BigInt(xor).toString(16).toUpperCase() : xor.toString(16)
+                    .toUpperCase());
+                detailRefIn.textContent = refInVal ? '是' : '否';
+                detailRefOut.textContent = refOutVal ? '是' : '否';
+
+                // 数据预览
+                dataPreview.textContent = formatBytes(bytes, 32);
+
+                // 保存结果用于复制
+                window._lastCrcResult = {
+                    hex: result.hex,
+                    dec: decStr,
+                    algo: algoName,
+                    len: bytes.length,
+                    init: detailInit.textContent,
+                    xor: detailXor.textContent,
+                    refIn: refInVal ? '是' : '否',
+                    refOut: refOutVal ? '是' : '否',
+                    dataPreview: dataPreview.textContent
+                };
+            }
+
+            // ============================================================
+            //  文件处理
+            // ============================================================
+            function loadFile(file) {
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const buffer = e.target.result;
+                    const bytes = new Uint8Array(buffer);
+                    window._fileBytes = Array.from(bytes);
+                    fileInfo.textContent = `${file.name} (${bytes.length} 字节)`;
+                    dataInput.value = '';
+                    inputMode.value = 'hex';
+                    calculateCrc();
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+            function clearFile() {
+                window._fileBytes = null;
+                fileInfo.textContent = '未选择';
+                fileInput.value = '';
+                calculateCrc();
+            }
+
+            // ============================================================
+            //  复制功能
+            // ============================================================
+            function copyText(text, btn) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        const orig = btn.textContent;
+                        btn.textContent = '✓';
+                        setTimeout(() => btn.textContent = orig, 800);
+                    }).catch(() => fallbackCopy(text));
+                } else { fallbackCopy(text); }
+            }
+
+            function fallbackCopy(text) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.left = '-9999px';
+                document.body.appendChild(ta);
+                ta.select();
+                try { document.execCommand('copy'); } catch (e) { alert('复制失败，请手动复制'); }
+                document.body.removeChild(ta);
+            }
+
+            // ============================================================
+            //  事件绑定
+            // ============================================================
+            calcBtn.addEventListener('click', calculateCrc);
+
+            inputMode.addEventListener('change', function() {
+                if (this.value === 'hex') {
+                    dataInput.placeholder = '01 02 03 04 或 0x01 0x02';
+                } else {
+                    dataInput.placeholder = '输入文本 (UTF-8)';
+                }
+                calculateCrc();
+            });
+
+            dataInput.addEventListener('input', function() {
+                // 如果当前有文件数据，清除
+                if (window._fileBytes) {
+                    window._fileBytes = null;
+                    fileInfo.textContent = '未选择';
+                    fileInput.value = '';
+                }
+                calculateCrc();
+            });
+
+            fileInput.addEventListener('change', function(e) {
+                if (this.files && this.files[0]) {
+                    loadFile(this.files[0]);
+                }
+            });
+
+            clearFileBtn.addEventListener('click', clearFile);
+
+            crcAlgo.addEventListener('change', function() {
+                const preset = getCrcPreset(this.value);
+                if (preset) {
+                    const initHex = '0x' + (preset.init.toString(16).toUpperCase());
+                    const xorHex = '0x' + (preset.xor.toString(16).toUpperCase());
+                    initVal.value = initHex;
+                    xorVal.value = xorHex;
+                    refIn.value = preset.refIn ? 'true' : 'false';
+                    refOut.value = preset.refOut ? 'true' : 'false';
+                }
+                calculateCrc();
+            });
+
+            [initVal, xorVal, refIn, refOut].forEach(el => {
+                el.addEventListener('change', calculateCrc);
+                el.addEventListener('input', calculateCrc);
+            });
+
+            resetAlgoBtn.addEventListener('click', function() {
+                const preset = getCrcPreset(crcAlgo.value);
+                if (preset) {
+                    const initHex = '0x' + (preset.init.toString(16).toUpperCase());
+                    const xorHex = '0x' + (preset.xor.toString(16).toUpperCase());
+                    initVal.value = initHex;
+                    xorVal.value = xorHex;
+                    refIn.value = preset.refIn ? 'true' : 'false';
+                    refOut.value = preset.refOut ? 'true' : 'false';
+                    calculateCrc();
+                }
+            });
+
+            copyResultBtn.addEventListener('click', function() {
+                const val = crcResult.textContent;
+                if (val && val !== '—') {
+                    copyText(val, this);
+                } else {
+                    alert('请先计算 CRC');
+                }
+            });
+
+            copyFullBtn.addEventListener('click', function() {
+                const result = window._lastCrcResult;
+                if (!result) { alert('请先计算 CRC'); return; }
+                const lines = [
+                    `CRC 校验结果`,
+                    `算法: ${result.algo}`,
+                    `CRC: ${result.hex}`,
+                    `十进制: ${result.dec}`,
+                    `数据长度: ${result.len} 字节`,
+                    `初始值: ${result.init}`,
+                    `异或值: ${result.xor}`,
+                    `输入反转: ${result.refIn}`,
+                    `输出反转: ${result.refOut}`,
+                    `数据预览: ${result.dataPreview}`
+                ];
+                copyText(lines.join('\n'), this);
+            });
+
+            // 预设按钮
+            presetContainer.addEventListener('click', function(e) {
+                const target = e.target.closest('button');
+                if (target && target.dataset.preset) {
+                    applyPreset(target.dataset.preset);
+                }
+            });
+
+            // ============================================================
+            //  初始化
+            // ============================================================
+            // 设置默认算法为 CRC-16/Modbus
+            crcAlgo.value = 'crc16_modbus';
+            const defaultPreset = getCrcPreset('crc16_modbus');
+            if (defaultPreset) {
+                initVal.value = '0xFFFF';
+                xorVal.value = '0x0000';
+                refIn.value = 'true';
+                refOut.value = 'true';
+            }
+            dataInput.value = '01 02 03 04';
+            calculateCrc();
+
+            // 提供一些示例数据以便测试
+            window._fileBytes = null;
+        })();
+    </script>
+</body>
+</html>

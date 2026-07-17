@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>串口调试助手 · 多曲线</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>">
     <script>
         const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
@@ -45,7 +45,6 @@
             --accent-blue: #818cf8;
             --accent-blue-hover: #6366f1;
             --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
-            --curve-colors: #818cf8, #f472b6, #34d399, #fbbf24, #f87171, #60a5fa, #a78bfa, #fb923c;
         }
         [data-theme="dark"] {
             --bg-body: #1e1e1e;
@@ -82,9 +81,11 @@
             --accent-blue: #7a9eff;
             --accent-blue-hover: #5a7fff;
             --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
-            --curve-colors: #7a9eff, #f472b6, #34d399, #fbbf24, #f87171, #60a5fa, #a78bfa, #fb923c;
         }
-        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
         body {
             background: var(--bg-body);
             min-height: 100vh;
@@ -96,9 +97,17 @@
             transition: background 0.25s, color 0.25s;
             color: var(--text-primary);
         }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--scrollbar-track);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--scrollbar-thumb);
+            border-radius: 4px;
+        }
         .container {
             max-width: 1400px;
             width: 100%;
@@ -106,7 +115,6 @@
             padding: 28px 32px 36px;
             transition: background 0.25s;
         }
-
         .navbar {
             width: 100%;
             background: var(--bg-container);
@@ -139,7 +147,8 @@
             background-clip: text;
         }
         .navbar-brand .brand-icon {
-            width: 36px; height: 36px;
+            width: 36px;
+            height: 36px;
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -149,12 +158,17 @@
             background: var(--hero-gradient);
         }
         .navbar-brand .brand-icon img {
-            width: 100%; height: 100%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
             border-radius: 10px;
             display: block;
         }
-        .navbar-right { display: flex; align-items: center; gap: 12px; }
+        .navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
         .theme-toggle {
             display: flex;
             align-items: center;
@@ -169,9 +183,12 @@
             font-size: 0.85rem;
             color: var(--text-secondary);
         }
-        .theme-toggle:hover { border-color: var(--border-focus); }
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+        }
         .theme-toggle .toggle-track {
-            width: 44px; height: 24px;
+            width: 44px;
+            height: 24px;
             background: var(--border-input);
             border-radius: 40px;
             position: relative;
@@ -179,18 +196,27 @@
             flex-shrink: 0;
         }
         .theme-toggle .toggle-thumb {
-            width: 18px; height: 18px;
+            width: 18px;
+            height: 18px;
             background: white;
             border-radius: 50%;
             position: absolute;
-            top: 3px; left: 3px;
+            top: 3px;
+            left: 3px;
             transition: transform 0.3s, background 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
         }
-        [data-theme="dark"] .theme-toggle .toggle-track { background: var(--accent-blue); }
-        [data-theme="dark"] .theme-toggle .toggle-thumb { transform: translateX(20px); background: #e6e6e6; }
-        .theme-toggle .theme-icon { font-size: 1.1rem; line-height: 1; }
-
+        [data-theme="dark"] .theme-toggle .toggle-track {
+            background: var(--accent-blue);
+        }
+        [data-theme="dark"] .theme-toggle .toggle-thumb {
+            transform: translateX(20px);
+            background: #e6e6e6;
+        }
+        .theme-toggle .theme-icon {
+            font-size: 1.1rem;
+            line-height: 1;
+        }
         .page-title {
             font-size: 1.8rem;
             font-weight: 600;
@@ -213,14 +239,16 @@
             line-height: 1.6;
             transition: background 0.25s, color 0.25s;
         }
-
         .grid-2col {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 18px;
         }
-        @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
-
+        @media (max-width: 900px) {
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
         .panel {
             background: var(--bg-panel);
             border-radius: 18px;
@@ -228,8 +256,13 @@
             border: 1px solid transparent;
             transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
         }
-        .panel:hover { border-color: var(--accent-blue); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
-        .panel-accent { background: var(--bg-panel-accent); }
+        .panel:hover {
+            border-color: var(--accent-blue);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        .panel-accent {
+            background: var(--bg-panel-accent);
+        }
         .panel-title {
             font-weight: 600;
             color: var(--text-secondary);
@@ -242,9 +275,16 @@
             flex-wrap: wrap;
             transition: color 0.25s;
         }
-        .panel-title small { font-weight: 400; font-size: 0.65rem; color: var(--text-light); }
-
-        .input-group { display: flex; flex-direction: column; gap: 12px; }
+        .panel-title small {
+            font-weight: 400;
+            font-size: 0.65rem;
+            color: var(--text-light);
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
         .input-row {
             display: flex;
             flex-wrap: wrap;
@@ -258,7 +298,8 @@
             font-size: 0.78rem;
             transition: color 0.25s;
         }
-        .input-row input, .input-row select {
+        .input-row input,
+        .input-row select {
             flex: 1;
             min-width: 60px;
             padding: 6px 12px;
@@ -271,20 +312,32 @@
             transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s;
             outline: none;
         }
-        .input-row input:focus, .input-row select:focus {
+        .input-row input:focus,
+        .input-row select:focus {
             border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(122,158,255,0.12);
+            box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
         }
-        .input-row select { flex: 0.6; min-width: 80px; cursor: pointer; }
+        .input-row select {
+            flex: 0.6;
+            min-width: 80px;
+            cursor: pointer;
+        }
         .input-row input:disabled {
             background: var(--bg-input-readonly);
             color: var(--text-light);
             cursor: not-allowed;
             opacity: 0.5;
         }
-        .unit { font-size: 0.7rem; color: var(--text-muted); min-width: 20px; }
-        .hint-text { font-size: 0.62rem; color: var(--text-light); font-style: italic; }
-
+        .unit {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            min-width: 20px;
+        }
+        .hint-text {
+            font-size: 0.62rem;
+            color: var(--text-light);
+            font-style: italic;
+        }
         .btn {
             background: var(--btn-primary);
             color: white;
@@ -300,15 +353,26 @@
             gap: 4px;
             white-space: nowrap;
         }
-        .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+        .btn:hover {
+            background: var(--btn-primary-hover);
+            transform: scale(0.97);
+        }
         .btn-outline {
             background: transparent;
             color: var(--text-secondary);
             border: 1px solid var(--btn-outline-border);
         }
-        .btn-outline:hover { background: var(--btn-outline-hover-bg); border-color: var(--border-focus); }
-        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; align-items: center; }
-
+        .btn-outline:hover {
+            background: var(--btn-outline-hover-bg);
+            border-color: var(--border-focus);
+        }
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+            align-items: center;
+        }
         .tag {
             background: var(--bg-tag);
             padding: 2px 10px;
@@ -328,9 +392,20 @@
             font-weight: 600;
             transition: background 0.25s, color 0.25s;
         }
-        .status-ok { color: var(--status-ok-text); background: var(--status-ok-bg); padding: 2px 12px; border-radius: 40px; font-size: 0.65rem; }
-        .error-msg { color: var(--status-error-text); background: var(--status-error-bg); padding: 2px 12px; border-radius: 40px; font-size: 0.65rem; }
-
+        .status-ok {
+            color: var(--status-ok-text);
+            background: var(--status-ok-bg);
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+        }
+        .error-msg {
+            color: var(--status-error-text);
+            background: var(--status-error-bg);
+            padding: 2px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+        }
         .code-output {
             background: var(--bg-code);
             color: var(--text-code);
@@ -345,8 +420,25 @@
             word-break: break-all;
             margin-top: 4px;
             transition: background 0.25s, color 0.25s;
+            line-height: 1.6;
         }
-
+        .rx-entry {
+            border-bottom: 1px solid var(--border-light);
+            padding: 3px 0;
+        }
+        .rx-entry .time {
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            margin-right: 8px;
+        }
+        .rx-entry .hex-part {
+            color: var(--text-muted);
+            font-size: 0.65rem;
+        }
+        .rx-entry .text-part {
+            color: var(--text-code);
+            font-weight: 500;
+        }
         .chart-container {
             width: 100%;
             height: 300px;
@@ -361,7 +453,9 @@
             cursor: grab;
             touch-action: none;
         }
-        .chart-container:active { cursor: grabbing; }
+        .chart-container:active {
+            cursor: grabbing;
+        }
         #chartCanvas {
             width: 100%;
             height: 100%;
@@ -371,9 +465,16 @@
             transition: background 0.25s;
             touch-action: none;
         }
-
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
-        .mt-8 { margin-top: 8px; }
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
         .footer-note {
             margin-top: 24px;
             color: var(--text-light);
@@ -411,10 +512,22 @@
             padding: 2px 4px;
             font-family: 'SF Mono', 'Fira Code', monospace;
         }
-        .cmd-item .cmd-btn:hover { color: var(--accent-blue); }
-        .cmd-del { cursor: pointer; color: var(--text-light); font-size: 0.65rem; padding: 0 4px; }
-        .cmd-del:hover { color: var(--status-error-text); }
-        #customCmdInput { flex: 1; min-width: 120px; }
+        .cmd-item .cmd-btn:hover {
+            color: var(--accent-blue);
+        }
+        .cmd-del {
+            cursor: pointer;
+            color: var(--text-light);
+            font-size: 0.65rem;
+            padding: 0 4px;
+        }
+        .cmd-del:hover {
+            color: var(--status-error-text);
+        }
+        #customCmdInput {
+            flex: 1;
+            min-width: 120px;
+        }
         .zoom-hint {
             position: absolute;
             bottom: 8px;
@@ -439,30 +552,18 @@
             opacity: 0;
             transition: opacity 0.15s;
             border: 1px solid var(--border-focus);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             z-index: 10;
             white-space: nowrap;
         }
-        .tooltip-float.visible { opacity: 1; }
+        .tooltip-float.visible {
+            opacity: 1;
+        }
         .parse-rule-input {
             flex: 1.5;
             min-width: 120px;
             font-family: 'SF Mono', 'Fira Code', monospace;
             font-size: 0.75rem;
-        }
-        .curve-config {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            align-items: center;
-        }
-        .curve-config label {
-            min-width: auto;
-            font-size: 0.7rem;
-        }
-        .curve-config select {
-            flex: 0.3;
-            min-width: 60px;
         }
         .color-dot {
             display: inline-block;
@@ -486,11 +587,65 @@
             color: var(--text-muted);
             min-width: 30px;
         }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            margin: 0;
+            cursor: pointer;
+        }
+        .parse-info {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            padding: 2px 8px;
+            background: var(--bg-tag);
+            border-radius: 10px;
+            display: inline-block;
+        }
+        .debug-info {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            padding: 2px 6px;
+            background: var(--bg-badge);
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .frame-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .frame-indicator.active {
+            background: #34d399;
+        }
+        .frame-indicator.idle {
+            background: var(--text-light);
+        }
+        .test-btn {
+            background: #34d399;
+            color: #0f172a;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .test-btn:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
 
-    <!-- ===== 导航栏 ===== -->
     <nav class="navbar">
         <div class="navbar-inner">
             <a class="navbar-brand" href="../index.html">
@@ -510,969 +665,1260 @@
         </div>
     </nav>
 
-<div class="container">
-    <div class="page-title">📡 串口调试助手</div>
-    <div class="subhead">🔹 可自定义波特率 · 实时数据曲线 · 悬浮显示数据点</div>
+    <div class="container">
+        <div class="page-title">🔗 串口调试助手</div>
+        <div class="subhead">🔹 可自定义波特率 · 实时数据曲线
+        </div>
 
-    <div class="grid-2col">
-        <!-- 左：串口控制 + 收发 -->
-        <div class="panel panel-accent">
-            <div class="panel-title">① 串口控制 <small>连接 / 参数</small></div>
-            <div class="input-group">
-                <div class="input-row">
-                    <label>波 特 率:</label>
-                    <select id="baudRate">
-                        <option value="9600">9600</option>
-                        <option value="115200" selected>115200</option>
-                        <option value="230400">230400</option>
-                        <option value="460800">460800</option>
-                        <option value="921600">921600</option>
-                        <option value="custom">自定义</option>
-                    </select>
-                    <input type="number" id="customBaud" value="250000" placeholder="自定义" style="flex:0.5;min-width:80px;display:none;">
-                    <span class="hint-text">bps</span>
+        <div class="grid-2col">
+            <div class="panel panel-accent">
+                <div class="panel-title">① 串口控制 <small>连接 / 参数</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>波 特 率:</label>
+                        <select id="baudRate">
+                            <option value="9600">9600</option>
+                            <option value="115200" selected>115200</option>
+                            <option value="230400">230400</option>
+                            <option value="460800">460800</option>
+                            <option value="921600">921600</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                        <input type="number" id="customBaud" value="250000" placeholder="自定义" style="flex:0.5;min-width:80px;display:none;">
+                        <span class="hint-text">bps</span>
+                    </div>
+                    <div class="input-row">
+                        <label>数 据 位:</label>
+                        <select id="dataBits"><option value="8" selected>8</option><option value="7">7</option></select>
+                        <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;停止位:</label>
+                        <select id="stopBits"><option value="1" selected>1</option><option value="2">2</option></select>
+                        <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;校 验:</label>
+                        <select id="parity"><option value="none" selected>无</option><option value="even">偶</option><option value="odd">奇</option></select>
+                    </div>
+                    <div class="input-row">
+                        <label>分包超时</label>
+                        <input type="number" id="packetTimeout" value="50" min="1" max="5000" style="flex:0.3;">
+                        <span class="hint-number">ms</span>
+                        <span class="hint-text">无结束符时自动分包</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="connectBtn">🔗 连接</button>
+                        <button class="btn btn-outline" id="disconnectBtn" disabled>⛔ 断开</button>
+                        <button class="btn btn-outline" id="clearRxBtn">🧹 清空</button>
+                    </div>
+                    <div id="connStatus" style="font-size:0.7rem;color:var(--text-muted);">● 未连接</div>
                 </div>
-                <div class="input-row">
-                    <label>数 据 位:</label>
-                    <select id="dataBits"><option value="8" selected>8</option><option value="7">7</option></select>
-                    <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;停止位:</label>
-                    <select id="stopBits"><option value="1" selected>1</option><option value="2">2</option></select>
-                    <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;校 验:</label>
-                    <select id="parity"><option value="none" selected>无</option><option value="even">偶</option><option value="odd">奇</option></select>
+
+                <div class="panel-title" style="margin-top:16px;">② 数据收发</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>发送</label>
+                        <input type="text" id="sendInput" placeholder="输入文本或 HEX (如 A0 01 FF)" style="flex:2;">
+                        <select id="sendMode" style="flex:0.3;">
+                            <option value="ascii">UTF-8</option>
+                            <option value="hex">HEX</option>
+                        </select>
+                        <button class="btn btn-outline" id="sendBtn">📤 发送</button>
+                    </div>
+                    <div class="input-row">
+                        <label>接收</label>
+                        <select id="receiveMode" style="flex:0.35;">
+                            <option value="dual" selected>HEX + UTF-8</option>
+                            <option value="hex">HEX</option>
+                            <option value="ascii">UTF-8</option>
+                        </select>
+                        <span class="checkbox-group">
+                            <input type="checkbox" id="showTimestamp" checked>
+                            <label for="showTimestamp" style="min-width:auto;font-size:0.65rem;cursor:pointer;">时间戳</label>
+                        </span>
+                        <span class="tag" id="rxCount">0 字节</span>
+                        <button class="btn btn-outline" id="clearRxBtn2">清空</button>
+                    </div>
+                    <div class="code-output" id="rxDisplay">(已清空)</div>
                 </div>
-                <div class="input-row">
-                    <label>分包时间</label>
-                    <input type="number" id="packetTimeout" value="50" min="1" max="5000" style="flex:0.3;">
-                    <span class="hint-number">ms</span>
-                    <span class="hint-text">接收数据包间隔</span>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-outline" id="connectBtn">🔗 连接</button>
-                    <button class="btn btn-outline" id="disconnectBtn" disabled>⛔ 断开</button>
-                    <button class="btn btn-outline" id="clearRxBtn">🧹 清空</button>
-                </div>
-                <div id="connStatus" style="font-size:0.7rem;color:var(--text-muted);">● 未连接</div>
             </div>
 
-            <div class="panel-title" style="margin-top:16px;">② 数据收发</div>
-            <div class="input-group">
-                <div class="input-row">
-                    <label>发送</label>
-                    <input type="text" id="sendInput" placeholder="输入文本或 HEX (如 A0 01 FF)" style="flex:2;">
-                    <select id="sendMode" style="flex:0.3;">
-                        <option value="ascii">ASCII</option>
-                        <option value="hex">HEX</option>
-                    </select>
-                    <button class="btn btn-outline" id="sendBtn">📤 发送</button>
+            <div class="panel panel-accent">
+                <div class="panel-title">③ 多曲线绘制 <small>每帧提取多个数值，分别对应各曲线</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>解析正则</label>
+                        <input type="text" id="parseRule" class="parse-rule-input" value="(\d+\.?\d*)\s*[,，]\s*(\d+\.?\d*)" style="flex:2;">
+                        <span class="hint-text">正则匹配，默认,号和空格也可</span>
+                    </div>
+                    <div class="input-row">
+                        <label>最大曲线数</label>
+                        <select id="curveCount">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3" selected>3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+                        <label style="min-width:30px;">颜色</label>
+                        <span id="colorPreview" style="display:flex;gap:4px;flex-wrap:wrap;"></span>
+                    </div>
+                    <div class="input-row">
+                        <label>帧结束符</label>
+                        <select id="frameEnd">
+                            <option value="\r\n">CRLF (\\r\\n)</option>
+                            <option value="\n" selected>LF (\\n)</option>
+                            <option value="\r">CR (\\r)</option>
+                        </select>
+                        <span class="hint-text">收到此字符表示一帧结束</span>
+                        <span class="frame-indicator idle" id="frameIndicator"></span>
+                    </div>
+                    <div class="input-row">
+                        <label>刷新</label>
+                        <select id="chartUpdateMode">
+                            <option value="auto" selected>每帧更新</option>
+                            <option value="batch">批量 (100ms)</option>
+                        </select>
+                        <span class="hint-text">曲线更新策略</span>
+                    </div>
+                    <div class="input-row">
+                        <label>最大点数</label>
+                        <input type="number" id="maxPoints" value="200" min="10" max="1000" style="flex:0.5;">
+                        <button class="btn btn-outline" id="clearChartBtn">🧹 清空曲线</button>
+                        <button class="btn btn-outline" id="resetViewBtn">⟲ 重置视图</button>
+                    </div>
+                    <div class="chart-container" id="chartContainer">
+                        <canvas id="chartCanvas"></canvas>
+                        <div class="tooltip-float" id="tooltipFloat"></div>
+                        <span class="zoom-hint">🖱 滚轮缩放 · 拖拽平移 · 悬停高亮</span>
+                    </div>
+                    <div class="flex-between">
+                        <span class="range-badge" id="chartInfo">点数: 0</span>
+                        <span class="tag" id="lastValueTag">最后值: —</span>
+                        <span class="tag" id="zoomInfo">缩放: 1.0x</span>
+                        <span class="parse-info" id="parseInfo">解析: 0 个值/帧</span>
+                        <span class="debug-info" id="debugInfo">帧: 0</span>
+                    </div>
                 </div>
-                <div class="input-row">
-                    <label>接收</label>
-                    <select id="receiveMode" style="flex:0.3;">
-                        <option value="ascii">ASCII</option>
-                        <option value="hex">HEX</option>
-                    </select>
-                    <span class="tag" id="rxCount">0 字节</span>
-                    <button class="btn btn-outline" id="clearRxBtn2">清空</button>
-                </div>
-                <div class="code-output" id="rxDisplay">等待数据...</div>
             </div>
         </div>
 
-        <!-- 右：曲线 + 绘图控制 -->
-        <div class="panel panel-accent">
-            <div class="panel-title">③ 多曲线绘制 <small>自定义解析 · 1~8条</small></div>
-            <div class="input-group">
-                <div class="input-row">
-                    <label>解析格式</label>
-                    <input type="text" id="parseRule" placeholder="例如: data: {val},data1:{val}" class="parse-rule-input" value="{val} {val}" style="flex:2;">
-                    <span class="hint-text">用 {val} 表示数值位置</span>
-                </div>
-                <div class="input-row">
-                    <label>曲线数量</label>
-                    <select id="curveCount">
-                        <option value="1">1</option>
-                        <option value="2" selected>2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                        <option value="6">6</option>
-                        <option value="7">7</option>
-                        <option value="8">8</option>
-                    </select>
-                    <label style="min-width:30px;">颜色</label>
-                    <span id="colorPreview" style="display:flex;gap:4px;flex-wrap:wrap;"></span>
-                </div>
-                <div class="input-row">
-                    <label>刷新</label>
-                    <select id="chartUpdateMode">
-                        <option value="auto">每帧更新</option>
-                        <option value="batch">批量 (100ms)</option>
-                    </select>
-                    <span class="hint-text">曲线更新策略</span>
-                </div>
-                <div class="input-row">
-                    <label>最大点数</label>
-                    <input type="number" id="maxPoints" value="200" min="10" max="1000" style="flex:0.5;">
-                    <button class="btn btn-outline" id="clearChartBtn">🧹 清空曲线</button>
-                    <button class="btn btn-outline" id="resetViewBtn">⟲ 重置视图</button>
-                </div>
-                <div class="chart-container" id="chartContainer">
-                    <canvas id="chartCanvas"></canvas>
-                    <div class="tooltip-float" id="tooltipFloat"></div>
-                    <span class="zoom-hint">🖱 滚轮缩放 · 拖拽平移 · 悬停高亮</span>
-                </div>
-                <div class="flex-between">
-                    <span class="range-badge" id="chartInfo">点数: 0</span>
-                    <span class="tag" id="lastValueTag">最后值: —</span>
-                    <span class="tag" id="zoomInfo">缩放: 1.0x</span>
-                </div>
+        <div class="panel" style="margin-top:18px;">
+            <div class="panel-title">
+                📋 快捷指令 <small>点击发送 · 支持注释</small>
+                <span class="cmd-io-group">
+                    <button class="btn btn-outline" id="exportCmdsBtn">📤 导出 JSON</button>
+                    <button class="btn btn-outline" id="importCmdsBtn">📥 导入 JSON</button>
+                    <input type="file" id="importCmdsInput" accept=".json" style="display:none;">
+                </span>
             </div>
+            <div class="btn-group" id="cmdContainer"></div>
+            <div class="input-row" style="margin-top:8px;flex-wrap:wrap;">
+                <label style="min-width:60px;">添加指令</label>
+                <input type="text" id="customCmdInput" placeholder="命令内容 (如 AA 55 01)" style="flex:1;min-width:100px;">
+                <input type="text" id="customCmdComment" placeholder="注释 (如 启动)" style="flex:0.6;min-width:80px;">
+                <button class="btn btn-outline" id="addCmdBtn">➕ 添加</button>
+                <button class="btn btn-outline" id="resetCmdBtn">↺ 恢复默认</button>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            🔗 串口调试助手 · 正则匹配解析 · 支持曲线显示<br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
         </div>
     </div>
 
-    <!-- 快捷指令 -->
-    <div class="panel" style="margin-top:18px;">
-        <div class="panel-title">
-            📋 快捷指令 <small>点击发送 · 支持注释</small>
-            <span class="cmd-io-group">
-                <button class="btn btn-outline" id="exportCmdsBtn">📤 导出 JSON</button>
-                <button class="btn btn-outline" id="importCmdsBtn">📥 导入 JSON</button>
-                <input type="file" id="importCmdsInput" accept=".json" style="display:none;">
-            </span>
-        </div>
-        <div class="btn-group" id="cmdContainer"></div>
-        <div class="input-row" style="margin-top:8px;flex-wrap:wrap;">
-            <label style="min-width:60px;">添加指令</label>
-            <input type="text" id="customCmdInput" placeholder="命令内容 (如 AA 55 01)" style="flex:1;min-width:100px;">
-            <input type="text" id="customCmdComment" placeholder="注释 (如 启动)" style="flex:0.6;min-width:80px;">
-            <button class="btn btn-outline" id="addCmdBtn">➕ 添加</button>
-            <button class="btn btn-outline" id="resetCmdBtn">↺ 恢复默认</button>
-        </div>
-    </div>
+    <script>
+        (function() {
+            // ===== 主题切换 =====
+            const themeToggle = document.getElementById('themeToggle');
+            const themeIcon = document.getElementById('themeIcon');
 
-    <div class="footer-note">
-        📡 串口调试助手 · 自定义解析 · 多曲线 (1~8条) · 悬停高亮 · 指令注释 · 分包时间<br>
-        © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
-    </div>
-</div>
-
-<script>
-    (function(){
-        // ===== 主题切换 =====
-        const themeToggle = document.getElementById('themeToggle');
-        const themeIcon = document.getElementById('themeIcon');
-        
-        // 定义切换主题的函数
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            // 应用主题
-            document.documentElement.setAttribute('data-theme', newTheme);
-            themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
-            localStorage.setItem('toolbox-theme', newTheme);
-            
-            // 刷新UI
-            updateColorPreview();
-            drawChart();
-            
-            console.log('Theme switched to:', newTheme); // 调试日志
-        }
-        
-        // 绑定点击事件
-        themeToggle.addEventListener('click', toggleTheme);
-        
-        // 初始化主题图标
-        const initTheme = localStorage.getItem('toolbox-theme') || 'light';
-        themeIcon.textContent = initTheme === 'dark' ? '🌙' : '☀️';
-
-        // ===== DOM =====
-        const baudSelect = document.getElementById('baudRate');
-        const customBaud = document.getElementById('customBaud');
-        const connectBtn = document.getElementById('connectBtn');
-        const disconnectBtn = document.getElementById('disconnectBtn');
-        const clearRxBtn = document.getElementById('clearRxBtn');
-        const clearRxBtn2 = document.getElementById('clearRxBtn2');
-        const connStatus = document.getElementById('connStatus');
-        const sendInput = document.getElementById('sendInput');
-        const sendMode = document.getElementById('sendMode');
-        const sendBtn = document.getElementById('sendBtn');
-        const receiveMode = document.getElementById('receiveMode');
-        const rxDisplay = document.getElementById('rxDisplay');
-        const rxCount = document.getElementById('rxCount');
-        const parseRule = document.getElementById('parseRule');
-        const curveCount = document.getElementById('curveCount');
-        const chartUpdateMode = document.getElementById('chartUpdateMode');
-        const maxPoints = document.getElementById('maxPoints');
-        const clearChartBtn = document.getElementById('clearChartBtn');
-        const resetViewBtn = document.getElementById('resetViewBtn');
-        const chartCanvas = document.getElementById('chartCanvas');
-        const chartContainer = document.getElementById('chartContainer');
-        const tooltipFloat = document.getElementById('tooltipFloat');
-        const chartInfo = document.getElementById('chartInfo');
-        const lastValueTag = document.getElementById('lastValueTag');
-        const zoomInfo = document.getElementById('zoomInfo');
-        const colorPreview = document.getElementById('colorPreview');
-        const cmdContainer = document.getElementById('cmdContainer');
-        const customCmdInput = document.getElementById('customCmdInput');
-        const customCmdComment = document.getElementById('customCmdComment');
-        const addCmdBtn = document.getElementById('addCmdBtn');
-        const resetCmdBtn = document.getElementById('resetCmdBtn');
-        const exportCmdsBtn = document.getElementById('exportCmdsBtn');
-        const importCmdsBtn = document.getElementById('importCmdsBtn');
-        const importCmdsInput = document.getElementById('importCmdsInput');
-        const packetTimeout = document.getElementById('packetTimeout');
-
-        // ===== 曲线颜色 =====
-        const CURVE_COLORS = ['#818cf8','#f472b6','#34d399','#fbbf24','#f87171','#60a5fa','#a78bfa','#fb923c'];
-        const DARK_CURVE_COLORS = ['#7a9eff','#f472b6','#34d399','#fbbf24','#f87171','#60a5fa','#a78bfa','#fb923c'];
-
-        function getCurveColors() {
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            return isDark ? DARK_CURVE_COLORS : CURVE_COLORS;
-        }
-
-        function updateColorPreview() {
-            const count = parseInt(curveCount.value, 10);
-            const colors = getCurveColors();
-            colorPreview.innerHTML = '';
-            for (let i=0; i<count; i++) {
-                const dot = document.createElement('span');
-                dot.className = 'color-dot';
-                dot.style.background = colors[i % colors.length];
-                colorPreview.appendChild(dot);
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                themeIcon.textContent = newTheme === 'dark' ? '🌙' : '☀️';
+                localStorage.setItem('toolbox-theme', newTheme);
+                updateColorPreview();
+                drawChart();
             }
-        }
-        curveCount.addEventListener('change', updateColorPreview);
+            themeToggle.addEventListener('click', toggleTheme);
+            const initTheme = localStorage.getItem('toolbox-theme') || 'light';
+            themeIcon.textContent = initTheme === 'dark' ? '🌙' : '☀️';
 
-        // ===== 状态 =====
-        let isConnected = false;
-        let port = null;
-        let reader = null;
-        let writer = null;
-        let rxBuffer = [];
-        let chartDataList = [];
-        let batchTimer = null;
-        let lastValues = [];
-        let packetTimer = null;
-        let pendingData = '';
+            // ===== DOM =====
+            const baudSelect = document.getElementById('baudRate');
+            const customBaud = document.getElementById('customBaud');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const clearRxBtn = document.getElementById('clearRxBtn');
+            const clearRxBtn2 = document.getElementById('clearRxBtn2');
+            const connStatus = document.getElementById('connStatus');
+            const sendInput = document.getElementById('sendInput');
+            const sendMode = document.getElementById('sendMode');
+            const sendBtn = document.getElementById('sendBtn');
+            const receiveMode = document.getElementById('receiveMode');
+            const showTimestamp = document.getElementById('showTimestamp');
+            const rxDisplay = document.getElementById('rxDisplay');
+            const rxCount = document.getElementById('rxCount');
+            const parseRule = document.getElementById('parseRule');
+            const curveCount = document.getElementById('curveCount');
+            const chartUpdateMode = document.getElementById('chartUpdateMode');
+            const maxPoints = document.getElementById('maxPoints');
+            const clearChartBtn = document.getElementById('clearChartBtn');
+            const resetViewBtn = document.getElementById('resetViewBtn');
+            const chartCanvas = document.getElementById('chartCanvas');
+            const chartContainer = document.getElementById('chartContainer');
+            const tooltipFloat = document.getElementById('tooltipFloat');
+            const chartInfo = document.getElementById('chartInfo');
+            const lastValueTag = document.getElementById('lastValueTag');
+            const zoomInfo = document.getElementById('zoomInfo');
+            const parseInfo = document.getElementById('parseInfo');
+            const debugInfo = document.getElementById('debugInfo');
+            const colorPreview = document.getElementById('colorPreview');
+            const cmdContainer = document.getElementById('cmdContainer');
+            const customCmdInput = document.getElementById('customCmdInput');
+            const customCmdComment = document.getElementById('customCmdComment');
+            const addCmdBtn = document.getElementById('addCmdBtn');
+            const resetCmdBtn = document.getElementById('resetCmdBtn');
+            const exportCmdsBtn = document.getElementById('exportCmdsBtn');
+            const importCmdsBtn = document.getElementById('importCmdsBtn');
+            const importCmdsInput = document.getElementById('importCmdsInput');
+            const packetTimeout = document.getElementById('packetTimeout');
+            const frameEnd = document.getElementById('frameEnd');
+            const frameIndicator = document.getElementById('frameIndicator');
 
-        function initChartData(count) {
-            chartDataList = [];
-            for (let i=0; i<count; i++) chartDataList.push([]);
-            lastValues = new Array(count).fill(null);
-        }
-        const initialCount = parseInt(curveCount.value, 10);
-        initChartData(initialCount);
+            // ===== 曲线颜色 =====
+            const CURVE_COLORS = ['#818cf8', '#f472b6', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#fb923c'];
+            const DARK_CURVE_COLORS = ['#7a9eff', '#f472b6', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#fb923c'];
 
-        // ===== 曲线缩放/平移状态 =====
-        let viewState = {
-            offsetX: 0,
-            offsetY: 0,
-            scaleX: 1.0,
-            scaleY: 1.0
-        };
-        let isDragging = false;
-        let dragStartX = 0, dragStartY = 0;
-        let dragStartOffsetX = 0, dragStartOffsetY = 0;
+            function getCurveColors() {
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                return isDark ? DARK_CURVE_COLORS : CURVE_COLORS;
+            }
 
-        // ===== 快捷指令管理 (带注释) =====
-        const DEFAULT_CMDS = [
-            { cmd: 'AA 55 01', comment: '启动' },
-            { cmd: '55 AA 02', comment: '停止' },
-            { cmd: 'FF 00 FF', comment: '复位' },
-            { cmd: 'AT\r\n', comment: 'AT测试' },
-            { cmd: '+++', comment: '退出' },
-            { cmd: 'A0 01 02 03', comment: '配置' }
-        ];
-        let cmdList = [...DEFAULT_CMDS];
-
-        function saveCmds() {
-            try { localStorage.setItem('serial_cmds2', JSON.stringify(cmdList)); } catch(e) {}
-        }
-        function loadCmds() {
-            try {
-                const saved = localStorage.getItem('serial_cmds2');
-                if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed) && parsed.length) cmdList = parsed; }
-            } catch(e) {}
-        }
-        loadCmds();
-
-        function renderCmds() {
-            cmdContainer.innerHTML = '';
-            cmdList.forEach(item => {
-                const cmd = typeof item === 'string' ? item : item.cmd;
-                const comment = typeof item === 'string' ? '' : (item.comment || '');
-                const wrapper = document.createElement('span');
-                wrapper.className = 'cmd-item';
-                const btn = document.createElement('button');
-                btn.className = 'cmd-btn';
-                btn.textContent = cmd;
-                btn.title = comment || cmd;
-                btn.addEventListener('click', ()=>{
-                    sendInput.value = cmd;
-                    sendData();
-                });
-                wrapper.appendChild(btn);
-                if (comment) {
-                    const label = document.createElement('span');
-                    label.className = 'cmd-label';
-                    label.textContent = comment;
-                    label.title = comment;
-                    wrapper.appendChild(label);
+            function updateColorPreview() {
+                const maxCurves = parseInt(curveCount.value, 10);
+                const colors = getCurveColors();
+                colorPreview.innerHTML = '';
+                for (let i = 0; i < maxCurves; i++) {
+                    const dot = document.createElement('span');
+                    dot.className = 'color-dot';
+                    dot.style.background = colors[i % colors.length];
+                    colorPreview.appendChild(dot);
                 }
-                const del = document.createElement('span');
-                del.className = 'cmd-del';
-                del.textContent = '✕';
-                del.title = '删除此指令';
-                del.addEventListener('click', (e)=>{
-                    e.stopPropagation();
-                    cmdList = cmdList.filter(c => (typeof c === 'string' ? c : c.cmd) !== cmd);
-                    renderCmds();
-                    saveCmds();
-                });
-                wrapper.appendChild(del);
-                cmdContainer.appendChild(wrapper);
-            });
-            if (cmdList.length === 0) {
-                const empty = document.createElement('span');
-                empty.className = 'hint-text';
-                empty.textContent = '暂无指令，请添加';
-                cmdContainer.appendChild(empty);
             }
-        }
-        renderCmds();
+            curveCount.addEventListener('change', updateColorPreview);
 
-        function addCustomCmd() {
-            const val = customCmdInput.value.trim();
-            const comment = customCmdComment.value.trim();
-            if (!val) return;
-            const exists = cmdList.some(c => (typeof c === 'string' ? c : c.cmd) === val);
-            if (exists) { alert('指令已存在'); return; }
-            cmdList.push({ cmd: val, comment: comment || '' });
-            renderCmds();
-            saveCmds();
-            customCmdInput.value = '';
-            customCmdComment.value = '';
-        }
-        function resetCmds() {
-            cmdList = [...DEFAULT_CMDS];
-            renderCmds();
-            saveCmds();
-        }
-        addCmdBtn.addEventListener('click', addCustomCmd);
-        customCmdInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addCustomCmd(); });
-        customCmdComment.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addCustomCmd(); });
-        resetCmdBtn.addEventListener('click', resetCmds);
+            // ===== 状态 =====
+            let isConnected = false;
+            let port = null;
+            let reader = null;
+            let writer = null;
+            let rxEntries = [];
+            let chartDataList = [];
+            let batchTimer = null;
+            let lastValues = [];
+            let frameBuffer = '';
+            let timeoutTimer = null;
+            let frameCount = 0;
+            let lastParsedCount = 0;
+            let isDrawing = false;
+            let drawPending = false;
+            let rxUpdatePending = false;
+            const textDecoder = new TextDecoder();
 
-        // ===== 指令导入/导出 (带注释) =====
-        function exportCmds() {
-            const blob = new Blob([JSON.stringify(cmdList, null, 2)], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'serial_commands.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-        function importCmds(file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
+            function scheduleDraw() {
+                if (drawPending) return;
+                drawPending = true;
+                requestAnimationFrame(() => {
+                    drawPending = false;
+                    drawChart();
+                });
+            }
+
+            function scheduleRxUpdate() {
+                if (rxUpdatePending) return;
+                rxUpdatePending = true;
+                setTimeout(() => {
+                    rxUpdatePending = false;
+                    updateRxDisplay();
+                }, 100);
+            }
+
+            function initChartData(maxCount) {
+                chartDataList = [];
+                for (let i = 0; i < maxCount; i++) chartDataList.push([]);
+                lastValues = new Array(maxCount).fill(null);
+            }
+            const initialMax = parseInt(curveCount.value, 10);
+            initChartData(initialMax);
+
+            // ===== 曲线缩放/平移状态 =====
+            let viewState = { offsetX: 0, offsetY: 0, scaleX: 1.0, scaleY: 1.0 };
+            let isDragging = false;
+            let dragStartX = 0,
+                dragStartY = 0;
+            let dragStartOffsetX = 0,
+                dragStartOffsetY = 0;
+            let hoverPoint = null;
+
+            // ===== 快捷指令 =====
+            const DEFAULT_CMDS = [
+                { cmd: 'AT\n', comment: '测试/握手' },
+                { cmd: 'AT+RST\n', comment: '重启模块' },
+                { cmd: 'AT+CWMODE=1\n', comment: 'STA模式' },
+                { cmd: 'AT+CWLAP\n', comment: '扫描WiFi' },
+                { cmd: 'AT+CIFSR\n', comment: '查询IP' },
+                { cmd: 'AT+CWJAP="SSID","PWD"\n', comment: '连接WiFi' },
+            ];
+            let cmdList = [...DEFAULT_CMDS];
+
+            function saveCmds() { try { localStorage.setItem('serial_cmds2', JSON.stringify(cmdList)); } catch (e) {} }
+
+            function loadCmds() {
                 try {
-                    const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data) && data.every(item => {
-                        if (typeof item === 'string') return true;
-                        if (typeof item === 'object' && item !== null && typeof item.cmd === 'string') return true;
-                        return false;
-                    })) {
-                        cmdList = data;
+                    const saved = localStorage.getItem('serial_cmds2');
+                    if (saved) { const parsed = JSON.parse(saved); if (Array.isArray(parsed) && parsed.length) cmdList =
+                            parsed; }
+                } catch (e) {}
+            }
+            loadCmds();
+
+            function renderCmds() {
+                cmdContainer.innerHTML = '';
+                cmdList.forEach(item => {
+                    const cmd = typeof item === 'string' ? item : item.cmd;
+                    const comment = typeof item === 'string' ? '' : (item.comment || '');
+                    const wrapper = document.createElement('span');
+                    wrapper.className = 'cmd-item';
+                    const btn = document.createElement('button');
+                    btn.className = 'cmd-btn';
+                    btn.textContent = cmd.replace(/\n/g, '↵').replace(/\r/g, '⏎');
+                    btn.title = comment || cmd;
+                    btn.addEventListener('click', () => {
+                        sendInput.value = cmd;
+                        sendData();
+                    });
+                    wrapper.appendChild(btn);
+                    if (comment) {
+                        const label = document.createElement('span');
+                        label.className = 'cmd-label';
+                        label.textContent = comment;
+                        label.title = comment;
+                        wrapper.appendChild(label);
+                    }
+                    const del = document.createElement('span');
+                    del.className = 'cmd-del';
+                    del.textContent = '✕';
+                    del.title = '删除此指令';
+                    del.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        cmdList = cmdList.filter(c => (typeof c === 'string' ? c : c.cmd) !== cmd);
                         renderCmds();
                         saveCmds();
-                        alert('导入成功！');
-                    } else {
-                        alert('无效的JSON格式，需要字符串数组或 {cmd, comment} 对象数组');
-                    }
-                } catch(err) {
-                    alert('解析JSON失败: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-        }
-        exportCmdsBtn.addEventListener('click', exportCmds);
-        importCmdsBtn.addEventListener('click', ()=> importCmdsInput.click());
-        importCmdsInput.addEventListener('change', (e)=> {
-            if (e.target.files.length > 0) {
-                importCmds(e.target.files[0]);
-                e.target.value = '';
-            }
-        });
-
-        // ===== 波特率切换 =====
-        baudSelect.addEventListener('change', ()=>{
-            customBaud.style.display = baudSelect.value === 'custom' ? 'inline-block' : 'none';
-        });
-
-        // ===== 画布 =====
-        const ctx = chartCanvas.getContext('2d');
-        let canvasW = 0, canvasH = 0;
-        let dpr = 1;
-        let cachedVisibleData = [];
-        let cachedViewMin = 0, cachedViewRange = 1;
-        let hoverPoint = null;
-
-        function resizeChart() {
-            const rect = chartContainer.getBoundingClientRect();
-            dpr = window.devicePixelRatio || 1;
-            const w = Math.max(100, rect.width - 12);
-            const h = Math.max(60, Math.min(300, rect.height - 12));
-            canvasW = w;
-            canvasH = h;
-            chartCanvas.style.width = w + 'px';
-            chartCanvas.style.height = h + 'px';
-            chartCanvas.width = w * dpr;
-            chartCanvas.height = h * dpr;
-            ctx.setTransform(1,0,0,1,0,0);
-            ctx.scale(dpr, dpr);
-            drawChart();
-        }
-        window.addEventListener('resize', resizeChart);
-
-        function drawChart() {
-            const w = canvasW;
-            const h = canvasH;
-            ctx.clearRect(0, 0, w, h);
-
-            const count = parseInt(curveCount.value, 10);
-            while (chartDataList.length < count) {
-                chartDataList.push([]);
-                lastValues.push(null);
-            }
-            while (chartDataList.length > count) {
-                chartDataList.pop();
-                lastValues.pop();
-            }
-
-            let hasData = false;
-            for (let i=0; i<count; i++) {
-                if (chartDataList[i] && chartDataList[i].length >= 2) { hasData = true; break; }
-            }
-            if (!hasData) {
-                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-light').trim() || '#94a3b8';
-                ctx.font = '14px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('等待数据...', w/2, h/2);
-                chartInfo.textContent = `点数: 0`;
-                hoverPoint = null;
-                return;
-            }
-
-            let globalMin = Infinity, globalMax = -Infinity;
-            for (let i=0; i<count; i++) {
-                const data = chartDataList[i];
-                if (data && data.length > 0) {
-                    const min = Math.min(0, ...data);
-                    const max = Math.max(1, ...data);
-                    if (min < globalMin) globalMin = min;
-                    if (max > globalMax) globalMax = max;
+                    });
+                    wrapper.appendChild(del);
+                    cmdContainer.appendChild(wrapper);
+                });
+                if (cmdList.length === 0) {
+                    const empty = document.createElement('span');
+                    empty.className = 'hint-text';
+                    empty.textContent = '暂无指令，请添加';
+                    cmdContainer.appendChild(empty);
                 }
             }
-            if (!isFinite(globalMin) || !isFinite(globalMax)) { globalMin = 0; globalMax = 1; }
-            if (globalMax - globalMin < 0.001) { globalMax = globalMin + 1; }
+            renderCmds();
 
-            const scaleX = viewState.scaleX;
-            const scaleY = viewState.scaleY;
-            const offX = viewState.offsetX;
-            const offY = viewState.offsetY;
-
-            const range = globalMax - globalMin || 1;
-            const displayRange = range * scaleY;
-            const mid = (globalMin + globalMax) / 2;
-            const viewMin = mid - displayRange/2 + offY * (displayRange / h) * 0.5;
-            const viewMax = mid + displayRange/2 + offY * (displayRange / h) * 0.5;
-            const viewRange = viewMax - viewMin || 1;
-            cachedViewMin = viewMin;
-            cachedViewRange = viewRange;
-
-            const pad = 8;
-            const drawW = w - pad*2;
-            const drawH = h - pad*2;
-
-            ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-light').trim() || '#e9edf4';
-            ctx.lineWidth = 0.5;
-            for (let i=0; i<=4; i++) {
-                const y = pad + (i/4) * drawH;
-                ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke();
-            }
-            for (let i=0; i<=4; i++) {
-                const x = pad + (i/4) * drawW;
-                ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, h-pad); ctx.stroke();
+            function addCustomCmd() {
+                const val = customCmdInput.value.trim();
+                const comment = customCmdComment.value.trim();
+                if (!val) return;
+                const exists = cmdList.some(c => (typeof c === 'string' ? c : c.cmd) === val);
+                if (exists) { alert('指令已存在'); return; }
+                cmdList.push({ cmd: val, comment: comment || '' });
+                renderCmds();
+                saveCmds();
+                customCmdInput.value = '';
+                customCmdComment.value = '';
             }
 
-            const colors = getCurveColors();
-            let totalPoints = 0;
+            function resetCmds() {
+                cmdList = [...DEFAULT_CMDS];
+                renderCmds();
+                saveCmds();
+            }
+            addCmdBtn.addEventListener('click', addCustomCmd);
+            customCmdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addCustomCmd(); });
+            customCmdComment.addEventListener('keydown', (e) => { if (e.key === 'Enter') addCustomCmd(); });
+            resetCmdBtn.addEventListener('click', resetCmds);
 
-            for (let idx=0; idx<count; idx++) {
-                const data = chartDataList[idx] || [];
-                if (data.length < 2) continue;
-                totalPoints += data.length;
-
-                const totalPts = data.length;
-                const viewPts = Math.max(2, totalPts / scaleX);
-                const startIdx = Math.max(0, Math.floor((totalPts - viewPts) / 2 - offX * (viewPts / w) * 0.5));
-                const endIdx = Math.min(totalPts, Math.ceil(startIdx + viewPts));
-                const visible = data.slice(startIdx, endIdx);
-                if (visible.length < 2) continue;
-
-                ctx.strokeStyle = colors[idx % colors.length];
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                for (let i=0; i<visible.length; i++) {
-                    const x = pad + (i / (visible.length-1)) * drawW;
-                    const y = pad + drawH - ((visible[i] - viewMin) / viewRange) * drawH;
-                    if (i===0) ctx.moveTo(x, y);
-                    else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
+            function exportCmds() {
+                const blob = new Blob([JSON.stringify(cmdList, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'serial_commands.json';
+                a.click();
+                URL.revokeObjectURL(url);
             }
 
-            // 高亮点
-            if (hoverPoint && hoverPoint.curveIndex < count) {
-                const data = chartDataList[hoverPoint.curveIndex];
-                if (data && data.length > hoverPoint.dataIndex) {
-                    const val = data[hoverPoint.dataIndex];
-                    const totalPts = data.length;
-                    const viewPts = Math.max(2, totalPts / scaleX);
-                    const startIdx = Math.max(0, Math.floor((totalPts - viewPts) / 2 - offX * (viewPts / w) * 0.5));
-                    const endIdx = Math.min(totalPts, Math.ceil(startIdx + viewPts));
-                    if (hoverPoint.dataIndex >= startIdx && hoverPoint.dataIndex < endIdx) {
-                        const localIdx = hoverPoint.dataIndex - startIdx;
-                        const visible = data.slice(startIdx, endIdx);
-                        if (visible.length > localIdx) {
-                            const x = pad + (localIdx / (visible.length-1)) * drawW;
-                            const y = pad + drawH - ((visible[localIdx] - viewMin) / viewRange) * drawH;
-                            ctx.beginPath();
-                            ctx.arc(x, y, 6, 0, 2*Math.PI);
-                            ctx.fillStyle = colors[hoverPoint.curveIndex % colors.length];
-                            ctx.shadowColor = 'rgba(0,0,0,0.3)';
-                            ctx.shadowBlur = 8;
-                            ctx.fill();
-                            ctx.shadowBlur = 0;
-                            ctx.strokeStyle = 'white';
-                            ctx.lineWidth = 2;
-                            ctx.stroke();
-                            const tipText = `C${hoverPoint.curveIndex+1}: ${visible[localIdx].toFixed(4)}`;
-                            tooltipFloat.textContent = tipText;
-                            tooltipFloat.style.left = (x + 10) + 'px';
-                            tooltipFloat.style.top = Math.max(2, Math.min(h - 28, y - 12)) + 'px';
-                            tooltipFloat.classList.add('visible');
-                        }
-                    }
-                }
-            }
-
-            chartInfo.textContent = `总点数: ${totalPoints} (${count}条)`;
-            const lastVal = lastValues[count-1];
-            if (lastVal !== null && lastVal !== undefined) {
-                lastValueTag.textContent = `最后值: ${lastVal.toFixed(2)}`;
-            } else {
-                lastValueTag.textContent = `最后值: —`;
-            }
-            zoomInfo.textContent = `缩放: ${scaleX.toFixed(2)}x / ${scaleY.toFixed(2)}x`;
-        }
-
-        function updateHover(e) {
-            const rect = chartContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left - 6;
-            const y = e.clientY - rect.top - 6;
-            const w = canvasW;
-            const h = canvasH;
-
-            if (x < 0 || x > w || y < 0 || y > h) {
-                hoverPoint = null;
-                tooltipFloat.classList.remove('visible');
-                drawChart();
-                return;
-            }
-
-            const count = parseInt(curveCount.value, 10);
-            const pad = 8;
-            const drawW = w - pad*2;
-            const drawH = h - pad*2;
-            const relX = (x - pad) / drawW;
-            const viewMin = cachedViewMin;
-            const viewRange = cachedViewRange;
-
-            let closest = null;
-            let minDist = Infinity;
-
-            for (let idx=0; idx<count; idx++) {
-                const data = chartDataList[idx];
-                if (!data || data.length < 2) continue;
-                const totalPts = data.length;
-                const scaleX = viewState.scaleX;
-                const offX = viewState.offsetX;
-                const viewPts = Math.max(2, totalPts / scaleX);
-                const startIdx = Math.max(0, Math.floor((totalPts - viewPts) / 2 - offX * (viewPts / w) * 0.5));
-                const endIdx = Math.min(totalPts, Math.ceil(startIdx + viewPts));
-                const visible = data.slice(startIdx, endIdx);
-                if (visible.length < 2) continue;
-
-                const localIdx = Math.round(relX * (visible.length - 1));
-                const clampedIdx = Math.max(0, Math.min(visible.length - 1, localIdx));
-                const val = visible[clampedIdx];
-                const pointX = pad + (clampedIdx / (visible.length-1)) * drawW;
-                const pointY = pad + drawH - ((val - viewMin) / viewRange) * drawH;
-                const dist = Math.hypot(x - pointX, y - pointY);
-                if (dist < minDist && dist < 30) {
-                    minDist = dist;
-                    closest = { curveIndex: idx, dataIndex: startIdx + clampedIdx, value: val, x: pointX, y: pointY };
-                }
-            }
-
-            if (closest) {
-                hoverPoint = closest;
-                drawChart();
-            } else {
-                if (hoverPoint) {
-                    hoverPoint = null;
-                    drawChart();
-                    tooltipFloat.classList.remove('visible');
-                } else {
-                    tooltipFloat.classList.remove('visible');
-                }
-            }
-        }
-
-        function updateChart(values) {
-            if (!values || !Array.isArray(values)) return;
-            const count = parseInt(curveCount.value, 10);
-            for (let i=0; i<Math.min(values.length, count); i++) {
-                const v = values[i];
-                if (v === undefined || v === null || !isFinite(v)) continue;
-                if (!chartDataList[i]) chartDataList[i] = [];
-                chartDataList[i].push(v);
-                lastValues[i] = v;
-                const maxPts = parseInt(maxPoints.value, 10) || 200;
-                if (chartDataList[i].length > maxPts) chartDataList[i].splice(0, chartDataList[i].length - maxPts);
-            }
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-            drawChart();
-        }
-
-        function resetView() {
-            viewState.offsetX = 0;
-            viewState.offsetY = 0;
-            viewState.scaleX = 1.0;
-            viewState.scaleY = 1.0;
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-            drawChart();
-        }
-
-        // ===== 画布交互 =====
-        chartContainer.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
-            viewState.scaleX = Math.max(0.1, Math.min(20, viewState.scaleX * delta));
-            viewState.scaleY = Math.max(0.1, Math.min(20, viewState.scaleY * delta));
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-            drawChart();
-        }, { passive: false });
-
-        chartContainer.addEventListener('mousedown', (e) => {
-            isDragging = true;
-            dragStartX = e.clientX;
-            dragStartY = e.clientY;
-            dragStartOffsetX = viewState.offsetX;
-            dragStartOffsetY = viewState.offsetY;
-            chartContainer.style.cursor = 'grabbing';
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (isDragging) {
-                const dx = e.clientX - dragStartX;
-                const dy = e.clientY - dragStartY;
-                viewState.offsetX = dragStartOffsetX + dx;
-                viewState.offsetY = dragStartOffsetY + dy;
-                hoverPoint = null;
-                tooltipFloat.classList.remove('visible');
-                drawChart();
-            } else {
-                updateHover(e);
-            }
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (isDragging) {
-                isDragging = false;
-                chartContainer.style.cursor = 'grab';
-            }
-        });
-
-        chartContainer.addEventListener('mouseleave', () => {
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-            drawChart();
-        });
-
-        // 触摸支持
-        let touchStartX = 0, touchStartY = 0;
-        let touchOffsetX = 0, touchOffsetY = 0;
-        let lastTouchDist = 0;
-        chartContainer.addEventListener('touchstart', (e) => {
-            const t = e.touches;
-            if (t.length === 1) {
-                isDragging = true;
-                touchStartX = t[0].clientX;
-                touchStartY = t[0].clientY;
-                touchOffsetX = viewState.offsetX;
-                touchOffsetY = viewState.offsetY;
-                hoverPoint = null;
-                tooltipFloat.classList.remove('visible');
-            } else if (t.length === 2) {
-                lastTouchDist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-            }
-        }, { passive: true });
-
-        chartContainer.addEventListener('touchmove', (e) => {
-            const t = e.touches;
-            if (t.length === 1 && isDragging) {
-                const dx = t[0].clientX - touchStartX;
-                const dy = t[0].clientY - touchStartY;
-                viewState.offsetX = touchOffsetX + dx;
-                viewState.offsetY = touchOffsetY + dy;
-                hoverPoint = null;
-                tooltipFloat.classList.remove('visible');
-                drawChart();
-            } else if (t.length === 2) {
-                const dist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-                if (lastTouchDist > 0) {
-                    const scale = dist / lastTouchDist;
-                    viewState.scaleX = Math.max(0.1, Math.min(20, viewState.scaleX * scale));
-                    viewState.scaleY = Math.max(0.1, Math.min(20, viewState.scaleY * scale));
-                    hoverPoint = null;
-                    tooltipFloat.classList.remove('visible');
-                    drawChart();
-                }
-                lastTouchDist = dist;
-            }
-        }, { passive: true });
-
-        chartContainer.addEventListener('touchend', () => {
-            isDragging = false;
-            lastTouchDist = 0;
-        }, { passive: true });
-
-        // ===== 解析多值 =====
-        function extractNumbers(str) {
-            const rule = parseRule.value;
-            if (!rule) return null;
-            const regexStr = rule.replace(/\{val\}/g, '([\\d.\\-]+)');
-            const regex = new RegExp(regexStr, 'gi');
-            const matches = [];
-            let match;
-            while ((match = regex.exec(str)) !== null) {
-                if (match[1]) {
-                    const val = parseFloat(match[1]);
-                    if (!isNaN(val) && isFinite(val)) matches.push(val);
-                }
-            }
-            if (matches.length === 0) {
-                const numRegex = /[-+]?\d*\.?\d+/g;
-                let m;
-                while ((m = numRegex.exec(str)) !== null) {
-                    const val = parseFloat(m[0]);
-                    if (!isNaN(val) && isFinite(val)) matches.push(val);
-                }
-            }
-            return matches.length > 0 ? matches : null;
-        }
-
-        // ===== 接收处理 (带分包) =====
-        function processRxData(text) {
-            const timeout = parseInt(packetTimeout.value, 10) || 50;
-            pendingData += text;
-            if (packetTimer) clearTimeout(packetTimer);
-            packetTimer = setTimeout(() => {
-                const data = pendingData;
-                pendingData = '';
-                packetTimer = null;
-                if (data) {
-                    rxBuffer.push(data);
-                    if (rxBuffer.length > 100) rxBuffer.shift();
-                    const mode = receiveMode.value;
-                    let display = rxBuffer.join('');
-                    if (mode === 'hex') {
-                        let hex = '';
-                        for (let ch of display) hex += ch.charCodeAt(0).toString(16).padStart(2,'0').toUpperCase() + ' ';
-                        display = hex;
-                    }
-                    rxDisplay.textContent = display || '(空)';
-                    rxCount.textContent = rxBuffer.reduce((a,b)=>a+b.length, 0) + ' 字节';
-
-                    const vals = extractNumbers(data);
-                    if (vals && vals.length > 0) {
-                        const updMode = chartUpdateMode.value;
-                        if (updMode === 'auto') {
-                            updateChart(vals);
+            function importCmds(file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (Array.isArray(data) && data.every(item => {
+                                if (typeof item === 'string') return true;
+                                if (typeof item === 'object' && item !== null && typeof item.cmd === 'string')
+                                    return true;
+                                return false;
+                            })) {
+                            cmdList = data;
+                            renderCmds();
+                            saveCmds();
+                            alert('导入成功！');
                         } else {
-                            if (batchTimer) clearTimeout(batchTimer);
-                            batchTimer = setTimeout(()=>{
-                                if (vals && vals.length > 0) updateChart(vals);
-                                batchTimer = null;
-                            }, 100);
+                            alert('无效的JSON格式');
+                        }
+                    } catch (err) {
+                        alert('解析JSON失败: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+            exportCmdsBtn.addEventListener('click', exportCmds);
+            importCmdsBtn.addEventListener('click', () => importCmdsInput.click());
+            importCmdsInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    importCmds(e.target.files[0]);
+                    e.target.value = '';
+                }
+            });
+
+            baudSelect.addEventListener('change', () => {
+                customBaud.style.display = baudSelect.value === 'custom' ? 'inline-block' : 'none';
+            });
+
+            // ===== 画布 =====
+            const ctx = chartCanvas.getContext('2d');
+            let canvasW = 0,
+                canvasH = 0;
+            let dpr = 1;
+            let cachedViewMin = 0,
+                cachedViewRange = 1;
+
+            function resizeChart() {
+                const rect = chartContainer.getBoundingClientRect();
+                dpr = window.devicePixelRatio || 1;
+                const w = Math.max(100, rect.width - 12);
+                const h = Math.max(60, Math.min(300, rect.height - 12));
+                canvasW = w;
+                canvasH = h;
+                chartCanvas.style.width = w + 'px';
+                chartCanvas.style.height = h + 'px';
+                chartCanvas.width = w * dpr;
+                chartCanvas.height = h * dpr;
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+                drawChart();
+            }
+            window.addEventListener('resize', resizeChart);
+
+            function drawChart() {
+                if (isDrawing) return;
+                isDrawing = true;
+                try {
+                    const w = canvasW;
+                    const h = canvasH;
+                    ctx.clearRect(0, 0, w, h);
+
+                    const maxCurves = parseInt(curveCount.value, 10);
+                    while (chartDataList.length < maxCurves) {
+                        chartDataList.push([]);
+                        lastValues.push(null);
+                    }
+                    while (chartDataList.length > maxCurves) {
+                        chartDataList.pop();
+                        lastValues.pop();
+                    }
+
+                    let hasData = false;
+                    for (let i = 0; i < maxCurves; i++) {
+                        if (chartDataList[i] && chartDataList[i].length >= 1) { hasData = true; break; }
+                    }
+                    if (!hasData) {
+                        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-light')
+                            .trim() ||
+                            '#94a3b8';
+                        ctx.font = '14px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('等待数据...', w / 2, h / 2);
+                        chartInfo.textContent = '点数: 0 (活跃: 0)';
+                        hoverPoint = null;
+                        isDrawing = false;
+                        return;
+                    }
+
+                    let activeCurves = 0;
+                    for (let i = 0; i < maxCurves; i++) {
+                        if (chartDataList[i] && chartDataList[i].length > 0) activeCurves++;
+                    }
+
+                    // 计算Y轴范围
+                    let globalMin = Infinity,
+                        globalMax = -Infinity;
+                    let hasAnyData = false;
+                    for (let i = 0; i < maxCurves; i++) {
+                        const data = chartDataList[i];
+                        if (data && data.length > 0) {
+                            const validData = data.filter(v => v !== undefined && v !== null && isFinite(v) && !isNaN(
+                            v));
+                            if (validData.length > 0) {
+                                hasAnyData = true;
+                                const min = Math.min(...validData);
+                                const max = Math.max(...validData);
+                                if (min < globalMin) globalMin = min;
+                                if (max > globalMax) globalMax = max;
+                            }
                         }
                     }
+
+                    if (!hasAnyData) { globalMin = 0;
+                        globalMax = 1; }
+                    if (!isFinite(globalMin) || !isFinite(globalMax) || globalMin === globalMax) { globalMin = 0;
+                        globalMax = 1; }
+
+                    const margin = Math.max((globalMax - globalMin) * 0.15, 0.5);
+                    globalMin = globalMin - margin;
+                    globalMax = globalMax + margin;
+                    if (globalMax - globalMin < 0.001) { globalMin = globalMin - 0.5;
+                        globalMax = globalMax + 0.5; }
+
+                    const scaleX = viewState.scaleX;
+                    const scaleY = viewState.scaleY;
+                    const offX = viewState.offsetX;
+                    const offY = viewState.offsetY;
+
+                    const range = globalMax - globalMin;
+                    const displayRange = range * scaleY;
+                    const mid = (globalMin + globalMax) / 2;
+                    const viewMin = mid - displayRange / 2 + offY * (displayRange / h) * 0.5;
+                    const viewMax = mid + displayRange / 2 + offY * (displayRange / h) * 0.5;
+                    const viewRange = viewMax - viewMin || 1;
+                    cachedViewMin = viewMin;
+                    cachedViewRange = viewRange;
+
+                    const pad = 8;
+                    const labelPad = 36;
+                    const drawW = w - pad - labelPad - pad;
+                    const drawH = h - pad - pad;
+
+                    // 绘制网格
+                    const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-light')
+                        .trim() ||
+                        '#e9edf4';
+                    const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-muted')
+                        .trim() ||
+                        '#64748b';
+
+                    ctx.strokeStyle = borderColor;
+                    ctx.lineWidth = 0.5;
+                    ctx.textAlign = 'right';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = '9px monospace';
+
+                    for (let i = 0; i <= 5; i++) {
+                        const y = pad + (i / 5) * drawH;
+                        const val = viewMax - (i / 5) * viewRange;
+                        ctx.beginPath();
+                        ctx.moveTo(pad + labelPad, y);
+                        ctx.lineTo(w - pad, y);
+                        ctx.stroke();
+                        let displayVal;
+                        if (viewRange < 0.01) displayVal = val.toFixed(4);
+                        else if (viewRange < 0.1) displayVal = val.toFixed(3);
+                        else if (viewRange < 1) displayVal = val.toFixed(2);
+                        else if (viewRange < 10) displayVal = val.toFixed(1);
+                        else displayVal = val.toFixed(0);
+                        ctx.fillStyle = textColor;
+                        ctx.fillText(displayVal, pad + labelPad - 4, y);
+                    }
+
+                    for (let i = 0; i <= 4; i++) {
+                        const x = pad + labelPad + (i / 4) * drawW;
+                        ctx.beginPath();
+                        ctx.moveTo(x, pad);
+                        ctx.lineTo(x, h - pad);
+                        ctx.stroke();
+                    }
+
+                    const colors = getCurveColors();
+                    let totalPoints = 0;
+
+                    // 绘制曲线
+                    for (let idx = 0; idx < maxCurves; idx++) {
+                        const data = chartDataList[idx] || [];
+                        const validData = data.filter(v => v !== undefined && v !== null && isFinite(v) && !isNaN(
+                            v));
+                        if (validData.length < 1) continue;
+                        totalPoints += validData.length;
+
+                        const totalPts = validData.length;
+                        const viewPts = Math.max(2, totalPts / scaleX);
+                        const startIdx = Math.max(0, Math.floor((totalPts - viewPts) / 2 - offX * (viewPts /
+                            drawW) * 0.5));
+                        const endIdx = Math.min(totalPts, Math.ceil(startIdx + viewPts));
+                        const visible = validData.slice(startIdx, endIdx);
+                        if (visible.length < 1) continue;
+
+                        ctx.strokeStyle = colors[idx % colors.length];
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        for (let i = 0; i < visible.length; i++) {
+                            const x = pad + labelPad + (i / (visible.length - 1 || 1)) * drawW;
+                            const y = pad + drawH - ((visible[i] - viewMin) / viewRange) * drawH;
+                            if (i === 0) ctx.moveTo(x, y);
+                            else ctx.lineTo(x, y);
+                        }
+                        ctx.stroke();
+                        // 画点
+                        ctx.fillStyle = colors[idx % colors.length];
+                        for (let i = 0; i < visible.length; i++) {
+                            const x = pad + labelPad + (i / (visible.length - 1 || 1)) * drawW;
+                            const y = pad + drawH - ((visible[i] - viewMin) / viewRange) * drawH;
+                            ctx.beginPath();
+                            ctx.arc(x, y, 3, 0, 2 * Math.PI);
+                            ctx.fill();
+                        }
+                    }
+
+                    // 悬停高亮
+                    if (hoverPoint && hoverPoint.curveIndex < maxCurves) {
+                        const data = chartDataList[hoverPoint.curveIndex];
+                        if (data && data.length > hoverPoint.dataIndex) {
+                            const val = data[hoverPoint.dataIndex];
+                            if (isFinite(val) && !isNaN(val)) {
+                                const totalPts = data.length;
+                                const viewPts = Math.max(2, totalPts / scaleX);
+                                const startIdx = Math.max(0, Math.floor((totalPts - viewPts) / 2 - offX * (
+                                    viewPts / drawW) *
+                                    0.5));
+                                const endIdx = Math.min(totalPts, Math.ceil(startIdx + viewPts));
+                                if (hoverPoint.dataIndex >= startIdx && hoverPoint.dataIndex < endIdx) {
+                                    const localIdx = hoverPoint.dataIndex - startIdx;
+                                    const visible = data.slice(startIdx, endIdx);
+                                    if (visible.length > localIdx) {
+                                        const x = pad + labelPad + (localIdx / (visible.length - 1)) *
+                                            drawW;
+                                        const y = pad + drawH - ((visible[localIdx] - viewMin) /
+                                            viewRange) * drawH;
+                                        ctx.beginPath();
+                                        ctx.arc(x, y, 6, 0, 2 * Math.PI);
+                                        ctx.fillStyle = colors[hoverPoint.curveIndex % colors.length];
+                                        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                                        ctx.shadowBlur = 8;
+                                        ctx.fill();
+                                        ctx.shadowBlur = 0;
+                                        ctx.strokeStyle = 'white';
+                                        ctx.lineWidth = 2;
+                                        ctx.stroke();
+                                        const tipText =
+                                            `C${hoverPoint.curveIndex+1}: ${visible[localIdx].toFixed(4)}`;
+                                        tooltipFloat.textContent = tipText;
+                                        tooltipFloat.style.left = (x + 10) + 'px';
+                                        tooltipFloat.style.top = Math.max(2, Math.min(h - 28, y - 12)) +
+                                            'px';
+                                        tooltipFloat.classList.add('visible');
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    chartInfo.textContent = `总点数: ${totalPoints} (活跃: ${activeCurves}条)`;
+                    const lastVal = lastValues.length > 0 ? lastValues[lastValues.length - 1] : null;
+                    if (lastVal !== null && lastVal !== undefined && isFinite(lastVal) && !isNaN(lastVal)) {
+                        lastValueTag.textContent = `最后值: ${lastVal.toFixed(4)}`;
+                    } else {
+                        lastValueTag.textContent = '最后值: —';
+                    }
+                    zoomInfo.textContent = `缩放: ${scaleX.toFixed(2)}x / ${scaleY.toFixed(2)}x`;
+                    parseInfo.textContent = `解析: ${lastParsedCount} 个值/帧`;
+                    debugInfo.textContent = `帧: ${frameCount}`;
+                } catch (e) {
+                    console.error('drawChart error:', e);
                 }
-            }, timeout);
-        }
-
-        // ===== 串口操作 =====
-        async function connect() {
-            try {
-                const baud = baudSelect.value === 'custom' ? parseInt(customBaud.value,10) : parseInt(baudSelect.value,10);
-                if (isNaN(baud) || baud <= 0) { alert('无效波特率'); return; }
-                port = await navigator.serial.requestPort();
-                await port.open({ baudRate: baud, dataBits: parseInt(document.getElementById('dataBits').value,10),
-                    stopBits: parseInt(document.getElementById('stopBits').value,10),
-                    parity: document.getElementById('parity').value });
-                isConnected = true;
-                connectBtn.disabled = true;
-                disconnectBtn.disabled = false;
-                connStatus.innerHTML = '<span class="status-ok">● 已连接</span>';
-                rxDisplay.textContent = rxBuffer.length ? rxDisplay.textContent : '● 已连接，等待数据...';
-                reader = port.readable.getReader();
-                writer = port.writable.getWriter();
-                readLoop();
-            } catch(e) {
-                alert('连接失败: ' + e.message);
-                connStatus.innerHTML = `<span class="error-msg">⚠️ 连接失败</span>`;
+                isDrawing = false;
             }
-        }
 
-        async function readLoop() {
-            try {
-                while (true) {
-                    const { value, done } = await reader.read();
-                    if (done) break;
-                    const decoder = new TextDecoder();
-                    const text = decoder.decode(value);
-                    if (text) processRxData(text);
+            function updateHover(e) {
+                const rect = chartContainer.getBoundingClientRect();
+                const x = e.clientX - rect.left - 6;
+                const y = e.clientY - rect.top - 6;
+                const w = canvasW;
+                const h = canvasH;
+
+                if (x < 0 || x > w || y < 0 || y > h) {
+                    if (hoverPoint) {
+                        hoverPoint = null;
+                        tooltipFloat.classList.remove('visible');
+                        drawChart();
+                    }
+                    return;
                 }
-            } catch(e) {
-                if (isConnected) {
-                    connStatus.innerHTML = `<span class="error-msg">⚠️ 读取错误</span>`;
+
+                const maxCurves = parseInt(curveCount.value, 10);
+                const pad = 8;
+                const labelPad = 36;
+                const drawW = w - pad - labelPad - pad;
+                const drawH = h - pad - pad;
+                const relX = (x - pad - labelPad) / drawW;
+                const viewMin = cachedViewMin;
+                const viewRange = cachedViewRange;
+
+                let closest = null;
+                let minDist = Infinity;
+
+                for (let idx = 0; idx < maxCurves; idx++) {
+                    const data = chartDataList[idx];
+                    if (!data || data.length < 2) continue;
+                    const totalPts = data.length;
+                    const scaleX = viewState.scaleX;
+                    const offX = viewState.offsetX;
+                    const viewPts = Math.max(2, totalPts / scaleX);
+                    const startIdx = Math.max(0, Math.floor((totalPts - viewPts) / 2 - offX * (viewPts / drawW) *
+                        0.5));
+                    const endIdx = Math.min(totalPts, Math.ceil(startIdx + viewPts));
+                    const visible = data.slice(startIdx, endIdx);
+                    if (visible.length < 2) continue;
+
+                    const localIdx = Math.round(relX * (visible.length - 1));
+                    const clampedIdx = Math.max(0, Math.min(visible.length - 1, localIdx));
+                    const val = visible[clampedIdx];
+                    if (!isFinite(val) || isNaN(val)) continue;
+                    const pointX = pad + labelPad + (clampedIdx / (visible.length - 1)) * drawW;
+                    const pointY = pad + drawH - ((val - viewMin) / viewRange) * drawH;
+                    const dist = Math.hypot(x - pointX, y - pointY);
+                    if (dist < minDist && dist < 30) {
+                        minDist = dist;
+                        closest = { curveIndex: idx, dataIndex: startIdx + clampedIdx, value: val, x: pointX,
+                            y: pointY };
+                    }
+                }
+
+                if (closest) {
+                    if (!hoverPoint || hoverPoint.curveIndex !== closest.curveIndex || hoverPoint.dataIndex !== closest
+                        .dataIndex) {
+                        hoverPoint = closest;
+                        drawChart();
+                    }
+                } else {
+                    if (hoverPoint) {
+                        hoverPoint = null;
+                        tooltipFloat.classList.remove('visible');
+                        drawChart();
+                    } else {
+                        tooltipFloat.classList.remove('visible');
+                    }
                 }
             }
-        }
 
-        async function disconnect() {
-            try {
-                if (reader) { await reader.cancel(); reader = null; }
-                if (writer) { await writer.close(); writer = null; }
-                if (port) { await port.close(); port = null; }
-            } catch(e) {}
-            isConnected = false;
-            connectBtn.disabled = false;
-            disconnectBtn.disabled = true;
-            connStatus.innerHTML = '● 已断开';
-            if (packetTimer) { clearTimeout(packetTimer); packetTimer = null; }
-            pendingData = '';
-        }
+            // ===== 【核心修复】每帧只取前2个数值 =====
+            function updateChartFromFrame(values) {
+                if (!values || !Array.isArray(values) || values.length === 0) return;
 
-        // ===== 发送数据 =====
-        async function sendData() {
-            if (!isConnected || !port) { alert('未连接串口'); return; }
-            const raw = sendInput.value;
-            if (!raw.trim()) return;
-            let data = [];
-            const mode = sendMode.value;
-            if (mode === 'hex') {
-                const hex = raw.replace(/,/g,' ').trim().split(/\s+/);
-                for (let h of hex) {
-                    if (h.startsWith('0x')) h = h.slice(2);
-                    const byte = parseInt(h, 16);
-                    if (!isNaN(byte) && byte>=0 && byte<=255) data.push(byte);
+                const maxCurves = parseInt(curveCount.value, 10);
+                // 只取前 maxCurves 个数值
+                const count = Math.min(values.length, maxCurves);
+
+                for (let i = 0; i < count; i++) {
+                    const v = values[i];
+                    if (v === undefined || v === null || !isFinite(v) || isNaN(v)) continue;
+                    if (!chartDataList[i]) chartDataList[i] = [];
+                    chartDataList[i].push(v);
+                    lastValues[i] = v;
+                    const maxPts = parseInt(maxPoints.value, 10) || 200;
+                    if (chartDataList[i].length > maxPts) {
+                        chartDataList[i].splice(0, chartDataList[i].length - maxPts);
+                    }
                 }
-            } else {
-                const encoder = new TextEncoder();
-                data = Array.from(encoder.encode(raw));
+                lastParsedCount = count;
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+                scheduleDraw();
             }
-            if (data.length === 0) { alert('无有效数据'); return; }
-            try {
-                if (!writer) writer = port.writable.getWriter();
-                await writer.write(new Uint8Array(data));
-            } catch(e) { alert('发送失败: ' + e.message); }
-        }
 
-        // ===== 事件绑定 =====
-        connectBtn.addEventListener('click', connect);
-        disconnectBtn.addEventListener('click', disconnect);
-        sendBtn.addEventListener('click', sendData);
-        sendInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter') sendData(); });
-        clearRxBtn.addEventListener('click', ()=>{ rxBuffer=[]; pendingData=''; if(packetTimer) clearTimeout(packetTimer); packetTimer=null; rxDisplay.textContent='(已清空)'; rxCount.textContent='0 字节'; });
-        clearRxBtn2.addEventListener('click', ()=>{ rxBuffer=[]; pendingData=''; if(packetTimer) clearTimeout(packetTimer); packetTimer=null; rxDisplay.textContent='(已清空)'; rxCount.textContent='0 字节'; });
-        clearChartBtn.addEventListener('click', ()=>{ 
-            const count = parseInt(curveCount.value, 10);
-            chartDataList = [];
-            lastValues = [];
-            for (let i=0; i<count; i++) { chartDataList.push([]); lastValues.push(null); }
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-            drawChart(); 
-        });
-        resetViewBtn.addEventListener('click', resetView);
-        maxPoints.addEventListener('change', ()=>{ drawChart(); });
-
-        curveCount.addEventListener('change', ()=>{
-            const count = parseInt(curveCount.value, 10);
-            while (chartDataList.length < count) {
-                chartDataList.push([]);
-                lastValues.push(null);
+            function resetView() {
+                viewState.offsetX = 0;
+                viewState.offsetY = 0;
+                viewState.scaleX = 1.0;
+                viewState.scaleY = 1.0;
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+                drawChart();
             }
-            while (chartDataList.length > count) {
-                chartDataList.pop();
-                lastValues.pop();
-            }
-            updateColorPreview();
-            hoverPoint = null;
-            tooltipFloat.classList.remove('visible');
-            drawChart();
-        });
 
-        receiveMode.addEventListener('change', ()=>{
-            if (rxBuffer.length>0) {
-                let display = rxBuffer.join('');
-                if (receiveMode.value === 'hex') {
-                    let hex = '';
-                    for (let ch of display) hex += ch.charCodeAt(0).toString(16).padStart(2,'0').toUpperCase() + ' ';
-                    display = hex;
+            // ===== 画布交互 =====
+            chartContainer.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 1.1 : 0.9;
+                viewState.scaleX = Math.max(0.1, Math.min(20, viewState.scaleX * delta));
+                viewState.scaleY = Math.max(0.1, Math.min(20, viewState.scaleY * delta));
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+                drawChart();
+            }, { passive: false });
+
+            chartContainer.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                dragStartOffsetX = viewState.offsetX;
+                dragStartOffsetY = viewState.offsetY;
+                chartContainer.style.cursor = 'grabbing';
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const dx = e.clientX - dragStartX;
+                    const dy = e.clientY - dragStartY;
+                    viewState.offsetX = dragStartOffsetX + dx;
+                    viewState.offsetY = dragStartOffsetY + dy;
+                    hoverPoint = null;
+                    tooltipFloat.classList.remove('visible');
+                    drawChart();
+                } else {
+                    updateHover(e);
                 }
-                rxDisplay.textContent = display || '(空)';
-            }
-        });
+            });
 
-        // ===== 初始化 =====
-        setTimeout(()=>{
-            resizeChart();
-            const count = parseInt(curveCount.value, 10);
-            for (let c=0; c<count; c++) {
-                for (let i=0; i<60; i++) {
-                    const base = 20 + c*15;
-                    chartDataList[c].push(base + 15*Math.sin(i/4 + c*1.2) + 5*Math.random());
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    chartContainer.style.cursor = 'grab';
                 }
-                lastValues[c] = chartDataList[c][chartDataList[c].length-1];
-            }
-            updateColorPreview();
-            drawChart();
-        }, 100);
+            });
 
-        window.addEventListener('beforeunload', ()=>{ if(isConnected) disconnect(); });
-    })();
-</script>
+            chartContainer.addEventListener('mouseleave', () => {
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+                drawChart();
+            });
+
+            // 触摸支持
+            let touchStartX = 0,
+                touchStartY = 0;
+            let touchOffsetX = 0,
+                touchOffsetY = 0;
+            let lastTouchDist = 0;
+            chartContainer.addEventListener('touchstart', (e) => {
+                const t = e.touches;
+                if (t.length === 1) {
+                    isDragging = true;
+                    touchStartX = t[0].clientX;
+                    touchStartY = t[0].clientY;
+                    touchOffsetX = viewState.offsetX;
+                    touchOffsetY = viewState.offsetY;
+                    hoverPoint = null;
+                    tooltipFloat.classList.remove('visible');
+                } else if (t.length === 2) {
+                    lastTouchDist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+                }
+            }, { passive: true });
+
+            chartContainer.addEventListener('touchmove', (e) => {
+                const t = e.touches;
+                if (t.length === 1 && isDragging) {
+                    const dx = t[0].clientX - touchStartX;
+                    const dy = t[0].clientY - touchStartY;
+                    viewState.offsetX = touchOffsetX + dx;
+                    viewState.offsetY = touchOffsetY + dy;
+                    hoverPoint = null;
+                    tooltipFloat.classList.remove('visible');
+                    drawChart();
+                } else if (t.length === 2) {
+                    const dist = Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+                    if (lastTouchDist > 0) {
+                        const scale = dist / lastTouchDist;
+                        viewState.scaleX = Math.max(0.1, Math.min(20, viewState.scaleX * scale));
+                        viewState.scaleY = Math.max(0.1, Math.min(20, viewState.scaleY * scale));
+                        hoverPoint = null;
+                        tooltipFloat.classList.remove('visible');
+                        drawChart();
+                    }
+                    lastTouchDist = dist;
+                }
+            }, { passive: true });
+
+            chartContainer.addEventListener('touchend', () => {
+                isDragging = false;
+                lastTouchDist = 0;
+            }, { passive: true });
+
+            // ===== 正则解析 =====
+            function extractNumbersWithRegex(str, regexStr) {
+                try {
+                    if (!regexStr || regexStr.trim() === '') return [];
+                    const regex = new RegExp(regexStr, 'gi');
+                    const allValues = [];
+                    let match;
+                    while ((match = regex.exec(str)) !== null) {
+                        for (let i = 1; i < match.length; i++) {
+                            if (match[i] !== undefined && match[i] !== '') {
+                                const val = parseFloat(match[i]);
+                                if (!isNaN(val) && isFinite(val)) allValues.push(val);
+                            }
+                        }
+                    }
+                    if (allValues.length > 0) return allValues;
+                    const numRegex = /[-+]?\d*\.?\d+/g;
+                    let m;
+                    const allNums = [];
+                    while ((m = numRegex.exec(str)) !== null) {
+                        const val = parseFloat(m[0]);
+                        if (!isNaN(val) && isFinite(val)) allNums.push(val);
+                    }
+                    return allNums;
+                } catch (e) {
+                    try {
+                        const numRegex = /[-+]?\d*\.?\d+/g;
+                        let m;
+                        const allNums = [];
+                        while ((m = numRegex.exec(str)) !== null) {
+                            const val = parseFloat(m[0]);
+                            if (!isNaN(val) && isFinite(val)) allNums.push(val);
+                        }
+                        return allNums;
+                    } catch (e2) { return []; }
+                }
+            }
+
+            // ===== 处理一帧数据 =====
+            function processFrame(frame) {
+                if (!frame || frame.trim() === '') return;
+
+                frameCount++;
+                frameIndicator.className = 'frame-indicator active';
+                setTimeout(() => { frameIndicator.className = 'frame-indicator idle'; }, 200);
+
+                const now = new Date();
+                const timeStr = now.toTimeString().slice(0, 8) + '.' + String(now.getMilliseconds()).padStart(3, '0');
+                const hex = textToHex(frame);
+
+                rxEntries.push({ time: timeStr, hex: hex, text: frame });
+                if (rxEntries.length > 200) rxEntries.shift();
+
+                scheduleRxUpdate();
+                rxCount.textContent = rxEntries.reduce((sum, e) => sum + e.text.length, 0) + ' 字节';
+
+                // 解析数值
+                const rule = parseRule.value.trim();
+                let values = [];
+
+                if (rule) {
+                    values = extractNumbersWithRegex(frame, rule);
+                }
+
+                // 如果正则没匹配到，尝试简单分割
+                if (values.length === 0) {
+                    const parts = frame.split(/[,，\s]+/).filter(s => s.trim() !== '');
+                    for (const p of parts) {
+                        const v = parseFloat(p);
+                        if (!isNaN(v) && isFinite(v)) values.push(v);
+                    }
+                }
+
+                // 【关键修复】只取前2个数值（曲线1和曲线2各一个点）
+                // 如果一帧中有多个数值（比如 "1,2,3,4"），只取前两个
+                const maxCurves = parseInt(curveCount.value, 10);
+                const frameValues = values.slice(0, maxCurves);
+
+                if (frameValues.length > 0) {
+                    const updMode = chartUpdateMode.value;
+                    if (updMode === 'auto') {
+                        updateChartFromFrame(frameValues);
+                    } else {
+                        if (batchTimer) clearTimeout(batchTimer);
+                        batchTimer = setTimeout(() => {
+                            if (frameValues.length > 0) updateChartFromFrame(frameValues);
+                            batchTimer = null;
+                        }, 100);
+                    }
+                }
+
+                lastParsedCount = frameValues.length;
+                debugInfo.textContent =
+                    `帧: ${frameCount} | 值: [${frameValues.join(', ')}] | 原始: "${frame.trim()}" | 全部值: [${values.join(', ')}]`;
+            }
+
+            // ===== 帧结束符转换（HTML value 是字符串 "\n"，需转为实际换行符） =====
+            function getFrameEndChar() {
+                const val = frameEnd.value;
+                if (val === '\\r\\n') return '\r\n';
+                if (val === '\\n') return '\n';
+                if (val === '\\r') return '\r';
+                return val;
+            }
+
+            // ===== 接收处理 =====
+            function processRxData(text) {
+                const endChar = getFrameEndChar();
+                frameBuffer += text;
+
+                let endIndex = frameBuffer.indexOf(endChar);
+                while (endIndex !== -1) {
+                    const frame = frameBuffer.substring(0, endIndex);
+                    frameBuffer = frameBuffer.substring(endIndex + endChar.length);
+                    if (frame.trim() !== '') processFrame(frame);
+                    endIndex = frameBuffer.indexOf(endChar);
+                }
+
+                if (frameBuffer.length > 10000) {
+                    if (frameBuffer.trim() !== '') processFrame(frameBuffer);
+                    frameBuffer = '';
+                }
+
+                if (timeoutTimer) clearTimeout(timeoutTimer);
+                timeoutTimer = setTimeout(() => {
+                    if (frameBuffer.trim() !== '') {
+                        const data = frameBuffer;
+                        frameBuffer = '';
+                        processFrame(data);
+                    }
+                    timeoutTimer = null;
+                }, parseInt(packetTimeout.value, 10) || 50);
+            }
+
+            function textToHex(str) {
+                let hex = '';
+                for (let i = 0; i < str.length; i++) {
+                    hex += str.charCodeAt(i).toString(16).padStart(2, '0').toUpperCase() + ' ';
+                }
+                return hex.trim();
+            }
+
+            function updateRxDisplay() {
+                const mode = receiveMode.value;
+                const showTime = showTimestamp.checked;
+                let html = '';
+
+                if (rxEntries.length === 0) {
+                    rxDisplay.innerHTML = '<span style="color:var(--text-light)">(已清空)</span>';
+                    return;
+                }
+
+                if (mode === 'dual') {
+                    rxEntries.forEach(entry => {
+                        html += `<div class="rx-entry">`;
+                        if (showTime) html += `<span class="time">${entry.time}</span>`;
+                        html += `<span class="hex-part">HEX: ${entry.hex}</span>`;
+                        html += `<span class="text-part">TEXT: ${entry.text}</span>`;
+                        html += `</div>`;
+                    });
+                    rxDisplay.innerHTML = html;
+                } else if (mode === 'hex') {
+                    let parts = [];
+                    rxEntries.forEach(e => {
+                        parts.push(showTime ? `${e.time} HEX: ${e.hex}` : e.hex);
+                    });
+                    rxDisplay.textContent = parts.join('\n');
+                } else {
+                    let parts = [];
+                    rxEntries.forEach(e => {
+                        parts.push(showTime ? `${e.time} TEXT: ${e.text}` : e.text);
+                    });
+                    rxDisplay.textContent = parts.join('\n');
+                }
+                rxDisplay.scrollTop = rxDisplay.scrollHeight;
+            }
+
+            // ===== 串口操作 =====
+            async function connect() {
+                try {
+                    const baud = baudSelect.value === 'custom' ? parseInt(customBaud.value, 10) : parseInt(baudSelect
+                        .value, 10);
+                    if (isNaN(baud) || baud <= 0) { alert('无效波特率'); return; }
+                    port = await navigator.serial.requestPort();
+                    await port.open({
+                        baudRate: baud,
+                        dataBits: parseInt(document.getElementById('dataBits').value, 10),
+                        stopBits: parseInt(document.getElementById('stopBits').value, 10),
+                        parity: document.getElementById('parity').value
+                    });
+                    isConnected = true;
+                    connectBtn.disabled = true;
+                    disconnectBtn.disabled = false;
+                    connStatus.innerHTML = '<span class="status-ok">● 已连接</span>';
+                    rxDisplay.innerHTML = '<span style="color:var(--text-light)">● 已连接，等待数据...</span>';
+                    reader = port.readable.getReader();
+                    writer = port.writable.getWriter();
+                    readLoop();
+                } catch (e) {
+                    alert('连接失败: ' + e.message);
+                    connStatus.innerHTML = `<span class="error-msg">⚠️ 连接失败</span>`;
+                }
+            }
+
+            async function readLoop() {
+                try {
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        const text = textDecoder.decode(value);
+                        if (text) processRxData(text);
+                    }
+                } catch (e) {
+                    if (isConnected) {
+                        connStatus.innerHTML = `<span class="error-msg">⚠️ 读取错误</span>`;
+                    }
+                }
+            }
+
+            async function disconnect() {
+                try {
+                    if (reader) { await reader.cancel();
+                        reader = null; }
+                    if (writer) { await writer.close();
+                        writer = null; }
+                    if (port) { await port.close();
+                        port = null; }
+                } catch (e) {}
+                isConnected = false;
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                connStatus.innerHTML = '● 已断开';
+                frameBuffer = '';
+                if (timeoutTimer) { clearTimeout(timeoutTimer);
+                    timeoutTimer = null; }
+            }
+
+            // ===== 发送数据 =====
+            function escapeEscapes(str) {
+                return str.replace(/\\r/g, '\r').replace(/\\n/g, '\n');
+            }
+
+            async function sendData() {
+                if (!isConnected || !port) {
+                    const raw = sendInput.value;
+                    if (!raw.trim()) return;
+                    processRxData(escapeEscapes(raw));
+                    return;
+                }
+                const raw = sendInput.value;
+                if (!raw.trim()) return;
+                let data = [];
+                const mode = sendMode.value;
+                if (mode === 'hex') {
+                    const hex = raw.replace(/,/g, ' ').trim().split(/\s+/);
+                    for (let h of hex) {
+                        if (h.startsWith('0x')) h = h.slice(2);
+                        const byte = parseInt(h, 16);
+                        if (!isNaN(byte) && byte >= 0 && byte <= 255) data.push(byte);
+                    }
+                } else {
+                    const encoder = new TextEncoder();
+                    data = Array.from(encoder.encode(escapeEscapes(raw)));
+                }
+                if (data.length === 0) { alert('无有效数据'); return; }
+                try {
+                    if (!writer) writer = port.writable.getWriter();
+                    await writer.write(new Uint8Array(data));
+                } catch (e) { alert('发送失败: ' + e.message); }
+            }
+
+            // ===== 事件绑定 =====
+            connectBtn.addEventListener('click', connect);
+            disconnectBtn.addEventListener('click', disconnect);
+            sendBtn.addEventListener('click', sendData);
+            sendInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendData(); });
+
+            function clearRx() {
+                rxEntries = [];
+                frameBuffer = '';
+                frameCount = 0;
+                if (timeoutTimer) { clearTimeout(timeoutTimer);
+                    timeoutTimer = null; }
+                rxDisplay.innerHTML = '<span style="color:var(--text-light)">(已清空)</span>';
+                rxCount.textContent = '0 字节';
+                debugInfo.textContent = '帧: 0';
+                frameIndicator.className = 'frame-indicator idle';
+            }
+            clearRxBtn.addEventListener('click', clearRx);
+            clearRxBtn2.addEventListener('click', clearRx);
+
+            clearChartBtn.addEventListener('click', () => {
+                const maxCurves = parseInt(curveCount.value, 10);
+                chartDataList = [];
+                lastValues = [];
+                for (let i = 0; i < maxCurves; i++) { chartDataList.push([]);
+                    lastValues.push(null); }
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+                resetView();
+                // 清空帧计数
+                frameCount = 0;
+                debugInfo.textContent = '帧: 0';
+            });
+            resetViewBtn.addEventListener('click', resetView);
+            maxPoints.addEventListener('change', () => { drawChart(); });
+
+            curveCount.addEventListener('change', () => {
+                const maxCurves = parseInt(curveCount.value, 10);
+                while (chartDataList.length < maxCurves) {
+                    chartDataList.push([]);
+                    lastValues.push(null);
+                }
+                while (chartDataList.length > maxCurves) {
+                    chartDataList.pop();
+                    lastValues.pop();
+                }
+                updateColorPreview();
+                hoverPoint = null;
+                tooltipFloat.classList.remove('visible');
+                drawChart();
+            });
+
+            receiveMode.addEventListener('change', updateRxDisplay);
+            showTimestamp.addEventListener('change', updateRxDisplay);
+
+            // ===== 初始化 =====
+            setTimeout(() => {
+                resizeChart();
+                const maxCurves = parseInt(curveCount.value, 10);
+                const wavePoints = 80;
+                const amplitude = 10;
+                const offset = 15;
+                for (let c = 0; c < maxCurves; c++) {
+                    for (let i = 0; i < wavePoints; i++) {
+                        const t = (i / wavePoints) * 2 * Math.PI;
+                        let v;
+                        if (c === 0) {
+                            // 正弦波
+                            v = offset + amplitude * Math.sin(t);
+                        } else if (c === 1) {
+                            // 三角波
+                            v = offset + amplitude * (2 / Math.PI) * Math.asin(Math.sin(t));
+                        } else if (c === 2) {
+                            // 方波
+                            v = offset + amplitude * Math.sign(Math.sin(t));
+                        } else {
+                            v = offset + i * 0.2;
+                        }
+                        chartDataList[c].push(v);
+                    }
+                    lastValues[c] = chartDataList[c][chartDataList[c].length - 1];
+                }
+                updateColorPreview();
+                resetView();
+                rxDisplay.innerHTML = '<span style="color:var(--text-light)">(已清空)</span>';
+                rxCount.textContent = '0 字节';
+                debugInfo.textContent = '帧: 0';
+            }, 100);
+
+            window.addEventListener('beforeunload', () => { if (isConnected) disconnect(); });
+        })();
+    </script>
 </body>
 </html>

@@ -818,7 +818,7 @@
     <footer class="footer">
         <p>
             嵌入式开发者工具箱<br>
-            一站式解决开发中的高频需求 / 欢迎加入技术交流群：<a href="https://qm.qq.com/cgi-bin/qm/qr?k=__pVkxOENE6E-Rll9Uq7HLs7Sur6er4X&jump_from=webapi&authKey=Gl3MgNARFJux2krmlTEBydeUmr/AjgskqqqovGnVCh5ytrtiRopdBpmkU1Y9hYQZ">453705020</a><br>
+            一站式解决开发中的高频需求 · 欢迎加入技术交流群：<a href="https://qm.qq.com/cgi-bin/qm/qr?k=__pVkxOENE6E-Rll9Uq7HLs7Sur6er4X&jump_from=webapi&authKey=Gl3MgNARFJux2krmlTEBydeUmr/AjgskqqqovGnVCh5ytrtiRopdBpmkU1Y9hYQZ">453705020</a><br>
             ©<script>document.write(new Date().getFullYear())</script>&nbsp;&nbsp;Yu_ToolBox
         </p>
     </footer>
@@ -858,22 +858,34 @@
                 title: '电池功耗计算器',
                 desc: '选择电池估算设备工作时长（天/周/月）。',
                 icon: '🔋',
-                iconClass: 'icon-yellow',
+                iconClass: 'icon-blue',
                 url: './function/PowerCalculator.html',
                 tagAccent: [true, false, false],
-                category: '计算器',
+                category: '功耗计算',
                 isNew: false
             },
             //串口工具
              {
                 id: 'serial-port',
                 title: '在线串口工具',
-                desc: '可自定义波特率 · 实时数据曲线 · 悬浮显示数据点',
-                icon: '📡',
+                desc: '可自定义波特率 · 实时数据曲线。',
+                icon: '🔗',
                 iconClass: 'icon-blue',
                 url: './function/serialPortTool.html',
                 tagAccent: [true, false, false],
                 category: '串口',
+                isNew: false
+            },
+            //CRC校验
+             {
+                id: 'CRC-check',
+                title: 'CRC校验计算器',
+                desc: '支持 CRC-8/16/32/64 多种算法。',
+                icon: '🔢',
+                iconClass: 'icon-blue',
+                url: './function/CRCCheck.html',
+                tagAccent: [true, false, false],
+                category: '校验计算',
                 isNew: true
             }
         ];
