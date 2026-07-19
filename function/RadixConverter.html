@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>  进制转换器 · 位操作工具</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'> 🔁</text></svg>">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <style>
+        /* ===== CSS Variables (主题) ===== */
+        :root {
+            --bg-body: #f1f4f9; --bg-container: #f1f4f9; --bg-panel: #fafcff;
+            --bg-panel-accent: #f8faff; --bg-input: #ffffff; --bg-input-readonly: #f1f5f9;
+            --bg-code: #ffffff; --bg-option-grid: #f8fafc; --bg-tag: #e2e8f0;
+            --bg-badge: #e0e7ff; --text-primary: #0f172a; --text-secondary: #1e293b;
+            --text-muted: #64748b; --text-light: #94a3b8; --text-code: #000000;
+            --text-badge: #4338ca; --border-light: #e9edf4; --border-input: #d1d9e6;
+            --border-focus: #818cf8; --shadow-card: 0 20px 40px rgba(0,0,0,0.06);
+            --shadow-swatch: 0 6px 16px rgba(0,0,0,0.06);
+            --btn-primary: #1e293b; --btn-primary-hover: #0f172a;
+            --btn-outline-border: #d1d9e6; --btn-outline-hover-bg: #f1f4f9;
+            --status-ok-bg: #d1fae5; --status-ok-text: #0b7e4b;
+            --status-error-bg: #fee2e2; --status-error-text: #b91c1c;
+            --scrollbar-track: #f1f4f9; --scrollbar-thumb: #cbd5e1;
+            --accent-blue: #818cf8; --accent-blue-hover: #6366f1;
+            --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
+            --bit-0-bg: #f1f5f9; --bit-0-color: #94a3b8; --bit-0-border: #e2e8f0;
+            --bit-1-bg: #818cf8; --bit-1-color: #ffffff; --bit-1-border: #6366f1;
+            --bit-hover: rgba(129,140,248,0.15);
+            --bit-active-highlight: rgba(129,140,248,0.35);
+        }
+        [data-theme="dark"] {
+            --bg-body: #1e1e1e; --bg-container: #2c2c2c; --bg-panel: #2c2c2c;
+            --bg-panel-accent: #2c2c2c; --bg-input: #1e1e1e; --bg-input-readonly: #1e1e1e;
+            --bg-code: #1a1a1a; --bg-option-grid: #262626; --bg-tag: #3d3d3d;
+            --bg-badge: #1e2a4a; --text-primary: #e6e6e6; --text-secondary: #cccccc;
+            --text-muted: #888888; --text-light: #666666; --text-code: #e6e6e6;
+            --text-badge: #7a9eff; --border-light: #3d3d3d; --border-input: #3d3d3d;
+            --border-focus: #7a9eff; --shadow-card: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-swatch: 0 6px 16px rgba(0,0,0,0.4);
+            --btn-primary: #3d3d3d; --btn-primary-hover: #4a4a4a;
+            --btn-outline-border: #4a4a4a; --btn-outline-hover-bg: #333333;
+            --status-ok-bg: #0a3d2a; --status-ok-text: #5ae0a0;
+            --status-error-bg: #4a1a1a; --status-error-text: #f08080;
+            --scrollbar-track: #262626; --scrollbar-thumb: #4a4a4a;
+            --accent-blue: #7a9eff; --accent-blue-hover: #5a7fff;
+            --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
+            --bit-0-bg: #262626; --bit-0-color: #666666; --bit-0-border: #3d3d3d;
+            --bit-1-bg: #5a7fff; --bit-1-color: #ffffff; --bit-1-border: #4466ee;
+            --bit-hover: rgba(90,127,255,0.2);
+            --bit-active-highlight: rgba(90,127,255,0.4);
+        }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body {
+            background: var(--bg-body); min-height: 100vh; margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            transition: background 0.25s, color 0.25s; color: var(--text-primary);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+        .container { max-width: 1400px; width: 100%; background: var(--bg-container); padding: 32px 36px 40px; transition: background 0.25s; }
+
+        /* ===== 导航栏 ===== */
+        .navbar { width: 100%; background: var(--bg-container); border-bottom: 1px solid var(--border-light); padding: 0 24px; position: sticky; top: 0; z-index: 100; transition: background 0.25s, border-color 0.25s; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; background: var(--hero-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .navbar-brand .brand-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: var(--hero-gradient); color: #fff; font-size: 1.2rem; }
+        .navbar-right { display: flex; align-items: center; gap: 12px; }
+        .theme-toggle { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); padding: 6px 16px 6px 20px; border-radius: 40px; border: 1px solid var(--border-light); cursor: pointer; transition: background 0.25s, border-color 0.25s; user-select: none; font-size: 0.85rem; color: var(--text-secondary); }
+        .theme-toggle:hover { border-color: var(--border-focus); }
+        .theme-toggle .toggle-track { width: 44px; height: 24px; background: var(--border-input); border-radius: 40px; position: relative; transition: background 0.3s; flex-shrink: 0; }
+        .theme-toggle .toggle-thumb { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s, background 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        [data-theme="dark"] .theme-toggle .toggle-track { background: var(--accent-blue); }
+        [data-theme="dark"] .theme-toggle .toggle-thumb { transform: translateX(20px); background: #e6e6e6; }
+
+        /* ===== 页面标题 ===== */
+        .page-title { font-size: 1.8rem; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color 0.25s; letter-spacing: -0.02em; }
+        .subhead { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 28px; border-left: 3px solid var(--accent-blue); padding-left: 16px; background: var(--bg-panel); border-radius: 0 10px 10px 0; line-height: 1.6; transition: background 0.25s, color 0.25s; }
+
+        /* ===== 网格 ===== */
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        .grid-3col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+        @media (max-width: 900px) { .grid-2col, .grid-3col { grid-template-columns: 1fr; } }
+
+        /* ===== 面板 ===== */
+        .panel { background: var(--bg-panel); border-radius: 18px; padding: 18px 20px 22px; border: 1px solid transparent; transition: background 0.25s, border-color 0.25s, box-shadow 0.25s; }
+        .panel:hover { border-color: var(--accent-blue); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .panel-accent { background: var(--bg-panel-accent); }
+        .panel-title { font-weight: 600; color: var(--text-secondary); margin-top: 0; margin-bottom: 14px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; transition: color 0.25s; }
+        .panel-title small { font-weight: 400; font-size: 0.65rem; color: var(--text-light); }
+
+        /* ===== 输入 ===== */
+        .input-group { display: flex; flex-direction: column; gap: 12px; }
+        .input-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+        .input-row label { font-weight: 500; color: var(--text-secondary); min-width: 70px; font-size: 0.78rem; transition: color 0.25s; }
+        .input-row input, .input-row select, .input-row textarea {
+            flex: 1; min-width: 60px; padding: 6px 12px; border-radius: 10px;
+            border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary);
+            font-size: 0.8rem; font-family: 'SF Mono', 'Fira Code', monospace;
+            transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s; outline: none;
+        }
+        .input-row input:focus, .input-row select:focus, .input-row textarea:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(122,158,255,0.12); }
+        .input-row textarea { min-height: 80px; resize: vertical; font-size: 0.75rem; line-height: 1.5; flex: 2; }
+        .input-row select { flex: 0.7; min-width: 100px; cursor: pointer; }
+        .input-row input[readonly] { background: var(--bg-input-readonly); color: var(--text-secondary); }
+        .unit { font-size: 0.7rem; color: var(--text-muted); min-width: 20px; }
+        .hint-text { font-size: 0.62rem; color: var(--text-light); font-style: italic; }
+        .tag { background: var(--bg-tag); padding: 2px 10px; border-radius: 40px; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); transition: background 0.25s, color 0.25s; }
+        .range-badge { display: inline-block; background: var(--bg-badge); color: var(--text-badge); padding: 2px 10px; border-radius: 12px; font-size: 0.62rem; font-weight: 600; transition: background 0.25s, color 0.25s; }
+
+        /* ===== 按钮 ===== */
+        .btn { background: var(--btn-primary); color: white; border: none; padding: 6px 16px; border-radius: 40px; font-weight: 500; font-size: 0.75rem; cursor: pointer; transition: 0.12s, background 0.25s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+        .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--btn-outline-border); }
+        .btn-outline:hover { background: var(--btn-outline-hover-bg); border-color: var(--border-focus); }
+        .btn-accent { background: var(--accent-blue); }
+        .btn-accent:hover { background: var(--accent-blue-hover); }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .btn-sm { padding: 3px 12px; font-size: 0.65rem; }
+
+        /* ===== 代码输出 ===== */
+        .code-output { background: var(--bg-code); color: var(--text-code); padding: 10px 14px; border-radius: 12px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.7rem; max-height: 130px; overflow: auto; white-space: pre-wrap; word-break: break-all; margin-top: 6px; transition: background 0.25s, color 0.25s; line-height: 1.6; }
+        .code-output::-webkit-scrollbar { width: 4px; height: 4px; }
+        .code-output::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        .code-output::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+        .status-ok { color: var(--status-ok-text); background: var(--status-ok-bg); padding: 2px 12px; border-radius: 40px; font-size: 0.65rem; }
+        .error-msg { color: var(--status-error-text); background: var(--status-error-bg); padding: 2px 12px; border-radius: 40px; font-size: 0.65rem; }
+        .footer-note { margin-top: 24px; color: var(--text-light); font-size: 0.7rem; text-align: center; border-top: 1px solid var(--border-light); padding-top: 16px; transition: color 0.25s, border-color 0.25s; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .mt-8 { margin-top: 8px; }
+        .mt-12 { margin-top: 12px; }
+        .mt-18 { margin-top: 18px; }
+        .mb-18 { margin-bottom: 18px; }
+
+        /* ===== 结果展示框 ===== */
+        .result-box { background: var(--bg-option-grid); border-radius: 12px; padding: 12px 16px; border: 1px solid var(--border-light); transition: background 0.25s, border-color 0.25s; margin-top: 6px; }
+        .result-box .result-label { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 2px; }
+        .result-box .result-value { font-size: 1.2rem; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-primary); letter-spacing: -0.02em; word-break: break-all; }
+        .result-box .result-sub { font-size: 0.65rem; color: var(--text-light); margin-top: 2px; }
+
+        /* ===== 可点击的位格子 ===== */
+        .bit-grid { display: flex; flex-wrap: wrap; gap: 3px; margin: 8px 0; align-items: flex-end; }
+        .bit-cell {
+            width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center;
+            justify-content: center; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.72rem;
+            font-weight: 600; cursor: pointer; transition: all 0.15s; border: 1.5px solid;
+            user-select: none; position: relative;
+        }
+        .bit-cell.bit-0 { background: var(--bit-0-bg); color: var(--bit-0-color); border-color: var(--bit-0-border); }
+        .bit-cell.bit-1 { background: var(--bit-1-bg); color: var(--bit-1-color); border-color: var(--bit-1-border); }
+        .bit-cell:hover { transform: scale(1.12); box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+        .bit-cell .bit-index { position: absolute; bottom: -14px; left: 50%; transform: translateX(-50%); font-size: 0.5rem; color: var(--text-light); font-weight: 400; pointer-events: none; }
+        .bit-separator { width: 8px; display: flex; align-items: center; justify-content: center; color: var(--text-light); font-size: 0.55rem; flex-shrink: 0; }
+
+        /* ===== 字节序切换 ===== */
+        .endianness-switch { display: flex; background: var(--bg-option-grid); border-radius: 10px; padding: 3px; border: 1px solid var(--border-light); gap: 2px; }
+        .endianness-switch .end-opt { padding: 5px 16px; border-radius: 8px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--text-muted); border: none; background: transparent; }
+        .endianness-switch .end-opt.active { background: var(--accent-blue); color: #fff; box-shadow: 0 2px 6px rgba(99,102,241,0.3); }
+        .endianness-switch .end-opt:hover:not(.active) { color: var(--text-secondary); background: var(--bit-hover); }
+
+        /* ===== Tab 切换 ===== */
+        .tab-bar { display: flex; gap: 2px; background: var(--bg-option-grid); border-radius: 12px; padding: 3px; margin-bottom: 18px; border: 1px solid var(--border-light); overflow-x: auto; }
+        .tab-bar .tab-item { padding: 8px 20px; border-radius: 10px; font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.2s; color: var(--text-muted); border: none; background: transparent; white-space: nowrap; }
+        .tab-bar .tab-item.active { background: var(--bg-panel); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.06); font-weight: 600; }
+        .tab-bar .tab-item:hover:not(.active) { color: var(--text-secondary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ===== 进制转换 - 主输入框高亮 ===== */
+        .radix-input-row { position: relative; }
+        .radix-input-row input { padding-right: 50px; }
+        .radix-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 0.75rem; font-weight: 600; color: var(--accent-blue); font-family: 'SF Mono', 'Fira Code', monospace; pointer-events: none; z-index: 1; }
+        .radix-input-row input.has-prefix { padding-left: 42px; }
+        .radix-copy-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); }
+        .radix-info { font-size: 0.6rem; color: var(--text-light); margin-top: 2px; padding-left: 4px; }
+
+        /* ===== 位可视化行 ===== */
+        .bit-visual-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; flex-wrap: wrap; }
+        .bit-visual-row .bit-row-label { font-size: 0.7rem; color: var(--text-muted); min-width: 30px; }
+        .bit-byte-label { font-size: 0.52rem; color: var(--text-light); text-align: center; margin-bottom: 2px; font-weight: 500; }
+
+        /* ===== 浮点数特殊标记 ===== */
+        .fp-special { display: inline-flex; align-items: center; gap: 4px; }
+        .fp-special .fp-tag { font-size: 0.6rem; padding: 1px 8px; border-radius: 20px; font-weight: 600; }
+        .fp-tag-nan { background: #fef3c7; color: #92400e; }
+        .fp-tag-inf { background: #dbeafe; color: #1e40af; }
+        .fp-tag-zero { background: var(--bg-tag); color: var(--text-muted); }
+        [data-theme="dark"] .fp-tag-nan { background: #422006; color: #fbbf24; }
+        [data-theme="dark"] .fp-tag-inf { background: #172554; color: #60a5fa; }
+
+        /* ===== ASCII 次要区域 ===== */
+        .ascii-section { border-top: 1px dashed var(--border-light); padding-top: 18px; margin-top: 18px; }
+
+        /* ===== 折叠面板 ===== */
+        .collapse-toggle { cursor: pointer; user-select: none; }
+        .collapse-toggle .collapse-arrow { display: inline-block; transition: transform 0.2s; font-size: 0.7rem; }
+        .collapse-toggle.collapsed .collapse-arrow { transform: rotate(-90deg); }
+        .collapse-body { overflow: hidden; transition: max-height 0.3s ease; }
+        .collapse-body.collapsed { max-height: 0 !important; padding: 0; margin: 0; }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 600px) {
+            .container { padding: 16px 12px 24px; }
+            .page-title { font-size: 1.4rem; }
+            .bit-cell { width: 22px; height: 22px; font-size: 0.6rem; }
+            .tab-bar .tab-item { padding: 6px 12px; font-size: 0.75rem; }
+            .radix-input-row input { font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="theme-toggle" id="themeToggle" title="切换主题">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title"> 🔁 进制转换器 · 位操作工具</h1>
+        <div class="subhead">🔹 进制实时互转，支持 8~64 位数据位宽，大端 / 小端字节序切换 浮点数转换，以及位设置、位域提取、循环移位、位掩码生成等操作。</div>
+
+        <!-- Tab 导航 -->
+        <div class="tab-bar" id="mainTabBar">
+            <button class="tab-item active" data-tab="tab-convert">进制转换</button>
+            <button class="tab-item" data-tab="tab-float">浮点数</button>
+            <button class="tab-item" data-tab="tab-bitops">位操作</button>
+        </div>
+
+        <!-- ==================== TAB 1: 进制转换（主） ==================== -->
+        <div class="tab-content active" id="tab-convert">
+            <!-- 位宽 + 字节序控制栏 -->
+            <div class="panel mb-18">
+                <div class="panel-title">数据位宽 & 字节序</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>位宽</label>
+                        <select id="convBitWidth" onchange="onConvBitWidthChange()" style="flex:0.6;">
+                            <option value="8">8-bit  (1 Byte)</option>
+                            <option value="16">16-bit (2 Bytes)</option>
+                            <option value="32" selected>32-bit (4 Bytes)</option>
+                            <option value="48">48-bit (6 Bytes)</option>
+                            <option value="64">64-bit (8 Bytes)</option>
+                        </select>
+                        <label style="min-width:auto;">字节序</label>
+                        <div class="endianness-switch" id="convEndianness">
+                            <button class="end-opt active" data-end="big">大端 BE</button>
+                            <button class="end-opt" data-end="little">小端 LE</button>
+                        </div>
+                        <span class="hint-text">多字节时影响 HEX 显示字节顺序</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 核心：四种进制输入 -->
+            <div class="grid-2col mb-18">
+                <div class="panel">
+                    <div class="panel-title">十六进制 <span class="tag">HEX</span></div>
+                    <div class="input-group">
+                        <div class="input-row radix-input-row">
+                            <span class="radix-prefix">0x</span>
+                            <input type="text" id="convHex" class="has-prefix" placeholder="如 FF01AB 或 FF 01 AB" style="flex:1;" oninput="onRadixInput('hex')">
+                            <button class="btn btn-outline btn-sm radix-copy-btn" onclick="copyConvField('convHex','hex')">复制</button>
+                        </div>
+                        <div class="radix-info" id="convHexInfo">支持空格分隔字节</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">十进制 <span class="tag">DEC</span></div>
+                    <div class="input-group">
+                        <div class="input-row radix-input-row">
+                            <span class="radix-prefix">10</span>
+                            <input type="text" id="convDec" class="has-prefix" placeholder="如 4294967295" style="flex:1;" oninput="onRadixInput('dec')">
+                            <button class="btn btn-outline btn-sm radix-copy-btn" onclick="copyConvField('convDec','dec')">复制</button>
+                        </div>
+                        <div class="radix-info" id="convDecInfo"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid-2col mb-18">
+                <div class="panel">
+                    <div class="panel-title">二进制 <span class="tag">BIN</span></div>
+                    <div class="input-group">
+                        <div class="input-row radix-input-row">
+                            <span class="radix-prefix">0b</span>
+                            <input type="text" id="convBin" class="has-prefix" placeholder="如 11111111" style="flex:1;" oninput="onRadixInput('bin')">
+                            <button class="btn btn-outline btn-sm radix-copy-btn" onclick="copyConvField('convBin','bin')">复制</button>
+                        </div>
+                        <div class="radix-info" id="convBinInfo">可含空格分组</div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <div class="panel-title">八进制 <span class="tag">OCT</span></div>
+                    <div class="input-group">
+                        <div class="input-row radix-input-row">
+                            <span class="radix-prefix">0o</span>
+                            <input type="text" id="convOct" class="has-prefix" placeholder="如 377" style="flex:1;" oninput="onRadixInput('oct')">
+                            <button class="btn btn-outline btn-sm radix-copy-btn" onclick="copyConvField('convOct','oct')">复制</button>
+                        </div>
+                        <div class="radix-info" id="convOctInfo"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 位可视化 -->
+            <div class="panel mb-18">
+                <div class="panel-title">位可视化 <span class="hint-text">点击位可翻转，高亮字节跟随字节序</span></div>
+                <div id="convBitVisual"></div>
+                <div class="flex-between mt-8">
+                    <span class="range-badge" id="convBitSummary">0x00000000  |  0  |  0b00000000000000000000000000000000</span>
+                </div>
+            </div>
+
+            <!-- 次要：ASCII 区域 -->
+            <div class="ascii-section">
+                <div class="panel-title collapse-toggle" onclick="toggleAsciiSection()">
+                    <span class="collapse-arrow">▼</span>
+                    ASCII 文本转换 <small>（辅助功能，按字节拆分）</small>
+                </div>
+                <div class="collapse-body" id="asciiBody">
+                    <div class="input-group mt-12">
+                        <div class="input-row">
+                            <label>ASCII</label>
+                            <input type="text" id="asciiInput" placeholder="输入文本，如 Hello" style="flex:2;" oninput="onAsciiInput()">
+                        </div>
+                        <div class="input-row mt-8">
+                            <label>HEX</label>
+                            <input type="text" id="asciiHex" readonly style="flex:1;">
+                            <button class="btn btn-outline btn-sm" onclick="copyField('asciiHex')">复制</button>
+                        </div>
+                        <div class="input-row">
+                            <label>DEC</label>
+                            <input type="text" id="asciiDec" readonly style="flex:1;">
+                            <button class="btn btn-outline btn-sm" onclick="copyField('asciiDec')">复制</button>
+                        </div>
+                        <div class="input-row">
+                            <label>BIN</label>
+                            <input type="text" id="asciiBin" readonly style="flex:1;">
+                            <button class="btn btn-outline btn-sm" onclick="copyField('asciiBin')">复制</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 2: 浮点数 IEEE 754 ==================== -->
+        <div class="tab-content" id="tab-float">
+            <div class="panel mb-18">
+                <div class="panel-title">浮点数转换 <span class="tag">FP16 / BF16 / FP32 / FP64</span></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>格式</label>
+                        <div class="endianness-switch" id="fpPrecision">
+                            <button class="end-opt" data-prec="16h">半精度 FP16</button>
+                            <button class="end-opt" data-prec="16b">BF16</button>
+                            <button class="end-opt active" data-prec="32">单精度 FP32</button>
+                            <button class="end-opt" data-prec="64">双精度 FP64</button>
+                        </div>
+                        <span class="hint-text" id="fpStdHint">IEEE 754-1985 binary32</span>
+                    </div>
+                    <div class="input-row">
+                        <label>字节序</label>
+                        <div class="endianness-switch" id="fpEndianness">
+                            <button class="end-opt active" data-end="big">大端 (BE)</button>
+                            <button class="end-opt" data-end="little">小端 (LE)</button>
+                        </div>
+                    </div>
+                    <div class="input-row mt-12">
+                        <label>浮点数值</label>
+                        <input type="text" id="fpValueInput" placeholder="如 3.14 或 -0.1 或 1e10" style="flex:1;">
+                    </div>
+                    <div class="input-row">
+                        <label>HEX 字节</label>
+                        <input type="text" id="fpHexInput" placeholder="如 40 48 F5 C3 或 4048F5C3" style="flex:1;">
+                        <span class="hint-text" id="fpHexHint">FP32: 4 字节</span>
+                        <button class="btn btn-outline btn-sm" onclick="fpFromHex()">HEX → 浮点</button>
+                        <button class="btn btn-outline btn-sm" onclick="copyField('fpHexInput')">复制</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mb-18">
+                <div class="panel-title">位结构分析 <span class="hint-text">点击位格子可翻转对应位</span></div>
+                <div class="input-group">
+                    <div id="fpBitStructure"></div>
+                </div>
+            </div>
+
+            <div class="grid-3col">
+                <div class="result-box" id="fpSignBox">
+                    <div class="result-label">符号位 (Sign)</div>
+                    <div class="result-value" id="fpSignValue">0</div>
+                    <div class="result-sub" id="fpSignDesc">正数 (+)</div>
+                </div>
+                <div class="result-box" id="fpExponentBox">
+                    <div class="result-label">指数 (Exponent)</div>
+                    <div class="result-value" id="fpExpValue">0</div>
+                    <div class="result-sub" id="fpExpDesc">实际指数: 0</div>
+                </div>
+                <div class="result-box" id="fpMantissaBox">
+                    <div class="result-label">尾数 (Mantissa)</div>
+                    <div class="result-value" id="fpManValue">0</div>
+                    <div class="result-sub" id="fpManDesc">1.xxxxx (含隐含1)</div>
+                </div>
+            </div>
+
+            <div class="result-box mt-18" id="fpVerifyBox">
+                <div class="result-label">验证: 从位结构还原</div>
+                <div class="result-value" id="fpVerifyValue">—</div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: 位操作 ==================== -->
+        <div class="tab-content" id="tab-bitops">
+            <div class="panel mb-18">
+                <div class="panel-title">输入值 <span class="range-badge">十六进制或十进制</span></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>输入</label>
+                        <input type="text" id="bitopsInput" placeholder="如 0xFF 或 255" style="flex:1;">
+                        <button class="btn btn-outline btn-sm" onclick="applyBitopsInput()">应用</button>
+                    </div>
+                    <div class="input-row">
+                        <label>位宽</label>
+                        <select id="bitopsBitWidth" onchange="renderBitopsVisual()">
+                            <option value="8">8-bit</option>
+                            <option value="16">16-bit</option>
+                            <option value="32" selected>32-bit</option>
+                            <option value="64">64-bit</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mb-18">
+                <div class="panel-title">位可视化 <span class="hint-text">点击位可翻转</span></div>
+                <div id="bitopsVisual"></div>
+                <div class="flex-between mt-8">
+                    <span class="tag" id="bitopsCurrentHex">0x00000000</span>
+                    <span class="tag" id="bitopsCurrentDec">0</span>
+                </div>
+            </div>
+
+            <div class="panel mb-18">
+                <div class="panel-title">位设置 / 清除 / 翻转</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>位索引</label>
+                        <input type="number" id="bitSingleIdx" placeholder="0-31" min="0" style="flex:0.5;">
+                        <span class="hint-text">从 0 (LSB) 开始</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-sm" onclick="bitSingleOp('set')">Set (置 1)</button>
+                        <button class="btn btn-outline btn-sm" onclick="bitSingleOp('clear')">Clear (清 0)</button>
+                        <button class="btn btn-outline btn-sm" onclick="bitSingleOp('toggle')">Toggle (翻转)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mb-18">
+                <div class="panel-title">位域提取</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>高位</label>
+                        <input type="number" id="bitFieldHi" placeholder="31" min="0" style="flex:0.5;">
+                        <label style="min-width:auto;">~</label>
+                        <label>低位</label>
+                        <input type="number" id="bitFieldLo" placeholder="0" min="0" style="flex:0.5;">
+                        <span class="hint-text">提取 [hi:lo] 位域</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-sm" onclick="extractBitField()">提取位域</button>
+                        <button class="btn btn-outline btn-sm" onclick="extractBitFieldSigned()">有符号提取</button>
+                    </div>
+                    <div class="result-box" id="bitFieldResult" style="display:none;">
+                        <div class="result-label">提取结果</div>
+                        <div class="result-value" id="bitFieldValue">—</div>
+                        <div class="result-sub" id="bitFieldSub"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mb-18">
+                <div class="panel-title">循环移位 (Rotate)</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>位移量</label>
+                        <input type="number" id="rotateAmount" placeholder="如 4" min="0" style="flex:0.5;">
+                        <span class="unit">bits</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-sm" onclick="rotateBits('left')">左移 (ROL)</button>
+                        <button class="btn btn-outline btn-sm" onclick="rotateBits('right')">右移 (ROR)</button>
+                        <button class="btn btn-sm btn-outline" onclick="shiftBits('left')">逻辑左移 (SHL)</button>
+                        <button class="btn btn-sm btn-outline" onclick="shiftBits('right')">逻辑右移 (SHR)</button>
+                        <button class="btn btn-sm btn-outline" onclick="shiftBits('aright')">算术右移 (SAR)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-title">位掩码生成</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>高位</label>
+                        <input type="number" id="maskHi" placeholder="31" min="0" style="flex:0.5;">
+                        <label style="min-width:auto;">~</label>
+                        <label>低位</label>
+                        <input type="number" id="maskLo" placeholder="0" min="0" style="flex:0.5;">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-sm" onclick="generateMask('set')">生成掩码</button>
+                        <button class="btn btn-outline btn-sm" onclick="applyMask('and')">AND 运算</button>
+                        <button class="btn btn-outline btn-sm" onclick="applyMask('or')">OR 运算</button>
+                        <button class="btn btn-outline btn-sm" onclick="applyMask('xor')">XOR 运算</button>
+                        <button class="btn btn-sm btn-outline" onclick="applyMask('not')">NOT (取反)</button>
+                    </div>
+                    <div class="result-box" id="maskResult" style="display:none;">
+                        <div class="result-label">掩码结果</div>
+                        <div class="result-value" id="maskValue">—</div>
+                        <div class="result-sub" id="maskSub"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            🔁 进制实时互转 · 位操作 · 浮点数转换。<br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script>
+    /* ======================================================
+       全局状态
+    ====================================================== */
+    let convBitWidth = 32;
+    let convEndianness = 'big';
+    let convValue = BigInt(0);        // 当前进制转换的值
+
+    let fpPrecision = '32';
+    let fpEndianness = 'big';
+    let bitopsValue = BigInt(0);
+    let bitopsBitWidth = 32;
+
+    /* ======================================================
+       主题切换
+    ====================================================== */
+    function toggleTheme() {
+        const html = document.documentElement;
+        const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('toolbox-theme', next);
+        const icon = document.querySelector('.theme-icon');
+        if (icon) icon.textContent = next === 'dark' ? '🌙' : '☀️';
+    }
+
+    /* ======================================================
+       Tab 切换
+    ====================================================== */
+    document.getElementById('mainTabBar').addEventListener('click', function(e) {
+        const tab = e.target.closest('.tab-item');
+        if (!tab) return;
+        const id = tab.dataset.tab;
+        this.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    });
+
+    /* ======================================================
+       通用切换组件
+    ====================================================== */
+    function setupSwitch(containerId, callback) {
+        const container = document.getElementById(containerId);
+        container.addEventListener('click', function(e) {
+            const opt = e.target.closest('.end-opt');
+            if (!opt) return;
+            this.querySelectorAll('.end-opt').forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
+            callback(opt);
+        });
+    }
+    setupSwitch('convEndianness', opt => {
+        convEndianness = opt.dataset.end;
+        updateConvDisplays();
+    });
+    setupSwitch('fpPrecision', opt => {
+        fpPrecision = opt.dataset.prec;
+        const hints = {
+            '16h': 'IEEE 754-2008 binary16 (1-5-10, bias=15)',
+            '16b': 'Google Brain bfloat16 (1-8-7, bias=127), 非IEEE标准',
+            '32':  'IEEE 754-1985 binary32 (1-8-23, bias=127)',
+            '64':  'IEEE 754-1985 binary64 (1-11-52, bias=1023)',
+        };
+        document.getElementById('fpStdHint').textContent = hints[fpPrecision] || '';
+        fpFromValue();
+    });
+    setupSwitch('fpEndianness', opt => { fpEndianness = opt.dataset.end; fpFromValue(); });
+
+    /* ======================================================
+       工具函数
+    ====================================================== */
+    function copyField(id) {
+        const el = document.getElementById(id);
+        navigator.clipboard.writeText(el.value || el.textContent).then(() => {
+            showCopyToast(el);
+        });
+    }
+    function showCopyToast(el) {
+        const toast = document.createElement('span');
+        toast.className = 'status-ok';
+        toast.textContent = '已复制';
+        toast.style.position = 'absolute';
+        toast.style.zIndex = '999';
+        el.parentElement.style.position = 'relative';
+        el.parentElement.appendChild(toast);
+        setTimeout(() => toast.remove(), 1200);
+    }
+    function hexToBytes(hex) {
+        hex = hex.replace(/[\s,]/g, '');
+        if (hex.length % 2 !== 0) hex = '0' + hex;
+        const bytes = [];
+        for (let i = 0; i < hex.length; i += 2) {
+            const b = parseInt(hex.substring(i, i + 2), 16);
+            if (isNaN(b)) return null;
+            bytes.push(b);
+        }
+        return bytes;
+    }
+    function bytesToHex(bytes, sep) {
+        return bytes.map(b => b.toString(16).toUpperCase().padStart(2, '0')).join(sep !== undefined ? sep : ' ');
+    }
+    function applyEndianness(bytes, endianness) {
+        if (endianness === 'little') return [...bytes].reverse();
+        return bytes;
+    }
+    function getBitMask(width) {
+        if (width >= 64) return BigInt('0xFFFFFFFFFFFFFFFF');
+        return (BigInt(1) << BigInt(width)) - BigInt(1);
+    }
+    function valueToBytes(val, width) {
+        const numBytes = Math.ceil(width / 8);
+        const bytes = [];
+        for (let i = numBytes - 1; i >= 0; i--) {
+            bytes.push(Number((val >> BigInt(i * 8)) & BigInt(0xFF)));
+        }
+        return bytes;
+    }
+    function bytesToValue(bytes) {
+        let val = 0n;
+        for (const b of bytes) {
+            val = (val << 8n) | BigInt(b);
+        }
+        return val;
+    }
+
+    /* ======================================================
+       进制转换 (TAB 1) — 核心逻辑
+    ====================================================== */
+    function getConvWidth() {
+        return convBitWidth;
+    }
+
+    function onConvBitWidthChange() {
+        convBitWidth = parseInt(document.getElementById('convBitWidth').value);
+        convValue = convValue & getBitMask(convBitWidth);
+        updateConvDisplays();
+    }
+
+    function onRadixInput(source) {
+        const mask = getBitMask(getConvWidth());
+        let val;
+
+        try {
+            if (source === 'hex') {
+                let hex = document.getElementById('convHex').value.replace(/[\s,]/g, '');
+                if (!hex) { setConvValueToZero(); return; }
+                if (hex.length % 2 !== 0) hex = '0' + hex;
+                // 检查是否合法
+                if (!/^[0-9a-fA-F]*$/.test(hex)) return;
+                if (hex === '') return;
+                val = BigInt('0x' + hex) & mask;
+            } else if (source === 'dec') {
+                const str = document.getElementById('convDec').value.trim();
+                if (!str) { setConvValueToZero(); return; }
+                // 支持负号（补码）
+                if (str.startsWith('-')) {
+                    val = BigInt(str);
+                    val = val & mask;
+                } else {
+                    val = BigInt(str) & mask;
+                }
+            } else if (source === 'bin') {
+                let bin = document.getElementById('convBin').value.replace(/[\s,]/g, '');
+                if (!bin) { setConvValueToZero(); return; }
+                if (!/^[01]*$/.test(bin)) return;
+                val = BigInt('0b' + bin) & mask;
+            } else if (source === 'oct') {
+                const str = document.getElementById('convOct').value.trim();
+                if (!str) { setConvValueToZero(); return; }
+                if (!/^[0-7]*$/.test(str)) return;
+                val = BigInt('0o' + str) & mask;
+            }
+        } catch (e) {
+            return; // 无效输入则忽略
+        }
+
+        convValue = val;
+        updateConvDisplays(source); // source 指示哪个框不要更新
+    }
+
+    function setConvValueToZero() {
+        convValue = 0n;
+        updateConvDisplays();
+    }
+
+    function updateConvDisplays(skipSource) {
+        const width = getConvWidth();
+        const mask = getBitMask(width);
+        convValue = convValue & mask;
+
+        // HEX - 按字节序显示
+        if (skipSource !== 'hex') {
+            const beBytes = valueToBytes(convValue, width);
+            const displayBytes = applyEndianness(beBytes, convEndianness);
+            document.getElementById('convHex').value = bytesToHex(displayBytes);
+        }
+
+        // DEC
+        if (skipSource !== 'dec') {
+            // 如果最高位为1，同时显示有符号值
+            let decStr = convValue.toString(10);
+            const signBit = BigInt(1) << BigInt(width - 1);
+            if (width > 1 && (convValue & signBit) !== 0n) {
+                const signedVal = convValue - (BigInt(1) << BigInt(width));
+                decStr = convValue.toString(10);
+            }
+            document.getElementById('convDec').value = decStr;
+            // Info: 有符号值
+            if (width > 1 && (convValue & signBit) !== 0n) {
+                const signedVal = convValue - (BigInt(1) << BigInt(width));
+                document.getElementById('convDecInfo').textContent = '有符号: ' + signedVal.toString(10);
+            } else {
+                document.getElementById('convDecInfo').textContent = '';
+            }
+        }
+
+        // BIN
+        if (skipSource !== 'bin') {
+            const binStr = convValue.toString(2).padStart(width, '0');
+            // 每4位加空格
+            document.getElementById('convBin').value = formatBinString(binStr);
+        }
+
+        // OCT
+        if (skipSource !== 'oct') {
+            document.getElementById('convOct').value = convValue.toString(8);
+        }
+
+        // 位可视化
+        renderConvBitVisual();
+
+        // 底部摘要
+        updateConvSummary();
+    }
+
+    function formatBinString(binStr) {
+        // 每4位空格分隔
+        const parts = [];
+        for (let i = 0; i < binStr.length; i += 4) {
+            parts.push(binStr.substring(i, i + 4));
+        }
+        return parts.join(' ');
+    }
+
+    function renderConvBitVisual() {
+        const width = getConvWidth();
+        const container = document.getElementById('convBitVisual');
+        const numBytes = Math.ceil(width / 8);
+
+        // 生成字节序对应的字节
+        const beBytes = valueToBytes(convValue, width);
+        // 按字节序排列用于显示
+        const displayOrder = convEndianness === 'big'
+            ? beBytes
+            : [...beBytes].reverse();
+
+        let html = '<div style="display:flex;flex-wrap:wrap;gap:16px;">';
+
+        for (let byteIdx = 0; byteIdx < numBytes; byteIdx++) {
+            const byteVal = displayOrder[byteIdx] || 0;
+            // 在大端模式下，字节0 = 最高字节；在小端下字节0 = 最低字节
+            const actualBytePos = convEndianness === 'big'
+                ? byteIdx
+                : (numBytes - 1 - byteIdx);
+
+            html += '<div>';
+            html += `<div class="bit-byte-label">Byte ${actualBytePos}</div>`;
+            html += '<div class="bit-grid" style="justify-content:flex-start;">';
+
+            for (let bit = 7; bit >= 0; bit--) {
+                const bitVal = (byteVal >> bit) & 1;
+                // actualBytePos 是从 MSB 侧的字节编号，需要转换为从 LSB 侧
+                const byteFromLsb = numBytes - 1 - actualBytePos;
+                const globalIdx = byteFromLsb * 8 + bit;
+                if (globalIdx >= width) {
+                    // 超出位宽的位显示为禁用
+                    html += `<div class="bit-cell bit-0" style="opacity:0.25;cursor:default;pointer-events:none;">-</div>`;
+                } else {
+                    const cls = bitVal ? 'bit-cell bit-1' : 'bit-cell bit-0';
+                    html += `<div class="${cls}" onclick="toggleConvBit(${globalIdx})">${bitVal}<span class="bit-index">${globalIdx}</span></div>`;
+                }
+            }
+            html += '</div></div>';
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function toggleConvBit(globalIdx) {
+        const mask = BigInt(1) << BigInt(globalIdx);
+        convValue ^= mask;
+        convValue = convValue & getBitMask(getConvWidth());
+        updateConvDisplays();
+    }
+
+    function updateConvSummary() {
+        const width = getConvWidth();
+        const hexLen = Math.ceil(width / 4);
+        const binStr = convValue.toString(2).padStart(width, '0');
+        document.getElementById('convBitSummary').textContent =
+            `0x${convValue.toString(16).toUpperCase().padStart(hexLen, '0')}  |  ${convValue.toString(10)}  |  0b${formatBinString(binStr)}`;
+    }
+
+    function copyConvField(id, type) {
+        const el = document.getElementById(id);
+        let text = el.value;
+        if (type === 'hex') {
+            // 复制时去掉空格
+            text = text.replace(/\s/g, '');
+            text = '0x' + text;
+        } else if (type === 'bin') {
+            text = text.replace(/\s/g, '');
+            text = '0b' + text;
+        } else if (type === 'oct') {
+            text = '0o' + text;
+        }
+        navigator.clipboard.writeText(text).then(() => showCopyToast(el));
+    }
+
+    /* ======================================================
+       ASCII 辅助功能
+    ====================================================== */
+    function toggleAsciiSection() {
+        const toggle = document.querySelector('.ascii-section .collapse-toggle');
+        const body = document.getElementById('asciiBody');
+        toggle.classList.toggle('collapsed');
+        body.classList.toggle('collapsed');
+        if (body.classList.contains('collapsed')) {
+            body.style.maxHeight = '0px';
+        } else {
+            body.style.maxHeight = '300px';
+        }
+    }
+
+    function onAsciiInput() {
+        const text = document.getElementById('asciiInput').value;
+        const bytes = [];
+        for (let i = 0; i < text.length; i++) {
+            const code = text.charCodeAt(i);
+            if (code < 256) {
+                bytes.push(code);
+            } else {
+                // 简单处理: 取低8位
+                bytes.push(code & 0xFF);
+            }
+        }
+        document.getElementById('asciiHex').value = bytesToHex(bytes);
+        document.getElementById('asciiDec').value = bytes.map(b => b.toString(10)).join(' ');
+        document.getElementById('asciiBin').value = bytes.map(b => b.toString(2).padStart(8, '0')).join(' ');
+    }
+
+    /* ======================================================
+       浮点数 (TAB 2)
+       FP32/FP64: IEEE 754 binary32/binary64
+       FP16: IEEE 754-2008 binary16
+       BF16: 非 IEEE 标准, Google Brain 自定义格式
+    ====================================================== */
+    const fpValueInput = document.getElementById('fpValueInput');
+    const fpHexInput = document.getElementById('fpHexInput');
+
+    // ---- FP16 / BF16 / FP32 / FP64 统一支持 ----
+    const FP_FORMATS = {
+        '16h': { expBits: 5,  manBits: 10, bias: 15,  totalBits: 16, name: 'FP16' },
+        '16b': { expBits: 8,  manBits: 7,  bias: 127, totalBits: 16, name: 'BF16' },
+        '32':  { expBits: 8,  manBits: 23, bias: 127, totalBits: 32, name: 'FP32' },
+        '64':  { expBits: 11, manBits: 52, bias: 1023,totalBits: 64, name: 'FP64' },
+    };
+    function getFpFormat() { return FP_FORMATS[fpPrecision]; }
+
+    // FP16 手动编解码 (JS 无原生 half-float)
+    function float32ToFP16(f32val) {
+        const buf = new ArrayBuffer(4);
+        new Float32Array(buf)[0] = f32val;
+        const u32 = new Uint32Array(buf)[0];
+        const sign = (u32 >> 31) & 1;
+        let exp32 = (u32 >> 23) & 0xFF;
+        let man32 = u32 & 0x7FFFFF;
+        let exp16, man16;
+        if (exp32 === 0) {
+            exp16 = 0; man16 = man32 >> 13;
+        } else if (exp32 === 0xFF) {
+            exp16 = 0x1F; man16 = man32 >> 13;
+        } else {
+            exp16 = exp32 - 127 + 15;
+            man16 = man32 >> 13;
+            if (exp16 >= 0x1F) { exp16 = 0x1F; man16 = 0; }
+            else if (exp16 <= 0) {
+                const shift = 1 - exp16;
+                man16 = (0x400000 | (man32 >> 1)) >> (12 + shift);
+                exp16 = 0;
+            }
+        }
+        return (sign << 15) | (exp16 << 10) | man16;
+    }
+    function fp16ToFloat32(u16) {
+        const sign = (u16 >> 15) & 1;
+        const exp16 = (u16 >> 10) & 0x1F;
+        const man16 = u16 & 0x3FF;
+        let exp32, man32;
+        if (exp16 === 0) {
+            if (man16 === 0) return new Float32Array(new Uint32Array([sign << 31]).buffer)[0];
+            exp32 = 127 - 15;
+            let m = man16;
+            while ((m & 0x400) === 0) { m <<= 1; exp32--; }
+            man32 = (m & 0x3FF) << 13;
+        } else if (exp16 === 0x1F) {
+            exp32 = 0xFF; man32 = man16 << 13;
+        } else {
+            exp32 = exp16 - 15 + 127; man32 = man16 << 13;
+        }
+        return new Float32Array(new Uint32Array([(sign << 31) | (exp32 << 23) | man32]).buffer)[0];
+    }
+
+    // BF16: 直接取/放 FP32 高 16 位
+    function float32ToBF16(f32val) {
+        const buf = new ArrayBuffer(4);
+        new Float32Array(buf)[0] = f32val;
+        return (new Uint32Array(buf)[0] >> 16) & 0xFFFF;
+    }
+    function bf16ToFloat32(u16) {
+        return new Float32Array(new Uint32Array([u16 << 16]).buffer)[0];
+    }
+
+    // 统一: 浮点值 → uint
+    function fpValueToUint(val) {
+        if (fpPrecision === '16h') return float32ToFP16(val);
+        if (fpPrecision === '16b') return float32ToBF16(val);
+        const buf = new ArrayBuffer(fpPrecision === '32' ? 4 : 8);
+        if (fpPrecision === '32') { new Float32Array(buf)[0] = val; return new Uint32Array(buf)[0]; }
+        else { new Float64Array(buf)[0] = val; return new BigUint64Array(buf)[0]; }
+    }
+
+    // 统一: uint → 浮点值
+    function fpUintToValue(uintVal) {
+        if (fpPrecision === '16h') return fp16ToFloat32(uintVal);
+        if (fpPrecision === '16b') return bf16ToFloat32(uintVal);
+        if (fpPrecision === '32') return new Float32Array(new Uint32Array([uintVal]).buffer)[0];
+        return new Float64Array(new BigUint64Array([uintVal]).buffer)[0];
+    }
+
+    // 统一: uint → 大端字节数组
+    function fpUintToBytes(uintVal) {
+        const totalBytes = getFpFormat().totalBits / 8;
+        const bytes = [];
+        if (typeof uintVal === 'bigint') {
+            let v = uintVal;
+            for (let i = totalBytes - 1; i >= 0; i--) bytes.push(Number((v >> BigInt(i * 8)) & 0xFFn));
+        } else {
+            for (let i = totalBytes - 1; i >= 0; i--) bytes.push((uintVal >> (i * 8)) & 0xFF);
+        }
+        return bytes;
+    }
+
+    // 统一: 大端字节数组 → uint
+    function fpBytesToUint(bytes) {
+        if (typeof bytes[0] === 'bigint' || getFpFormat().totalBits === 64) {
+            let v = 0n; for (const b of bytes) v = (v << 8n) | BigInt(b); return v;
+        }
+        let v = 0; for (const b of bytes) v = (v << 8) | b; return v;
+    }
+
+    function fpFromValue() {
+        const val = parseFloat(fpValueInput.value);
+        if (isNaN(val)) { fpClearResults(); return; }
+        // 更新格式提示
+        const fmt = getFpFormat();
+        document.getElementById('fpHexHint').textContent = `${fmt.name}: ${fmt.totalBits / 8} 字节`;
+        const uintVal = fpValueToUint(val);
+        const beBytes = fpUintToBytes(uintVal);
+        const display = applyEndianness([...beBytes], fpEndianness);
+        fpHexInput.value = bytesToHex(display);
+        analyzeFpFromUint(uintVal, val);
+    }
+
+    function fpFromHex() {
+        const bytes = hexToBytes(fpHexInput.value);
+        if (!bytes) return;
+        const expected = getFpFormat().totalBits / 8;
+        const src = applyEndianness(bytes, fpEndianness === 'big' ? 'little' : 'big');
+        while (src.length < expected) src.unshift(0);
+        const uintVal = fpBytesToUint(src.slice(0, expected));
+        const val = fpUintToValue(uintVal);
+        fpValueInput.value = (typeof val === 'number') ? val.toPrecision(17) : val.toPrecision(17);
+        analyzeFpFromUint(uintVal, val);
+    }
+
+    function fpClearResults() {
+        document.getElementById('fpBitStructure').innerHTML = '';
+        document.getElementById('fpSignValue').textContent = '—';
+        document.getElementById('fpExpValue').textContent = '—';
+        document.getElementById('fpManValue').textContent = '—';
+        document.getElementById('fpVerifyValue').textContent = '—';
+        document.getElementById('fpSignDesc').textContent = '';
+        document.getElementById('fpExpDesc').textContent = '';
+        document.getElementById('fpManDesc').textContent = '';
+    }
+
+    function analyzeFpFromUint(uintVal, val) {
+        const fmt = getFpFormat();
+        const { expBits, manBits, bias, totalBits } = fmt;
+        const uv = typeof uintVal === 'bigint' ? uintVal : BigInt(uintVal);
+        const sign = Number((uv >> BigInt(totalBits - 1)) & 1n);
+        let expVal = 0;
+        for (let i = 0; i < expBits; i++) expVal = (expVal << 1) | Number((uv >> BigInt(totalBits - 2 - i)) & 1n);
+        let manVal = 0;
+        for (let i = 0; i < manBits; i++) manVal = (manVal << 1) | Number((uv >> BigInt(manBits - 1 - i)) & 1n);
+
+        // 渲染位结构
+        const bits = [];
+        for (let i = totalBits - 1; i >= 0; i--) bits.push(Number((uv >> BigInt(i)) & 1n));
+        const container = document.getElementById('fpBitStructure');
+        let html = '<div class="bit-visual-row"><span class="bit-row-label">S</span><div class="bit-grid">';
+        html += makeBitCell(bits[0], 0, 'fp') + '</div></div>';
+        html += '<div class="bit-visual-row"><span class="bit-row-label">E</span><div class="bit-grid">';
+        for (let i = 1; i <= expBits; i++) {
+            html += makeBitCell(bits[i], i, 'fp');
+            if ((i - 1) % 4 === 3 && i < expBits) html += '<div class="bit-separator"></div>';
+        }
+        html += '</div></div><div class="bit-visual-row"><span class="bit-row-label">M</span><div class="bit-grid">';
+        for (let i = 0; i < manBits; i++) {
+            html += makeBitCell(bits[1 + expBits + i], 1 + expBits + i, 'fp');
+            if ((i + 1) % 4 === 0 && i < manBits - 1) html += '<div class="bit-separator"></div>';
+        }
+        html += '</div></div>';
+        container.innerHTML = html;
+
+        // Sign
+        document.getElementById('fpSignValue').textContent = sign;
+        document.getElementById('fpSignDesc').textContent = sign ? '负数 (−)' : '正数 (+)';
+
+        // Exponent
+        const maxExp = (1 << expBits) - 1;
+        let actualExp, expDesc;
+        if (expVal === 0) { actualExp = 1 - bias; expDesc = `非规格化, 实际指数: ${actualExp}`; }
+        else if (expVal === maxExp) { expDesc = manVal === 0 ? '无穷大 (Infinity)' : 'NaN (非数字)'; actualExp = null; }
+        else { actualExp = expVal - bias; expDesc = `规格化, 实际指数: ${actualExp}`; }
+        document.getElementById('fpExpValue').textContent = expVal + (actualExp !== null ? ` (${actualExp})` : '');
+        document.getElementById('fpExpDesc').textContent = expDesc;
+
+        // Mantissa
+        let manDisplay, manDesc;
+        if (expVal === 0) { manDisplay = '0.' + manVal.toString(2).padStart(manBits, '0'); manDesc = '非规格化 (无隐含1)'; }
+        else if (expVal === maxExp) { manDisplay = manVal.toString(2).padStart(manBits, '0'); manDesc = manVal === 0 ? '无穷大, 尾数无意义' : 'NaN 载荷'; }
+        else { manDisplay = '1.' + manVal.toString(2).padStart(manBits, '0'); manDesc = '规格化 (隐含前导1)'; }
+        document.getElementById('fpManValue').textContent = manDisplay.length > 40 ? manDisplay.substring(0, 37) + '...' : manDisplay;
+        document.getElementById('fpManDesc').textContent = manDesc;
+
+        // Verify
+        let verifyText, specialTag = '';
+        if (typeof val === 'number') {
+            if (isNaN(val)) { verifyText = 'NaN'; specialTag = '<span class="fp-tag fp-tag-nan">NaN</span>'; }
+            else if (!isFinite(val)) { verifyText = val > 0 ? '+Infinity' : '-Infinity'; specialTag = '<span class="fp-tag fp-tag-inf">' + (val > 0 ? '+∞' : '−∞') + '</span>'; }
+            else if (val === 0) { verifyText = '0'; specialTag = '<span class="fp-tag fp-tag-zero">Zero</span>'; }
+            else verifyText = val.toPrecision(17);
+        } else { verifyText = String(val); }
+        document.getElementById('fpVerifyValue').innerHTML = verifyText + ' ' + specialTag;
+    }
+
+    function makeBitCell(value, index, prefix) {
+        const cls = value ? 'bit-cell bit-1' : 'bit-cell bit-0';
+        return `<div class="${cls}" data-bit-idx="${index}" data-prefix="${prefix}" onclick="toggleFpBit(this)">${value}<span class="bit-index">${index}</span></div>`;
+    }
+
+    function toggleFpBit(el) {
+        const idx = parseInt(el.dataset.bitIdx);
+        const fmt = getFpFormat();
+        const totalBits = fmt.totalBits;
+        const bytes = hexToBytes(fpHexInput.value);
+        if (!bytes) return;
+        const expected = totalBits / 8;
+        const src = applyEndianness(bytes, fpEndianness === 'big' ? 'little' : 'big');
+        while (src.length < expected) src.unshift(0);
+        let uintVal = fpBytesToUint(src.slice(0, expected));
+        const bitPos = totalBits - 1 - idx;
+        if (typeof uintVal === 'bigint') {
+            uintVal = uintVal ^ (1n << BigInt(bitPos));
+        } else {
+            uintVal = uintVal ^ (1 << bitPos);
+        }
+        const val = fpUintToValue(uintVal);
+        const beBytes = fpUintToBytes(uintVal);
+        const display = applyEndianness([...beBytes], fpEndianness);
+        fpHexInput.value = bytesToHex(display);
+        fpValueInput.value = (typeof val === 'number') ? val.toPrecision(17) : val.toPrecision(17);
+        analyzeFpFromUint(uintVal, val);
+    }
+
+    fpValueInput.addEventListener('input', () => fpFromValue());
+
+    /* ======================================================
+       位操作 (TAB 3)
+    ====================================================== */
+    function getBitopsWidth() {
+        return parseInt(document.getElementById('bitopsBitWidth').value);
+    }
+
+    function applyBitopsInput() {
+        const raw = document.getElementById('bitopsInput').value.trim();
+        let val;
+        try {
+            val = BigInt(raw);
+        } catch (e) { return; }
+        const mask = getBitMask(getBitopsWidth());
+        bitopsValue = val & mask;
+        renderBitopsVisual();
+    }
+
+    function renderBitopsVisual() {
+        const width = getBitopsWidth();
+        const mask = getBitMask(width);
+        bitopsValue = bitopsValue & mask;
+
+        const container = document.getElementById('bitopsVisual');
+        let html = '<div class="bit-grid">';
+        for (let i = width - 1; i >= 0; i--) {
+            const bitVal = (bitopsValue >> BigInt(i)) & BigInt(1);
+            const cls = bitVal ? 'bit-cell bit-1' : 'bit-cell bit-0';
+            html += `<div class="${cls}" onclick="toggleBitopsBit(${i})">${bitVal}<span class="bit-index">${i}</span></div>`;
+            if (i > 0 && i % 4 === 0) html += '<div class="bit-separator"></div>';
+        }
+        html += '</div>';
+        container.innerHTML = html;
+
+        const hexStr = '0x' + bitopsValue.toString(16).toUpperCase().padStart(Math.ceil(width / 4), '0');
+        document.getElementById('bitopsCurrentHex').textContent = hexStr;
+        document.getElementById('bitopsCurrentDec').textContent = bitopsValue.toString(10);
+        document.getElementById('bitopsInput').value = hexStr;
+    }
+
+    function toggleBitopsBit(idx) {
+        bitopsValue ^= (BigInt(1) << BigInt(idx));
+        renderBitopsVisual();
+    }
+
+    function bitSingleOp(op) {
+        const idx = parseInt(document.getElementById('bitSingleIdx').value);
+        if (isNaN(idx) || idx < 0 || idx >= getBitopsWidth()) return;
+        const mask = BigInt(1) << BigInt(idx);
+        if (op === 'set') bitopsValue |= mask;
+        else if (op === 'clear') bitopsValue &= ~mask;
+        else if (op === 'toggle') bitopsValue ^= mask;
+        renderBitopsVisual();
+    }
+
+    function extractBitField() {
+        const hi = parseInt(document.getElementById('bitFieldHi').value);
+        const lo = parseInt(document.getElementById('bitFieldLo').value);
+        const width = getBitopsWidth();
+        if (isNaN(hi) || isNaN(lo) || hi < lo || lo < 0 || hi >= width) return;
+        const bitCount = hi - lo + 1;
+        const mask = (BigInt(1) << BigInt(bitCount)) - BigInt(1);
+        const result = (bitopsValue >> BigInt(lo)) & mask;
+        const box = document.getElementById('bitFieldResult');
+        box.style.display = 'block';
+        document.getElementById('bitFieldValue').textContent =
+            `0x${result.toString(16).toUpperCase().padStart(Math.ceil(bitCount / 4), '0')}  (${result.toString(10)})`;
+        document.getElementById('bitFieldSub').textContent =
+            `提取 [${hi}:${lo}]，共 ${bitCount} 位，掩码 0x${mask.toString(16).toUpperCase()}`;
+    }
+
+    function extractBitFieldSigned() {
+        const hi = parseInt(document.getElementById('bitFieldHi').value);
+        const lo = parseInt(document.getElementById('bitFieldLo').value);
+        const width = getBitopsWidth();
+        if (isNaN(hi) || isNaN(lo) || hi < lo || lo < 0 || hi >= width) return;
+        const bitCount = hi - lo + 1;
+        const mask = (BigInt(1) << BigInt(bitCount)) - BigInt(1);
+        let result = (bitopsValue >> BigInt(lo)) & mask;
+        const signBit = BigInt(1) << BigInt(bitCount - 1);
+        if (result & signBit) {
+            result -= BigInt(1) << BigInt(bitCount);
+        }
+        const box = document.getElementById('bitFieldResult');
+        box.style.display = 'block';
+        document.getElementById('bitFieldValue').textContent = `${result.toString(10)} (有符号)`;
+        document.getElementById('bitFieldSub').textContent =
+            `提取 [${hi}:${lo}]，${bitCount} 位有符号，最高位为符号位`;
+    }
+
+    function rotateBits(dir) {
+        const amount = parseInt(document.getElementById('rotateAmount').value) || 0;
+        const width = BigInt(getBitopsWidth());
+        const a = BigInt(amount) % width;
+        if (a === 0n) return;
+        const fullMask = getBitMask(Number(width));
+        if (dir === 'left') {
+            bitopsValue = ((bitopsValue << a) | (bitopsValue >> (width - a))) & fullMask;
+        } else {
+            bitopsValue = ((bitopsValue >> a) | (bitopsValue << (width - a))) & fullMask;
+        }
+        renderBitopsVisual();
+    }
+
+    function shiftBits(dir) {
+        const amount = parseInt(document.getElementById('rotateAmount').value) || 0;
+        const width = getBitopsWidth();
+        const mask = getBitMask(width);
+        const a = BigInt(amount);
+        if (dir === 'left') {
+            bitopsValue = (bitopsValue << a) & mask;
+        } else if (dir === 'right') {
+            bitopsValue = bitopsValue >> a;
+        } else if (dir === 'aright') {
+            const signBit = BigInt(1) << BigInt(width - 1);
+            const isNeg = (bitopsValue & signBit) !== 0n;
+            bitopsValue = bitopsValue >> a;
+            if (isNeg) {
+                const signExtension = mask ^ ((BigInt(1) << BigInt(width - amount)) - BigInt(1));
+                bitopsValue |= signExtension;
+            }
+        }
+        renderBitopsVisual();
+    }
+
+    function generateMask(mode) {
+        const width = getBitopsWidth();
+        const hi = parseInt(document.getElementById('maskHi').value);
+        const lo = parseInt(document.getElementById('maskLo').value);
+        if (isNaN(hi) || isNaN(lo) || hi < lo || lo < 0 || hi >= width) return;
+        const bitCount = hi - lo + 1;
+        const mask = ((BigInt(1) << BigInt(bitCount)) - BigInt(1)) << BigInt(lo);
+        const box = document.getElementById('maskResult');
+        box.style.display = 'block';
+        document.getElementById('maskValue').textContent =
+            `0x${mask.toString(16).toUpperCase().padStart(Math.ceil(width / 4), '0')}  (${mask.toString(10)})`;
+        document.getElementById('maskSub').textContent = `掩码 [${hi}:${lo}]，${bitCount} 位`;
+        if (mode === 'set') return;
+    }
+
+    function applyMask(op) {
+        const width = getBitopsWidth();
+        const hi = parseInt(document.getElementById('maskHi').value);
+        const lo = parseInt(document.getElementById('maskLo').value);
+        if (isNaN(hi) || isNaN(lo) || hi < lo || lo < 0 || hi >= width) return;
+        const bitCount = hi - lo + 1;
+        let mask = ((BigInt(1) << BigInt(bitCount)) - BigInt(1)) << BigInt(lo);
+        const fullMask = getBitMask(width);
+        let result;
+        if (op === 'and') result = bitopsValue & mask;
+        else if (op === 'or') result = bitopsValue | mask;
+        else if (op === 'xor') result = bitopsValue ^ mask;
+        else if (op === 'not') result = (~bitopsValue) & fullMask;
+
+        const box = document.getElementById('maskResult');
+        box.style.display = 'block';
+        const opLabel = { and: 'AND', or: 'OR', xor: 'XOR', not: 'NOT' }[op];
+        if (op === 'not') {
+            document.getElementById('maskValue').textContent =
+                `0x${result.toString(16).toUpperCase().padStart(Math.ceil(width / 4), '0')}  (${result.toString(10)})`;
+            document.getElementById('maskSub').textContent = 'NOT 运算结果 (按位取反)';
+        } else {
+            const maskHex = '0x' + mask.toString(16).toUpperCase().padStart(Math.ceil(width / 4), '0');
+            document.getElementById('maskValue').textContent =
+                `0x${result.toString(16).toUpperCase().padStart(Math.ceil(width / 4), '0')}  (${result.toString(10)})`;
+            document.getElementById('maskSub').textContent = `${opLabel} 掩码 ${maskHex} [${hi}:${lo}]`;
+        }
+        bitopsValue = result;
+        renderBitopsVisual();
+    }
+
+    /* ======================================================
+       初始化
+    ====================================================== */
+    updateConvDisplays();
+    renderBitopsVisual();
+    // 设置 ASCII 区域初始高度
+    document.getElementById('asciiBody').style.maxHeight = '300px';
+    </script>
+</body>
+</html>

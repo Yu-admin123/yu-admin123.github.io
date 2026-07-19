@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ADC / DAC 转换计算器</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <style>
+        /* ===== 复用 Yu_ToolBox 主题变量 ===== */
+        :root {
+            --bg-body: #f1f4f9;
+            --bg-container: #f1f4f9;
+            --bg-panel: #fafcff;
+            --bg-panel-accent: #f8faff;
+            --bg-input: #ffffff;
+            --bg-input-readonly: #f1f5f9;
+            --bg-code: #ffffff;
+            --bg-option-grid: #f8fafc;
+            --bg-swatch-border: #e2e8f0;
+            --bg-tag: #e2e8f0;
+            --bg-badge: #e0e7ff;
+            --text-primary: #0f172a;
+            --text-secondary: #1e293b;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            --text-code: #000000;
+            --text-badge: #4338ca;
+            --border-light: #e9edf4;
+            --border-input: #d1d9e6;
+            --border-focus: #818cf8;
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06);
+            --shadow-swatch: 0 6px 16px rgba(0, 0, 0, 0.06);
+            --btn-primary: #1e293b;
+            --btn-primary-hover: #0f172a;
+            --btn-outline-border: #d1d9e6;
+            --btn-outline-hover-bg: #f1f4f9;
+            --status-ok-bg: #d1fae5;
+            --status-ok-text: #0b7e4b;
+            --status-error-bg: #fee2e2;
+            --status-error-text: #b91c1c;
+            --scrollbar-track: #f1f4f9;
+            --scrollbar-thumb: #cbd5e1;
+            --accent-blue: #818cf8;
+            --accent-blue-hover: #6366f1;
+            --accent-red: #f87171;
+            --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
+            /* 图表专用 */
+            --chart-bg: #ffffff;
+            --chart-grid: #e9edf4;
+            --chart-axis: #94a3b8;
+            --chart-label: #64748b;
+            --chart-line: #6366f1;
+            --chart-dot-fill: #6366f1;
+            --chart-dot-stroke: #ffffff;
+            --chart-crosshair: rgba(99, 102, 241, 0.35);
+        }
+        [data-theme="dark"] {
+            --bg-body: #1e1e1e;
+            --bg-container: #2c2c2c;
+            --bg-panel: #2c2c2c;
+            --bg-panel-accent: #2c2c2c;
+            --bg-input: #1e1e1e;
+            --bg-input-readonly: #1e1e1e;
+            --bg-code: #1a1a1a;
+            --bg-option-grid: #262626;
+            --bg-swatch-border: #3d3d3d;
+            --bg-tag: #3d3d3d;
+            --bg-badge: #1e2a4a;
+            --text-primary: #e6e6e6;
+            --text-secondary: #cccccc;
+            --text-muted: #888888;
+            --text-light: #666666;
+            --text-code: #e6e6e6;
+            --text-badge: #7a9eff;
+            --border-light: #3d3d3d;
+            --border-input: #3d3d3d;
+            --border-focus: #7a9eff;
+            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
+            --shadow-swatch: 0 6px 16px rgba(0, 0, 0, 0.4);
+            --btn-primary: #3d3d3d;
+            --btn-primary-hover: #4a4a4a;
+            --btn-outline-border: #4a4a4a;
+            --btn-outline-hover-bg: #333333;
+            --status-ok-bg: #0a3d2a;
+            --status-ok-text: #5ae0a0;
+            --status-error-bg: #4a1a1a;
+            --status-error-text: #f08080;
+            --scrollbar-track: #262626;
+            --scrollbar-thumb: #4a4a4a;
+            --accent-blue: #7a9eff;
+            --accent-blue-hover: #5a7fff;
+            --accent-red: #f87171;
+            --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
+            --chart-bg: #1e1e1e;
+            --chart-grid: #3d3d3d;
+            --chart-axis: #888888;
+            --chart-label: #888888;
+            --chart-line: #7a9eff;
+            --chart-dot-fill: #7a9eff;
+            --chart-dot-stroke: #2c2c2c;
+            --chart-crosshair: rgba(122, 158, 255, 0.3);
+        }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
+        body { background: var(--bg-body); min-height: 100vh; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; transition: background 0.25s, color 0.25s; color: var(--text-primary); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+        .container { max-width: 1400px; width: 100%; background: var(--bg-container); padding: 32px 36px 40px; transition: background 0.25s; }
+
+        /* ===== 导航栏 ===== */
+        .navbar { width: 100%; background: var(--bg-container); border-bottom: 1px solid var(--border-light); padding: 0 24px; position: sticky; top: 0; z-index: 100; transition: background 0.25s, border-color 0.25s; }
+        .navbar-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; background: var(--hero-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .navbar-brand .brand-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: var(--hero-gradient); }
+        .navbar-brand .brand-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; }
+        .navbar-right { display: flex; align-items: center; gap: 12px; }
+        .theme-toggle { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); padding: 6px 16px 6px 20px; border-radius: 40px; border: 1px solid var(--border-light); cursor: pointer; transition: background 0.25s, border-color 0.25s; user-select: none; font-size: 0.85rem; color: var(--text-secondary); }
+        .theme-toggle:hover { border-color: var(--border-focus); }
+        .theme-toggle .toggle-track { width: 44px; height: 24px; background: var(--border-input); border-radius: 40px; position: relative; transition: background 0.3s; flex-shrink: 0; }
+        .theme-toggle .toggle-thumb { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s, background 0.3s; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15); }
+        [data-theme="dark"] .theme-toggle .toggle-track { background: var(--accent-blue); }
+        [data-theme="dark"] .theme-toggle .toggle-thumb { transform: translateX(20px); background: #e6e6e6; }
+        .theme-toggle .theme-icon { font-size: 1.1rem; line-height: 1; }
+
+        /* ===== 页面标题 ===== */
+        .page-title { font-size: 1.8rem; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color 0.25s; letter-spacing: -0.02em; }
+        .subhead { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 28px; border-left: 3px solid var(--accent-blue); padding-left: 16px; background: var(--bg-panel); border-radius: 0 10px 10px 0; line-height: 1.6; transition: background 0.25s, color 0.25s; }
+
+        /* ===== 面板 ===== */
+        .panel { background: var(--bg-panel); border-radius: 18px; padding: 18px 20px 22px; border: 1px solid transparent; transition: background 0.25s, border-color 0.25s, box-shadow 0.25s; }
+        .panel:hover { border-color: var(--accent-blue); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); }
+        .panel-accent { background: var(--bg-panel-accent); }
+        .panel-title { font-weight: 600; color: var(--text-secondary); margin-top: 0; margin-bottom: 14px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; transition: color 0.25s; }
+        .panel-title small { font-weight: 400; font-size: 0.65rem; color: var(--text-light); }
+
+        /* ===== 输入 ===== */
+        .input-group { display: flex; flex-direction: column; gap: 12px; }
+        .input-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+        .input-row label { font-weight: 500; color: var(--text-secondary); min-width: 70px; font-size: 0.78rem; transition: color 0.25s; }
+        .input-row input, .input-row select { flex: 1; min-width: 60px; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); font-size: 0.8rem; font-family: 'SF Mono', 'Fira Code', monospace; transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s; outline: none; }
+        .input-row input:focus, .input-row select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12); }
+        .input-row select { flex: 0.7; min-width: 100px; cursor: pointer; }
+        .unit { font-size: 0.7rem; color: var(--text-muted); min-width: 20px; }
+        .hint-text { font-size: 0.62rem; color: var(--text-light); font-style: italic; }
+        .tag { background: var(--bg-tag); padding: 2px 10px; border-radius: 40px; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); transition: background 0.25s, color 0.25s; }
+        .range-badge { display: inline-block; background: var(--bg-badge); color: var(--text-badge); padding: 2px 10px; border-radius: 12px; font-size: 0.62rem; font-weight: 600; transition: background 0.25s, color 0.25s; }
+
+        /* ===== 按钮 ===== */
+        .btn { background: var(--btn-primary); color: white; border: none; padding: 6px 16px; border-radius: 40px; font-weight: 500; font-size: 0.75rem; cursor: pointer; transition: 0.12s, background 0.25s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+        .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--btn-outline-border); }
+        .btn-outline:hover { background: var(--btn-outline-hover-bg); border-color: var(--border-focus); }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+        .btn-sm { padding: 3px 12px; font-size: 0.65rem; }
+
+        /* ===== 代码输出 ===== */
+        .code-output { background: var(--bg-code); color: var(--text-code); padding: 10px 14px; border-radius: 12px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.7rem; max-height: 130px; overflow: auto; white-space: pre-wrap; word-break: break-all; margin-top: 6px; transition: background 0.25s, color 0.25s; line-height: 1.6; }
+        .code-output::-webkit-scrollbar { width: 4px; height: 4px; }
+        .code-output::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        .code-output::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
+
+        .footer-note { margin-top: 24px; color: var(--text-light); font-size: 0.7rem; text-align: center; border-top: 1px solid var(--border-light); padding-top: 16px; transition: color 0.25s, border-color 0.25s; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .full-width { margin-top: 18px; }
+
+        /* ===== 结果展示 ===== */
+        .result-box { background: var(--bg-option-grid); border-radius: 12px; padding: 10px 14px; border: 1px solid var(--border-light); transition: background 0.25s, border-color 0.25s; }
+        .result-box .result-label { font-size: 0.68rem; color: var(--text-muted); }
+        .result-box .result-value { font-size: 1.25rem; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-primary); letter-spacing: -0.02em; }
+        .result-box .result-sub { font-size: 0.62rem; color: var(--text-light); font-family: 'SF Mono', 'Fira Code', monospace; margin-top: 2px; }
+
+
+        /* ===== 分辨率按钮组 ===== */
+        .resolution-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+        .resolution-group .res-btn { padding: 5px 14px; border-radius: 40px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-secondary); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .resolution-group .res-btn:hover { border-color: var(--border-focus); background: var(--bg-panel-accent); }
+        .resolution-group .res-btn.active { background: var(--hero-gradient); color: white; border-color: transparent; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3); }
+
+        /* ===== 输入 2x2 网格 ===== */
+        .input-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 600px) { .input-grid-2x2 { grid-template-columns: 1fr; } }
+
+        /* ===== 可拖拽滑条 ===== */
+        .slider-container { margin-top: 12px; }
+        .slider-label { display: flex; justify-content: space-between; font-size: 0.62rem; color: var(--text-muted); margin-bottom: 4px; }
+        .slider-track { position: relative; width: 100%; height: 12px; background: var(--bg-option-grid); border-radius: 12px; border: 1px solid var(--border-light); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+        .slider-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--hero-gradient); border-radius: 12px; pointer-events: none; }
+        .slider-thumb { position: absolute; top: 50%; width: 24px; height: 24px; background: white; border: 3px solid var(--accent-blue); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); cursor: grab; touch-action: none; z-index: 2; transition: box-shadow 0.15s, transform 0.1s; }
+        .slider-thumb:hover { box-shadow: 0 2px 12px rgba(99, 102, 241, 0.35); transform: translate(-50%, -50%) scale(1.15); }
+        .slider-thumb.dragging { cursor: grabbing; box-shadow: 0 2px 16px rgba(99, 102, 241, 0.5); transform: translate(-50%, -50%) scale(1.2); }
+
+        /* ===== 图表 ===== */
+        .chart-wrapper { margin-top: 16px; position: relative; background: var(--chart-bg); border-radius: 14px; border: 1px solid var(--border-light); overflow: hidden; transition: background 0.25s, border-color 0.25s; }
+        .chart-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px 0; flex-wrap: wrap; gap: 6px; }
+        .chart-toolbar .chart-title { font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); }
+        .chart-axis-btns { display: flex; gap: 4px; }
+        .chart-axis-btn { padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-muted); font-size: 0.62rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .chart-axis-btn:hover { border-color: var(--border-focus); }
+        .chart-axis-btn.active { background: var(--hero-gradient); color: white; border-color: transparent; }
+        #chartCanvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
+        .chart-tooltip { position: absolute; pointer-events: none; background: var(--bg-panel); border: 1px solid var(--border-input); border-radius: 10px; padding: 6px 10px; font-size: 0.62rem; font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-secondary); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); white-space: nowrap; opacity: 0; transition: opacity 0.12s; z-index: 10; line-height: 1.5; }
+        .chart-tooltip.visible { opacity: 1; }
+
+        /* ===== 详情网格 ===== */
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 0.72rem; padding: 6px 0; }
+        .detail-grid .key { color: var(--text-muted); }
+        .detail-grid .val { font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-secondary); font-weight: 500; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="theme-toggle" id="themeToggle" title="切换主题">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title">⚡ ADC / DAC 转换计算器</div>
+        <div class="subhead">
+            🔹 支持原始值 (DEC/HEX) ↔ 电压值 ↔ 百分比 互转 · 8/10/12/16/24/32 位分辨率 · 可拖拽滑条 & 曲线图
+        </div>
+
+        <!-- ===== ① 基本参数 ===== -->
+        <div class="panel panel-accent" style="margin-bottom: 18px;">
+            <div class="panel-title">① 基本参数 <small>参考电压 & 分辨率</small></div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label>参考电压 Vref</label>
+                    <input type="number" id="vref" value="3.3" step="0.1" min="0" style="flex:0.6;">
+                    <span class="unit">V</span>
+                    <span class="hint-text">DAC/ADC 的满量程参考电压</span>
+                </div>
+                <div class="input-row">
+                    <label>分辨率</label>
+                    <div class="resolution-group" id="resGroup">
+                        <button class="res-btn" data-bits="8">8-bit</button>
+                        <button class="res-btn" data-bits="10">10-bit</button>
+                        <button class="res-btn active" data-bits="12">12-bit</button>
+                        <button class="res-btn" data-bits="16">16-bit</button>
+                        <button class="res-btn" data-bits="24">24-bit</button>
+                        <button class="res-btn" data-bits="32">32-bit</button>
+                    </div>
+                </div>
+                <div class="flex-between" style="margin-top: 2px;">
+                    <div>
+                        <span class="range-badge" id="rangeBadge">最大值: 4095</span>
+                        <span class="range-badge" id="stepsBadge">步进: 0.00080566 V</span>
+                    </div>
+                    <div><span class="tag" id="levelsTag">4096 级</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ② 统一转换区 ===== -->
+        <div class="panel panel-accent">
+            <div class="panel-title">② 转换计算 <small>输入任一值，其余自动联动</small></div>
+            <div class="input-grid-2x2">
+                <div class="input-row">
+                    <label>原始值 (DEC)</label>
+                    <input type="number" id="rawDec" value="2048" min="0" step="1" placeholder="0 ~ 4095">
+                    <span class="unit" id="rawDecMax">(0 ~ 4095)</span>
+                </div>
+                <div class="input-row">
+                    <label>原始值 (HEX)</label>
+                    <input type="text" id="rawHex" value="0x800" placeholder="0x000 ~ 0xFFF">
+                    <span class="unit" id="rawHexMax">(0x000 ~ 0xFFF)</span>
+                </div>
+                <div class="input-row">
+                    <label>电压值</label>
+                    <input type="number" id="voltageInput" value="1.65000" step="0.01" min="0" style="flex:0.6;">
+                    <span class="unit">V</span>
+                    <span class="hint-text" id="voltageHint">0 ~ 3.3 V</span>
+                </div>
+                <div class="input-row">
+                    <label>百分比</label>
+                    <input type="number" id="percentInput" value="50.000" step="0.1" min="0" max="100" style="flex:0.6;">
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            <div class="btn-group" style="margin-top:10px;">
+                <button class="btn btn-outline" id="setHalfBtn">设为 50%</button>
+                <button class="btn btn-outline" id="setMaxBtn">设为最大值</button>
+                <button class="btn btn-outline" id="setMinBtn">设为 0</button>
+                <button class="btn btn-outline" id="setMidBtn">设为中位值</button>
+            </div>
+
+            <!-- 滑条 -->
+            <div class="slider-container">
+                <div class="slider-label">
+                    <span id="sliderMinLabel">0 (0 V / 0%)</span>
+                    <span id="sliderCurLabel" style="color:var(--accent-blue);font-weight:600;">2048 (1.65000 V / 50.000%)</span>
+                    <span id="sliderMaxLabel">4095 (3.3 V / 100%)</span>
+                </div>
+                <div class="slider-track" id="sliderTrack">
+                    <div class="slider-fill" id="sliderFill" style="width: 50%;"></div>
+                    <div class="slider-thumb" id="sliderThumb" style="left: 50%;"></div>
+                </div>
+            </div>
+
+            <!-- 补充信息条 -->
+            <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:14px;align-items:stretch;">
+                <div class="result-box" style="flex:1.2;min-width:200px;">
+                    <div class="result-label">二进制 (BIN)</div>
+                    <div class="result-value" id="outBin" style="font-size:1rem;">1000 0000 0000</div>
+                    <div class="result-sub" id="outBinBits">12-bit</div>
+                </div>
+                <div class="result-box" style="flex:1;min-width:160px;">
+                    <div class="result-label">计算过程</div>
+                    <div class="result-value" id="outFormula" style="font-size:0.78rem;line-height:1.5;">2048 × 3.3 / 4095 = 1.65000 V</div>
+                    <div class="result-sub" id="outFormulaPct">2048 / 4095 × 100 = 50.000%</div>
+                </div>
+                <div class="result-box" style="flex:0.7;min-width:130px;">
+                    <div class="result-label">LSB 步进</div>
+                    <div class="result-value" id="outLsb">0.00081 V</div>
+                    <div class="result-sub" id="outLsbSub">Vref / (2^N - 1)</div>
+                </div>
+            </div>
+
+            <!-- 转移特性曲线 -->
+            <div class="chart-wrapper" id="chartWrapper">
+                <div class="chart-toolbar">
+                    <span class="chart-title">转移特性曲线</span>
+                    <div class="chart-axis-btns">
+                        <button class="chart-axis-btn active" data-yaxis="voltage">Y: 电压</button>
+                        <button class="chart-axis-btn" data-yaxis="percent">Y: 百分比</button>
+                    </div>
+                </div>
+                <canvas id="chartCanvas"></canvas>
+                <div class="chart-tooltip" id="chartTooltip"></div>
+            </div>
+        </div>
+
+        <!-- ===== ③ 公式说明 & 快速参考 ===== -->
+        <div class="panel full-width">
+            <div class="panel-title">③ 转换公式 & 快速参考 <small>ADC / DAC 原理</small></div>
+            <div class="grid-2col" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+                <div>
+                    <div class="detail-grid" style="gap: 8px 16px;">
+                        <span class="key">原始值 → 电压</span>
+                        <span class="val">V = Raw × Vref / (2<sup>N</sup> - 1)</span>
+                        <span class="key">电压 → 原始值</span>
+                        <span class="val">Raw = V × (2<sup>N</sup> - 1) / Vref</span>
+                        <span class="key">原始值 → 百分比</span>
+                        <span class="val">% = Raw / (2<sup>N</sup> - 1) × 100</span>
+                        <span class="key">百分比 → 原始值</span>
+                        <span class="val">Raw = % × (2<sup>N</sup> - 1) / 100</span>
+                        <span class="key">LSB (步进电压)</span>
+                        <span class="val" id="formulaLsb">Vref / (2<sup>12</sup> - 1) = 0.00080566 V</span>
+                        <span class="key">量化级数</span>
+                        <span class="val" id="formulaLevels">2<sup>12</sup> = 4096 级</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="panel-title" style="margin-bottom:6px;">各分辨率参数速查 <small>基于当前 Vref</small></div>
+                    <div class="code-output" id="quickRef" style="max-height:180px;">—</div>
+                </div>
+            </div>
+            <div class="hint-text" style="margin-top:10px;">
+                💡 典型应用：STM32 ADC 常用 12-bit (Vref=3.3V)、Arduino ADC 为 10-bit (Vref=5V)、高精度传感器常用 24-bit Delta-Sigma ADC。
+            </div>
+        </div>
+
+        <!-- ===== ④ 批量转换 ===== -->
+        <div class="panel full-width" style="margin-top:18px;">
+            <div class="panel-title">④ 批量转换 <small>快速查表</small></div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label>输入方式</label>
+                    <select id="batchMode">
+                        <option value="raw_to_voltage">原始值 → 电压</option>
+                        <option value="voltage_to_raw">电压 → 原始值</option>
+                        <option value="percent_to_raw">百分比 → 原始值</option>
+                    </select>
+                    <label style="min-width:auto;">范围</label>
+                    <input type="number" id="batchStart" value="0" min="0" style="flex:0.4;">
+                    <span class="unit">~</span>
+                    <input type="number" id="batchEnd" value="20" min="0" style="flex:0.4;">
+                    <label style="min-width:auto;">步长</label>
+                    <input type="number" id="batchStep" value="1" min="1" style="flex:0.4;">
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="batchCalcBtn">▶ 生成表格</button>
+                    <button class="btn btn-outline btn-sm" id="copyBatchBtn">📋 复制表格</button>
+                </div>
+                <div class="code-output" id="batchOutput" style="max-height:220px;">点击"生成表格"查看批量转换结果</div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            ⚡ ADC / DAC 转换计算器 · 支持 8/10/12/16/24/32 位分辨率与实时互转<br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        // ============================================================
+        //  主题切换 (初始化延后到脚本末尾)
+        // ============================================================
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        function setTheme(t, doDrawChart) {
+            document.documentElement.setAttribute('data-theme', t);
+            themeIcon.textContent = t === 'dark' ? '🌙' : '☀️';
+            localStorage.setItem('toolbox-theme', t);
+            if (doDrawChart) drawChart();
+        }
+        themeToggle.addEventListener('click', () => {
+            const c = document.documentElement.getAttribute('data-theme');
+            setTheme(c === 'dark' ? 'light' : 'dark', true);
+        });
+
+        // ============================================================
+        //  状态
+        // ============================================================
+        let currentBits = 12;
+        let chartYAxis = 'voltage'; // 'voltage' | 'percent'
+        let currentRaw = 2048; // 统一状态
+
+        // ============================================================
+        //  DOM 引用
+        // ============================================================
+        const vrefInput = document.getElementById('vref');
+        const resGroup = document.getElementById('resGroup');
+        const rangeBadge = document.getElementById('rangeBadge');
+        const stepsBadge = document.getElementById('stepsBadge');
+        const levelsTag = document.getElementById('levelsTag');
+
+        const rawDecInput = document.getElementById('rawDec');
+        const rawHexInput = document.getElementById('rawHex');
+        const rawDecMax = document.getElementById('rawDecMax');
+        const rawHexMax = document.getElementById('rawHexMax');
+        const voltageInput = document.getElementById('voltageInput');
+        const percentInput = document.getElementById('percentInput');
+        const voltageHint = document.getElementById('voltageHint');
+
+        const sliderTrack = document.getElementById('sliderTrack');
+        const sliderFill = document.getElementById('sliderFill');
+        const sliderThumb = document.getElementById('sliderThumb');
+        const sliderMinLabel = document.getElementById('sliderMinLabel');
+        const sliderCurLabel = document.getElementById('sliderCurLabel');
+        const sliderMaxLabel = document.getElementById('sliderMaxLabel');
+
+        const outBin = document.getElementById('outBin');
+        const outBinBits = document.getElementById('outBinBits');
+        const outFormula = document.getElementById('outFormula');
+        const outFormulaPct = document.getElementById('outFormulaPct');
+        const outLsb = document.getElementById('outLsb');
+        const outLsbSub = document.getElementById('outLsbSub');
+
+        const formulaLsb = document.getElementById('formulaLsb');
+        const formulaLevels = document.getElementById('formulaLevels');
+        const quickRef = document.getElementById('quickRef');
+
+        const batchMode = document.getElementById('batchMode');
+        const batchStart = document.getElementById('batchStart');
+        const batchEnd = document.getElementById('batchEnd');
+        const batchStep = document.getElementById('batchStep');
+        const batchOutput = document.getElementById('batchOutput');
+
+        const chartCanvas = document.getElementById('chartCanvas');
+        const chartTooltip = document.getElementById('chartTooltip');
+        const chartWrapper = document.getElementById('chartWrapper');
+
+        // ============================================================
+        //  核心计算
+        // ============================================================
+        const getMaxRaw = bits => bits >= 32 ? 0xFFFFFFFF : (1 << bits) - 1;
+        const getLevels = bits => bits >= 32 ? 0x100000000 : (1 << bits);
+        const getLsb = (vref, bits) => vref / getMaxRaw(bits);
+        const rawToVoltage = (raw, vref, bits) => (raw / getMaxRaw(bits)) * vref;
+        const voltageToRaw = (v, vref, bits) => Math.round((v / vref) * getMaxRaw(bits));
+        const rawToPercent = (raw, bits) => (raw / getMaxRaw(bits)) * 100;
+        const percentToRaw = (p, bits) => Math.round((p / 100) * getMaxRaw(bits));
+        function toHex(raw, bits) { return '0x' + raw.toString(16).toUpperCase().padStart(Math.ceil(bits / 4), '0'); }
+        function clampRaw(raw, bits) { return Math.max(0, Math.min(getMaxRaw(bits), Math.round(raw))); }
+        function formatVoltage(v) {
+            if (v === 0) return '0 V';
+            const a = Math.abs(v);
+            if (a >= 100) return v.toFixed(2) + ' V';
+            if (a >= 10) return v.toFixed(3) + ' V';
+            if (a >= 1) return v.toFixed(5) + ' V';
+            if (a >= 0.001) return v.toFixed(6) + ' V';
+            return v.toPrecision(4) + ' V';
+        }
+        function formatPercent(p) {
+            if (p >= 100) return '100.000%';
+            if (p <= 0) return '0.000%';
+            return p >= 10 ? p.toFixed(3) + '%' : p.toFixed(4) + '%';
+        }
+
+        // ============================================================
+        //  统一计算核心 — 从 currentRaw 出发更新所有 UI
+        // ============================================================
+        function updateAll() {
+            const vref = parseFloat(vrefInput.value) || 3.3;
+            const maxRaw = getMaxRaw(currentBits);
+            const raw = clampRaw(currentRaw, currentBits);
+            currentRaw = raw;
+            const voltage = rawToVoltage(raw, vref, currentBits);
+            const percent = rawToPercent(raw, currentBits);
+            const hex = toHex(raw, currentBits);
+            const lsb = getLsb(vref, currentBits);
+
+            // 同步输入框（跳过触发源，避免光标跳动）
+            if (_updateSource !== 'dec') rawDecInput.value = raw;
+            if (_updateSource !== 'hex') rawHexInput.value = hex;
+            if (_updateSource !== 'voltage') voltageInput.value = voltage.toPrecision(6);
+            if (_updateSource !== 'percent') percentInput.value = percent.toFixed(3);
+
+            // 补充信息
+            const binStr = raw.toString(2).padStart(currentBits, '0').replace(/(.{4})/g, '$1 ').trim();
+            outBin.textContent = binStr;
+            outBinBits.textContent = currentBits + '-bit';
+            outFormula.textContent = raw + ' \u00d7 ' + vref + ' / ' + maxRaw + ' = ' + formatVoltage(voltage);
+            outFormulaPct.textContent = raw + ' / ' + maxRaw + ' \u00d7 100 = ' + formatPercent(percent);
+            outLsb.textContent = lsb >= 0.001 ? lsb.toFixed(5) + ' V' : lsb.toPrecision(4) + ' V';
+            outLsbSub.textContent = 'Vref / (2^' + currentBits + ' - 1)';
+
+            // 滑条
+            const pct = Math.min(100, Math.max(0, percent));
+            sliderFill.style.width = pct + '%';
+            sliderThumb.style.left = pct + '%';
+            sliderCurLabel.textContent = raw + ' (' + formatVoltage(voltage) + ' / ' + percent.toFixed(1) + '%)';
+
+            // 图表
+            drawChart();
+        }
+
+        // ============================================================
+        //  参数更新
+        // ============================================================
+        function updateParams() {
+            const vref = parseFloat(vrefInput.value) || 3.3;
+            const maxRaw = getMaxRaw(currentBits);
+            const levels = getLevels(currentBits);
+            const lsb = getLsb(vref, currentBits);
+
+            rangeBadge.textContent = '最大值: ' + maxRaw.toLocaleString();
+            stepsBadge.textContent = '步进: ' + (lsb >= 0.001 ? lsb.toFixed(5) : lsb.toPrecision(4)) + ' V';
+            levelsTag.textContent = levels.toLocaleString() + ' 级';
+
+            rawDecMax.textContent = '(0 ~ ' + maxRaw + ')';
+            rawDecInput.max = maxRaw;
+            rawHexInput.placeholder = '0x0 ~ 0x' + maxRaw.toString(16).toUpperCase();
+            rawHexMax.textContent = '(0x0 ~ 0x' + maxRaw.toString(16).toUpperCase() + ')';
+            voltageHint.textContent = '范围: 0 ~ ' + vref + ' V';
+            voltageInput.max = vref;
+
+            sliderMinLabel.textContent = '0 (0 V / 0%)';
+            sliderMaxLabel.textContent = maxRaw + ' (' + vref + ' V / 100%)';
+
+            formulaLsb.innerHTML = 'Vref / (2<sup>' + currentBits + '</sup> - 1) = ' + formatVoltage(lsb);
+            formulaLevels.innerHTML = '2<sup>' + currentBits + '</sup> = ' + levels.toLocaleString() + ' 级';
+
+            // 速查表
+            const bitOptions = [8, 10, 12, 16, 24, 32];
+            let lines = ['位数 │ 最大值      │ 级数        │ LSB (步进)'];
+            lines.push('─────┼─────────────┼─────────────┼──────────────────');
+            for (let b of bitOptions) {
+                const m = getMaxRaw(b), l = getLevels(b), s = getLsb(vref, b);
+                const marker = (b === currentBits) ? ' ◄' : '';
+                lines.push(' ' + b + '-bit │ ' + m.toLocaleString().padEnd(11) + ' │ ' + l.toLocaleString().padEnd(11) + ' │ ' + formatVoltage(s).padEnd(18) + marker);
+            }
+            quickRef.textContent = lines.join('\n');
+        }
+
+        // ============================================================
+        //  从各输入框读取 → currentRaw
+        // ============================================================
+        // 每个输入框有自己的 "来源标识"，updateAll 根据谁触发来决定
+        // 用一个标记 _source 避免循环更新
+        let _updateSource = '';
+
+        function readDec() {
+            const raw = parseInt(rawDecInput.value);
+            if (!isNaN(raw)) currentRaw = clampRaw(raw, currentBits);
+        }
+        function readHex() {
+            const h = rawHexInput.value.trim();
+            if (h) { const raw = parseInt(h, 16); if (!isNaN(raw)) currentRaw = clampRaw(raw, currentBits); }
+        }
+        function readVoltage() {
+            const vref = parseFloat(vrefInput.value) || 3.3;
+            const v = parseFloat(voltageInput.value);
+            if (!isNaN(v)) currentRaw = clampRaw(voltageToRaw(v, vref, currentBits), currentBits);
+        }
+        function readPercent() {
+            const p = parseFloat(percentInput.value);
+            if (!isNaN(p)) currentRaw = clampRaw(percentToRaw(p, currentBits), currentBits);
+        }
+
+        // ============================================================
+        //  图表绘制 (Canvas)
+        // ============================================================
+        const DPR = window.devicePixelRatio || 1;
+        const CHART_H = 280; // CSS pixels
+        const PAD = { top: 20, right: 56, bottom: 42, left: 62 };
+
+        function resizeChart() {
+            const w = chartWrapper.clientWidth;
+            chartCanvas.style.height = CHART_H + 'px';
+            chartCanvas.width = w * DPR;
+            chartCanvas.height = CHART_H * DPR;
+        }
+
+        function drawChart() {
+            resizeChart();
+            const ctx = chartCanvas.getContext('2d');
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+            const W = chartCanvas.width / DPR;
+            const H = chartCanvas.height / DPR;
+            const vref = parseFloat(vrefInput.value) || 3.3;
+            const maxRaw = getMaxRaw(currentBits);
+            const plotW = W - PAD.left - PAD.right;
+            const plotH = H - PAD.top - PAD.bottom;
+            const isVoltage = chartYAxis === 'voltage';
+            const yMax = isVoltage ? vref : 100;
+
+            // 读取 CSS 变量
+            const cs = getComputedStyle(document.documentElement);
+            const cBg = cs.getPropertyValue('--chart-bg').trim();
+            const cGrid = cs.getPropertyValue('--chart-grid').trim();
+            const cAxis = cs.getPropertyValue('--chart-axis').trim();
+            const cLabel = cs.getPropertyValue('--chart-label').trim();
+            const cLine = cs.getPropertyValue('--chart-line').trim();
+            const cDot = cs.getPropertyValue('--chart-dot-fill').trim();
+            const cDotS = cs.getPropertyValue('--chart-dot-stroke').trim();
+            const cCross = cs.getPropertyValue('--chart-crosshair').trim();
+
+            ctx.clearRect(0, 0, W, H);
+
+            // 背景
+            ctx.fillStyle = cBg;
+            ctx.fillRect(0, 0, W, H);
+
+            // 网格
+            ctx.strokeStyle = cGrid;
+            ctx.lineWidth = 0.5;
+            const xTicks = niceScale(0, maxRaw, 8);
+            const yTicks = niceScale(0, yMax, 6);
+            for (let t of xTicks) {
+                const x = PAD.left + (t / maxRaw) * plotW;
+                ctx.beginPath(); ctx.moveTo(x, PAD.top); ctx.lineTo(x, PAD.top + plotH); ctx.stroke();
+            }
+            for (let t of yTicks) {
+                const y = PAD.top + plotH - (t / yMax) * plotH;
+                ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + plotW, y); ctx.stroke();
+            }
+
+            // 轴线
+            ctx.strokeStyle = cAxis;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(PAD.left, PAD.top);
+            ctx.lineTo(PAD.left, PAD.top + plotH);
+            ctx.lineTo(PAD.left + plotW, PAD.top + plotH);
+            ctx.stroke();
+
+            // 轴标签
+            ctx.fillStyle = cLabel;
+            ctx.font = '10px SF Mono, Fira Code, monospace';
+            ctx.textAlign = 'center';
+            for (let t of xTicks) {
+                const x = PAD.left + (t / maxRaw) * plotW;
+                ctx.fillText(t >= 1000 ? (t / 1000).toFixed(t % 1000 === 0 ? 0 : 1) + 'k' : '' + t, x, PAD.top + plotH + 16);
+            }
+            ctx.textAlign = 'right';
+            for (let t of yTicks) {
+                const y = PAD.top + plotH - (t / yMax) * plotH;
+                ctx.fillText(isVoltage ? t.toFixed(2) : t.toFixed(1) + '%', PAD.left - 8, y + 3);
+            }
+
+            // X 轴名称
+            ctx.textAlign = 'center';
+            ctx.fillStyle = cLabel;
+            ctx.font = '11px system-ui, sans-serif';
+            ctx.fillText('原始值 (Raw)', PAD.left + plotW / 2, H - 4);
+
+            // Y 轴名称
+            ctx.save();
+            ctx.translate(12, PAD.top + plotH / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(isVoltage ? '电压 (V)' : '百分比 (%)', 0, 0);
+            ctx.restore();
+
+            // 阶梯线 (量化特性) — 对高位数只画直线
+            if (currentBits <= 12) {
+                ctx.strokeStyle = cCross;
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for (let r = 0; r <= maxRaw; r++) {
+                    const x = PAD.left + (r / maxRaw) * plotW;
+                    const yVal = isVoltage ? rawToVoltage(r, vref, currentBits) : rawToPercent(r, currentBits);
+                    const y = PAD.top + plotH - (yVal / yMax) * plotH;
+                    if (r === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+            }
+
+            // 理想直线
+            ctx.strokeStyle = cLine;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(PAD.left, PAD.top + plotH);
+            ctx.lineTo(PAD.left + plotW, PAD.top);
+            ctx.stroke();
+
+            // 当前点
+            const raw = currentRaw;
+            const px = PAD.left + (raw / maxRaw) * plotW;
+            const pyVal = isVoltage ? rawToVoltage(raw, vref, currentBits) : rawToPercent(raw, currentBits);
+            const py = PAD.top + plotH - (pyVal / yMax) * plotH;
+
+            // 十字准线
+            ctx.strokeStyle = cCross;
+            ctx.lineWidth = 1;
+            ctx.setLineDash([4, 3]);
+            ctx.beginPath(); ctx.moveTo(px, PAD.top + plotH); ctx.lineTo(px, py); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(PAD.left, py); ctx.lineTo(px, py); ctx.stroke();
+            ctx.setLineDash([]);
+
+            // 点
+            ctx.beginPath();
+            ctx.arc(px, py, 6, 0, Math.PI * 2);
+            ctx.fillStyle = cDot;
+            ctx.fill();
+            ctx.strokeStyle = cDotS;
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+
+            // 标注
+            ctx.fillStyle = cDot;
+            ctx.font = 'bold 10px SF Mono, Fira Code, monospace';
+            ctx.textAlign = 'left';
+            const labelX = px + 10;
+            const labelY = py - 10;
+            const labelText = 'Raw=' + raw + '  ' + (isVoltage ? formatVoltage(pyVal) : formatPercent(pyVal));
+            // 背景
+            const tm = ctx.measureText(labelText);
+            ctx.fillStyle = cBg;
+            ctx.globalAlpha = 0.85;
+            ctx.fillRect(labelX - 3, labelY - 10, tm.width + 6, 14);
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = cDot;
+            ctx.fillText(labelText, labelX, labelY);
+        }
+
+        // 生成美观的刻度值
+        function niceScale(min, max, maxTicks) {
+            const range = max - min;
+            if (range <= 0) return [min];
+            const roughStep = range / maxTicks;
+            const mag = Math.pow(10, Math.floor(Math.log10(roughStep)));
+            const norm = roughStep / mag;
+            let step;
+            if (norm <= 1.5) step = 1 * mag;
+            else if (norm <= 3) step = 2 * mag;
+            else if (norm <= 7) step = 5 * mag;
+            else step = 10 * mag;
+            step = Math.max(step, 1);
+            const ticks = [];
+            for (let v = 0; v <= max + step * 0.001; v += step) {
+                ticks.push(Math.round(v));
+                if (v >= max) break;
+            }
+            if (ticks[ticks.length - 1] < max) ticks.push(max);
+            return ticks;
+        }
+
+        // ============================================================
+        //  图表交互 (点击/拖拽设置当前点)
+        // ============================================================
+        let chartDragging = false;
+        function chartPctFromEvent(e) {
+            const rect = chartCanvas.getBoundingClientRect();
+            const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const xPct = (cx - PAD.left) / (rect.width - PAD.left - (PAD.right / (DPR)));
+            return Math.max(0, Math.min(1, xPct));
+        }
+        function chartApplyEvent(e) {
+            const pct = chartPctFromEvent(e);
+            const maxRaw = getMaxRaw(currentBits);
+            currentRaw = clampRaw(Math.round(pct * maxRaw), currentBits);
+            updateAll();
+        }
+        chartCanvas.addEventListener('mousedown', e => { chartDragging = true; chartApplyEvent(e); });
+        document.addEventListener('mousemove', e => { if (chartDragging) chartApplyEvent(e); });
+        document.addEventListener('mouseup', () => { chartDragging = false; });
+        chartCanvas.addEventListener('touchstart', e => { e.preventDefault(); chartDragging = true; chartApplyEvent(e); }, { passive: false });
+        document.addEventListener('touchmove', e => { if (chartDragging) chartApplyEvent(e); }, { passive: false });
+        document.addEventListener('touchend', () => { chartDragging = false; });
+
+        // 图表悬停 tooltip
+        chartCanvas.addEventListener('mousemove', function(e) {
+            if (chartDragging) { chartTooltip.classList.remove('visible'); return; }
+            const rect = chartCanvas.getBoundingClientRect();
+            const cx = e.clientX - rect.left;
+            const cy = e.clientY - rect.top;
+            const plotW = rect.width - PAD.left - PAD.right;
+            const plotH = rect.height - PAD.top - PAD.bottom;
+            if (cx < PAD.left || cx > PAD.left + plotW || cy < PAD.top || cy > PAD.top + plotH) {
+                chartTooltip.classList.remove('visible'); return;
+            }
+            const vref = parseFloat(vrefInput.value) || 3.3;
+            const maxRaw = getMaxRaw(currentBits);
+            const xPct = (cx - PAD.left) / plotW;
+            const raw = clampRaw(Math.round(xPct * maxRaw), currentBits);
+            const yPct = 1 - (cy - PAD.top) / plotH;
+            const yMax = chartYAxis === 'voltage' ? vref : 100;
+            const yVal = yPct * yMax;
+
+            const actualY = chartYAxis === 'voltage' ? rawToVoltage(raw, vref, currentBits) : rawToPercent(raw, currentBits);
+            const text = 'Raw: ' + raw + ' (' + toHex(raw, currentBits) + ')\n' +
+                         (chartYAxis === 'voltage' ? 'V: ' + formatVoltage(actualY) + '  %: ' + rawToPercent(raw, currentBits).toFixed(1) + '%' : '%: ' + formatPercent(actualY) + '  V: ' + formatVoltage(rawToVoltage(raw, vref, currentBits)));
+
+            chartTooltip.textContent = text;
+            chartTooltip.style.left = Math.min(cx + 12, rect.width - 180) + 'px';
+            chartTooltip.style.top = Math.max(cy - 50, 4) + 'px';
+            chartTooltip.classList.add('visible');
+        });
+        chartCanvas.addEventListener('mouseleave', () => { chartTooltip.classList.remove('visible'); });
+
+        // ============================================================
+        //  滑条拖拽
+        // ============================================================
+        let sliderDragging = false;
+        function sliderPctFromEvent(e) {
+            const rect = sliderTrack.getBoundingClientRect();
+            const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            return Math.max(0, Math.min(100, (cx / rect.width) * 100));
+        }
+        function sliderApply(e) {
+            const pct = sliderPctFromEvent(e);
+            const maxRaw = getMaxRaw(currentBits);
+            currentRaw = clampRaw(Math.round((pct / 100) * maxRaw), currentBits);
+            updateAll();
+        }
+        sliderThumb.addEventListener('mousedown', e => { e.preventDefault(); sliderDragging = true; sliderThumb.classList.add('dragging'); });
+        sliderTrack.addEventListener('mousedown', e => { e.preventDefault(); sliderDragging = true; sliderThumb.classList.add('dragging'); sliderApply(e); });
+        document.addEventListener('mousemove', e => { if (sliderDragging) sliderApply(e); });
+        document.addEventListener('mouseup', () => { if (sliderDragging) { sliderDragging = false; sliderThumb.classList.remove('dragging'); } });
+        sliderThumb.addEventListener('touchstart', e => { e.preventDefault(); sliderDragging = true; sliderThumb.classList.add('dragging'); }, { passive: false });
+        sliderTrack.addEventListener('touchstart', e => { e.preventDefault(); sliderDragging = true; sliderThumb.classList.add('dragging'); sliderApply(e); }, { passive: false });
+        document.addEventListener('touchmove', e => { if (sliderDragging) sliderApply(e); }, { passive: false });
+        document.addEventListener('touchend', () => { if (sliderDragging) { sliderDragging = false; sliderThumb.classList.remove('dragging'); } });
+
+        // ============================================================
+        //  事件绑定
+        // ============================================================
+
+        // 分辨率
+        resGroup.addEventListener('click', e => {
+            const btn = e.target.closest('.res-btn');
+            if (!btn) return;
+            resGroup.querySelectorAll('.res-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentBits = parseInt(btn.dataset.bits);
+            currentRaw = clampRaw(currentRaw, currentBits);
+            updateParams();
+            updateAll();
+        });
+
+        // Vref
+        vrefInput.addEventListener('input', () => { updateParams(); updateAll(); });
+
+        // 四个输入框联动
+        rawDecInput.addEventListener('input', () => { _updateSource = 'dec'; readDec(); updateAll(); });
+        rawDecInput.addEventListener('change', () => { _updateSource = 'dec'; readDec(); updateAll(); });
+        rawHexInput.addEventListener('input', () => { _updateSource = 'hex'; readHex(); updateAll(); });
+        rawHexInput.addEventListener('change', () => { _updateSource = 'hex'; readHex(); updateAll(); });
+        voltageInput.addEventListener('input', () => { _updateSource = 'voltage'; readVoltage(); updateAll(); });
+        voltageInput.addEventListener('change', () => { _updateSource = 'voltage'; readVoltage(); updateAll(); });
+        percentInput.addEventListener('input', () => { _updateSource = 'percent'; readPercent(); updateAll(); });
+        percentInput.addEventListener('change', () => { _updateSource = 'percent'; readPercent(); updateAll(); });
+
+        // 快捷按钮
+        document.getElementById('setHalfBtn').addEventListener('click', () => { currentRaw = clampRaw(Math.round(getMaxRaw(currentBits) / 2), currentBits); updateAll(); });
+        document.getElementById('setMaxBtn').addEventListener('click', () => { currentRaw = getMaxRaw(currentBits); updateAll(); });
+        document.getElementById('setMinBtn').addEventListener('click', () => { currentRaw = 0; updateAll(); });
+        document.getElementById('setMidBtn').addEventListener('click', () => { currentRaw = clampRaw(1 << (currentBits - 1), currentBits); updateAll(); });
+
+        // 图表 Y 轴切换
+        document.querySelectorAll('.chart-axis-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.chart-axis-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                chartYAxis = this.dataset.yaxis;
+                drawChart();
+            });
+        });
+
+        // 批量转换
+        function calcBatch() {
+            const vref = parseFloat(vrefInput.value) || 3.3;
+            const mode = batchMode.value;
+            const start = parseFloat(batchStart.value), end = parseFloat(batchEnd.value), step = parseFloat(batchStep.value);
+            if (isNaN(start) || isNaN(end) || isNaN(step) || step <= 0) { batchOutput.textContent = '❌ 请输入有效的范围和步长'; return; }
+            const maxRaw = getMaxRaw(currentBits);
+            let lines = [];
+            if (mode === 'raw_to_voltage') {
+                lines.push('  原始值 (DEC)  │  原始值 (HEX)  │   电压值 (V)   │   百分比 (%)');
+                lines.push('───────────────┼─────────────────┼────────────────┼──────────────');
+                for (let i = start; i <= end; i += step) {
+                    const r = clampRaw(Math.round(i), currentBits);
+                    lines.push(('' + r).padStart(14) + ' │ ' + toHex(r, currentBits).padEnd(15) + ' │ ' + formatVoltage(rawToVoltage(r, vref, currentBits)).padEnd(14) + ' │ ' + formatPercent(rawToPercent(r, currentBits)).padEnd(12));
+                }
+            } else if (mode === 'voltage_to_raw') {
+                lines.push('    电压值 (V)   │  原始值 (DEC)  │  原始值 (HEX)  │   百分比 (%)');
+                lines.push('────────────────┼────────────────┼─────────────────┼──────────────');
+                for (let i = start; i <= end + step * 0.001; i += step) {
+                    const v = Math.max(0, Math.min(vref, i));
+                    const r = clampRaw(voltageToRaw(v, vref, currentBits), currentBits);
+                    lines.push(formatVoltage(v).padEnd(16) + ' │ ' + ('' + r).padStart(14) + ' │ ' + toHex(r, currentBits).padEnd(15) + ' │ ' + formatPercent(rawToPercent(r, currentBits)).padEnd(12));
+                }
+            } else {
+                lines.push('   百分比 (%)    │  原始值 (DEC)  │  原始值 (HEX)  │   电压值 (V)');
+                lines.push('────────────────┼────────────────┼─────────────────┼──────────────');
+                for (let i = start; i <= end + step * 0.001; i += step) {
+                    const p = Math.max(0, Math.min(100, i));
+                    const r = clampRaw(percentToRaw(p, currentBits), currentBits);
+                    lines.push(formatPercent(p).padEnd(16) + ' │ ' + ('' + r).padStart(14) + ' │ ' + toHex(r, currentBits).padEnd(15) + ' │ ' + formatVoltage(rawToVoltage(r, vref, currentBits)).padEnd(14));
+                }
+            }
+            batchOutput.textContent = lines.join('\n');
+        }
+        document.getElementById('batchCalcBtn').addEventListener('click', calcBatch);
+        document.getElementById('copyBatchBtn').addEventListener('click', function() {
+            const text = batchOutput.textContent;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => { const o = this.textContent; this.textContent = '✓'; setTimeout(() => this.textContent = o, 800); });
+            } else {
+                const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.left = '-9999px'; document.body.appendChild(ta); ta.select();
+                try { document.execCommand('copy'); } catch (e) {} document.body.removeChild(ta);
+            }
+        });
+
+        // 窗口大小变化重绘图表
+        window.addEventListener('resize', drawChart);
+
+        // ============================================================
+        //  初始化
+        // ============================================================
+        setTheme(localStorage.getItem('toolbox-theme') || 'light', false);
+        updateParams();
+        updateAll();
+    })();
+    </script>
+</body>
+</html>

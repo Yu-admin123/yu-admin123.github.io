@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Modbus RTU 串口助手</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
+    <style>
+        :root {
+            --bg-body: #f1f4f9; --bg-container: #f1f4f9; --bg-panel: #fafcff;
+            --bg-panel-accent: #f8faff; --bg-input: #ffffff; --bg-input-readonly: #f1f5f9;
+            --bg-code: #ffffff; --bg-option-grid: #f8fafc; --bg-tag: #e2e8f0;
+            --bg-badge: #e0e7ff; --text-primary: #0f172a; --text-secondary: #1e293b;
+            --text-muted: #64748b; --text-light: #94a3b8; --text-code: #000000;
+            --text-badge: #4338ca; --border-light: #e9edf4; --border-input: #d1d9e6;
+            --border-focus: #818cf8; --shadow-card: 0 20px 40px rgba(0,0,0,0.06);
+            --btn-primary: #1e293b; --btn-primary-hover: #0f172a;
+            --btn-outline-border: #d1d9e6; --btn-outline-hover-bg: #f1f4f9;
+            --status-ok-bg: #d1fae5; --status-ok-text: #0b7e4b;
+            --status-error-bg: #fee2e2; --status-error-text: #b91c1c;
+            --scrollbar-track: #f1f4f9; --scrollbar-thumb: #cbd5e1;
+            --accent-blue: #818cf8; --accent-blue-hover: #6366f1;
+            --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
+        }
+        [data-theme="dark"] {
+            --bg-body: #1e1e1e; --bg-container: #2c2c2c; --bg-panel: #2c2c2c;
+            --bg-panel-accent: #2c2c2c; --bg-input: #1e1e1e; --bg-input-readonly: #1e1e1e;
+            --bg-code: #1a1a1a; --bg-option-grid: #262626; --bg-tag: #3d3d3d;
+            --bg-badge: #1e2a4a; --text-primary: #e6e6e6; --text-secondary: #cccccc;
+            --text-muted: #888888; --text-light: #666666; --text-code: #e6e6e6;
+            --text-badge: #7a9eff; --border-light: #3d3d3d; --border-input: #3d3d3d;
+            --border-focus: #7a9eff; --shadow-card: 0 20px 40px rgba(0,0,0,0.4);
+            --btn-primary: #3d3d3d; --btn-primary-hover: #4a4a4a;
+            --btn-outline-border: #4a4a4a; --btn-outline-hover-bg: #333333;
+            --status-ok-bg: #0a3d2a; --status-ok-text: #5ae0a0;
+            --status-error-bg: #4a1a1a; --status-error-text: #f08080;
+            --scrollbar-track: #262626; --scrollbar-thumb: #4a4a4a;
+            --accent-blue: #7a9eff; --accent-blue-hover: #5a7fff;
+            --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
+        }
+        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+        body {
+            background: var(--bg-body); min-height: 100vh; margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            transition: background 0.25s, color 0.25s; color: var(--text-primary);
+        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+        .container { max-width: 1500px; width: 100%; background: var(--bg-container); padding: 28px 32px 36px; }
+
+        /* ===== Navbar ===== */
+        .navbar {
+            width: 100%; background: var(--bg-container); border-bottom: 1px solid var(--border-light);
+            padding: 0 24px; position: sticky; top: 0; z-index: 100;
+        }
+        .navbar-inner { max-width: 1500px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; }
+        .navbar-brand {
+            display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 700;
+            font-size: 1.2rem; letter-spacing: -0.02em;
+            background: var(--hero-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .navbar-right { display: flex; align-items: center; gap: 12px; }
+        .theme-toggle {
+            display: flex; align-items: center; gap: 10px; background: var(--bg-panel);
+            padding: 6px 16px 6px 20px; border-radius: 40px; border: 1px solid var(--border-light);
+            cursor: pointer; user-select: none; font-size: 0.85rem; color: var(--text-secondary);
+        }
+        .theme-toggle:hover { border-color: var(--border-focus); }
+        .theme-toggle .toggle-track {
+            width: 44px; height: 24px; background: var(--border-input); border-radius: 40px;
+            position: relative; transition: background 0.3s; flex-shrink: 0;
+        }
+        .theme-toggle .toggle-thumb {
+            width: 18px; height: 18px; background: white; border-radius: 50%;
+            position: absolute; top: 3px; left: 3px; transition: transform 0.3s, background 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        [data-theme="dark"] .theme-toggle .toggle-track { background: var(--accent-blue); }
+        [data-theme="dark"] .theme-toggle .toggle-thumb { transform: translateX(20px); background: #e6e6e6; }
+        .theme-toggle .theme-icon { font-size: 1.1rem; line-height: 1; }
+
+        /* ===== Layout ===== */
+        .page-title {
+            font-size: 1.8rem; font-weight: 600; margin: 0 0 6px 0; color: var(--text-primary);
+            display: flex; align-items: center; gap: 12px; letter-spacing: -0.02em;
+        }
+        .subhead {
+            color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;
+            border-left: 3px solid var(--accent-blue); padding-left: 16px;
+            background: var(--bg-panel); border-radius: 0 10px 10px 0; line-height: 1.6;
+        }
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+        @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
+
+        /* ===== Panel ===== */
+        .panel {
+            background: var(--bg-panel); border-radius: 18px; padding: 18px 20px 22px;
+            border: 1px solid transparent; transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+        .panel:hover { border-color: var(--accent-blue); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+        .panel-accent { background: var(--bg-panel-accent); }
+        .panel-title {
+            font-weight: 600; color: var(--text-secondary); margin-top: 0; margin-bottom: 14px;
+            font-size: 0.95rem; display: flex; align-items: center; gap: 8px;
+        }
+        .panel-title small { font-weight: 400; font-size: 0.65rem; color: var(--text-light); }
+
+        /* ===== Input ===== */
+        .input-group { display: flex; flex-direction: column; gap: 10px; }
+        .input-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+        .input-row label {
+            font-weight: 500; color: var(--text-secondary); min-width: 70px; font-size: 0.78rem;
+        }
+        .input-row input, .input-row select {
+            flex: 1; min-width: 60px; padding: 6px 12px; border-radius: 10px;
+            border: 1px solid var(--border-input); background: var(--bg-input);
+            color: var(--text-primary); font-size: 0.8rem; font-family: 'SF Mono', 'Fira Code', monospace;
+            outline: none; transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s;
+        }
+        .input-row input:focus, .input-row select:focus {
+            border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(122,158,255,0.12);
+        }
+        .input-row select { flex: 0.6; min-width: 80px; cursor: pointer; }
+        .input-row input:disabled { background: var(--bg-input-readonly); color: var(--text-light); cursor: not-allowed; opacity: 0.5; }
+        .input-row input[readonly] { background: var(--bg-input-readonly); color: var(--text-secondary); }
+        .hint-text { font-size: 0.62rem; color: var(--text-light); font-style: italic; }
+        .unit { font-size: 0.7rem; color: var(--text-muted); min-width: 20px; }
+
+        /* ===== Button ===== */
+        .btn {
+            background: var(--btn-primary); color: white; border: none; padding: 6px 16px;
+            border-radius: 40px; font-weight: 500; font-size: 0.75rem; cursor: pointer;
+            transition: 0.12s, background 0.25s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+        }
+        .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--btn-outline-border); }
+        .btn-outline:hover { background: var(--btn-outline-hover-bg); border-color: var(--border-focus); }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; align-items: center; }
+        .btn-sm { padding: 3px 12px; font-size: 0.65rem; }
+
+        /* ===== Tag / Badge ===== */
+        .tag { background: var(--bg-tag); padding: 2px 10px; border-radius: 40px; font-size: 0.6rem; font-weight: 600; color: var(--text-muted); }
+        .range-badge { background: var(--bg-badge); color: var(--text-badge); padding: 2px 10px; border-radius: 12px; font-size: 0.62rem; font-weight: 600; }
+        .status-ok { color: var(--status-ok-text); background: var(--status-ok-bg); padding: 2px 12px; border-radius: 40px; font-size: 0.65rem; }
+        .error-msg { color: var(--status-error-text); background: var(--status-error-bg); padding: 2px 12px; border-radius: 40px; font-size: 0.65rem; }
+
+        /* ===== Code Output ===== */
+        .code-output {
+            background: var(--bg-code); color: var(--text-code); padding: 8px 12px; border-radius: 12px;
+            font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.7rem;
+            max-height: 260px; min-height: 100px; overflow: auto; white-space: pre-wrap;
+            word-break: break-all; margin-top: 4px; line-height: 1.6;
+        }
+        .rx-entry { border-bottom: 1px solid var(--border-light); padding: 3px 0; }
+        .rx-entry .time { color: var(--text-muted); font-size: 0.6rem; margin-right: 8px; }
+        .rx-entry .dir-tx { color: #f59e0b; font-size: 0.62rem; font-weight: 600; margin-right: 6px; }
+        .rx-entry .dir-rx { color: #34d399; font-size: 0.62rem; font-weight: 600; margin-right: 6px; }
+        .rx-entry .dir-err { color: #f87171; font-size: 0.62rem; font-weight: 600; margin-right: 6px; }
+        .rx-entry .hex-part { color: var(--text-muted); font-size: 0.65rem; }
+        .rx-entry .text-part { color: var(--text-code); font-weight: 500; }
+
+        /* ===== Mode Switcher ===== */
+        .mode-switcher {
+            display: flex; border-radius: 12px; overflow: hidden; border: 1px solid var(--border-input);
+            background: var(--bg-option-grid);
+        }
+        .mode-switcher .mode-btn {
+            flex: 1; padding: 8px 16px; border: none; cursor: pointer; font-size: 0.8rem; font-weight: 600;
+            transition: 0.2s; background: transparent; color: var(--text-muted);
+        }
+        .mode-switcher .mode-btn.active {
+            background: var(--accent-blue); color: white;
+        }
+        .mode-switcher .mode-btn:hover:not(.active) { background: var(--bg-tag); }
+
+        /* ===== Register Table ===== */
+        .reg-table-wrap {
+            max-height: 360px; overflow: auto; border-radius: 12px;
+            border: 1px solid var(--border-light); margin-top: 4px;
+        }
+        .reg-table {
+            width: 100%; border-collapse: collapse; font-size: 0.72rem; font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .reg-table th {
+            position: sticky; top: 0; background: var(--bg-tag); color: var(--text-secondary);
+            padding: 6px 10px; text-align: left; font-weight: 600; font-size: 0.68rem; z-index: 2;
+        }
+        .reg-table td {
+            padding: 4px 10px; border-bottom: 1px solid var(--border-light); color: var(--text-primary);
+        }
+        .reg-table tr:hover td { background: var(--bg-panel-accent); }
+        .reg-table input {
+            width: 80px; padding: 3px 6px; border-radius: 6px; border: 1px solid var(--border-input);
+            background: var(--bg-input); color: var(--text-primary); font-family: inherit; font-size: 0.72rem;
+            outline: none; text-align: right;
+        }
+        .reg-table input:focus { border-color: var(--border-focus); }
+        .reg-table .addr-cell { color: var(--text-badge); font-weight: 600; }
+
+        /* ===== Response Table ===== */
+        .resp-table-wrap {
+            max-height: 360px; overflow: auto; border-radius: 12px;
+            border: 1px solid var(--border-light); margin-top: 4px;
+        }
+        .resp-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; font-family: 'SF Mono', 'Fira Code', monospace; }
+        .resp-table th {
+            position: sticky; top: 0; background: var(--bg-tag); color: var(--text-secondary);
+            padding: 6px 10px; text-align: left; font-weight: 600; font-size: 0.68rem; z-index: 2;
+        }
+        .resp-table td { padding: 4px 10px; border-bottom: 1px solid var(--border-light); color: var(--text-primary); }
+        .resp-table tr:hover td { background: var(--bg-panel-accent); }
+
+        /* ===== Quick Commands ===== */
+        .cmd-item {
+            display: inline-flex; align-items: center; gap: 4px; background: var(--bg-panel);
+            border-radius: 20px; padding: 2px 6px 2px 10px; border: 1px solid var(--border-light);
+        }
+        .cmd-item .cmd-label { font-size: 0.6rem; color: var(--text-muted); max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cmd-item .cmd-btn {
+            background: transparent; border: none; color: var(--text-secondary); font-size: 0.7rem;
+            cursor: pointer; padding: 2px 4px; font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .cmd-item .cmd-btn:hover { color: var(--accent-blue); }
+        .cmd-del { cursor: pointer; color: var(--text-light); font-size: 0.65rem; padding: 0 4px; }
+        .cmd-del:hover { color: var(--status-error-text); }
+
+        .footer-note {
+            margin-top: 24px; color: var(--text-light); font-size: 0.7rem; text-align: center;
+            border-top: 1px solid var(--border-light); padding-top: 16px;
+        }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+
+        /* ===== Slave mode panel visibility ===== */
+        .master-only { display: block; }
+        .slave-only { display: none; }
+        body.mode-slave .master-only { display: none; }
+        body.mode-slave .slave-only { display: block; }
+
+        /* ===== CRC detail ===== */
+        .crc-inline {
+            display: inline-block; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.72rem;
+            padding: 2px 8px; border-radius: 8px; background: var(--bg-badge); color: var(--text-badge);
+        }
+
+        /* ===== Data format select ===== */
+        .format-group { display: flex; gap: 2px; }
+        .format-group .fmt-btn {
+            padding: 2px 8px; border: 1px solid var(--border-input); background: var(--bg-input);
+            color: var(--text-muted); font-size: 0.62rem; cursor: pointer; border-radius: 6px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+        .format-group .fmt-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+        .format-group .fmt-btn:first-child { border-radius: 6px 0 0 6px; }
+        .format-group .fmt-btn:last-child { border-radius: 0 6px 6px 0; }
+
+        /* ===== Auto-poll ===== */
+        .auto-poll-indicator {
+            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+            background: var(--text-light); margin-right: 6px; vertical-align: middle;
+        }
+        .auto-poll-indicator.active { background: #34d399; animation: blink 0.8s infinite; }
+        @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body class="mode-master">
+     <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="theme-toggle" id="themeToggle" title="切换主题">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    
+
+    <div class="container">
+        <div class="page-title">📡 Modbus RTU 串口助手</div>
+        <div class="subhead">🔹 支持 RTU 主站 / 从站模式 · Web Serial API · 自动 CRC 校验 · 寄存器表</div>
+
+        <!-- ===== 串口控制 + 模式切换 ===== -->
+        <div class="grid-2col" style="margin-bottom:18px;">
+            <div class="panel panel-accent">
+                <div class="panel-title">① 串口连接</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>波特率</label>
+                        <select id="baudRate">
+                            <option value="1200">1200</option>
+                            <option value="2400">2400</option>
+                            <option value="4800">4800</option>
+                            <option value="9600" selected>9600</option>
+                            <option value="19200">19200</option>
+                            <option value="38400">38400</option>
+                            <option value="57600">57600</option>
+                            <option value="115200">115200</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                        <input type="number" id="customBaud" value="250000" placeholder="自定义" style="flex:0.5;min-width:80px;display:none;">
+                        <span class="hint-text">bps</span>
+                    </div>
+                    <div class="input-row">
+                        <label>数据位</label>
+                        <select id="dataBits"><option value="8" selected>8</option><option value="7">7</option></select>
+                        <label style="min-width:50px;">停止位</label>
+                        <select id="stopBits"><option value="1" selected>1</option><option value="2">2</option></select>
+                        <label style="min-width:40px;">校验</label>
+                        <select id="parity"><option value="none" selected>无</option><option value="even">偶</option><option value="odd">奇</option></select>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="connectBtn">🔗 连接串口</button>
+                        <button class="btn btn-outline" id="disconnectBtn" disabled>⛔ 断开</button>
+                    </div>
+                    <div id="connStatus" style="font-size:0.7rem;color:var(--text-muted);">● 未连接</div>
+                </div>
+            </div>
+
+            <div class="panel panel-accent">
+                <div class="panel-title">② 工作模式</div>
+                <div class="mode-switcher" id="modeSwitcher">
+                    <button class="mode-btn active" data-mode="master">主站 Master</button>
+                    <button class="mode-btn" data-mode="slave">从站 Slave</button>
+                </div>
+                <div style="margin-top:14px;">
+                    <div class="master-only">
+                        <div class="input-row">
+                            <label>超时时间</label>
+                            <input type="number" id="responseTimeout" value="500" min="50" max="10000" style="flex:0.4;">
+                            <span class="unit">ms</span>
+                            <label style="min-width:55px;">轮询间隔</label>
+                            <input type="number" id="pollInterval" value="1000" min="50" max="60000" style="flex:0.4;">
+                            <span class="unit">ms</span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline" id="autoPollBtn">
+                                <span class="auto-poll-indicator" id="pollIndicator"></span>自动轮询
+                            </button>
+                        </div>
+                    </div>
+                    <div class="slave-only">
+                        <div class="input-row">
+                            <label>本站地址</label>
+                            <input type="number" id="slaveAddr" value="1" min="1" max="247" style="flex:0.3;">
+                            <span class="unit">1~247</span>
+                            <span class="hint-text">从站响应此地址的请求</span>
+                        </div>
+                        <div class="input-row">
+                            <label>响应延时</label>
+                            <input type="number" id="slaveDelay" value="10" min="0" max="500" style="flex:0.3;">
+                            <span class="unit">ms</span>
+                            <span class="hint-text">模拟处理延时</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 主站：指令构建 / 从站：寄存器表 ===== -->
+        <div class="grid-2col" style="margin-bottom:18px;">
+            <!-- 主站指令面板 -->
+            <div class="panel panel-accent master-only" id="masterPanel">
+                <div class="panel-title">③ 主站指令 <small>构建并发送 Modbus 请求</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>从站地址</label>
+                        <input type="number" id="mSlaveAddr" value="1" min="1" max="247" style="flex:0.3;">
+                        <label style="min-width:70px;">功能码</label>
+                        <select id="mFuncCode" style="flex:0.8;">
+                            <optgroup label="读操作">
+                                <option value="01">01 - 读线圈</option>
+                                <option value="02">02 - 读离散输入</option>
+                                <option value="03" selected>03 - 读保持寄存器</option>
+                                <option value="04">04 - 读输入寄存器</option>
+                            </optgroup>
+                            <optgroup label="写操作">
+                                <option value="05">05 - 写单个线圈</option>
+                                <option value="06">06 - 写单个寄存器</option>
+                                <option value="15">15 (0x0F) - 写多个线圈</option>
+                                <option value="16">16 (0x10) - 写多个寄存器</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-row" id="mAddrRow">
+                        <label id="mAddrLabel">起始地址</label>
+                        <input type="number" id="mStartAddr" value="0" min="0" max="65535" style="flex:0.3;">
+                        <span class="unit">0~65535</span>
+                    </div>
+                    <div class="input-row" id="mQtyRow">
+                        <label id="mQtyLabel">数量</label>
+                        <input type="number" id="mQuantity" value="10" min="1" max="125" style="flex:0.3;">
+                        <span class="unit" id="mQtyUnit">线圈/寄存器</span>
+                    </div>
+                    <div class="input-row" id="mValueRow" style="display:none;">
+                        <label id="mValueLabel">写入值</label>
+                        <input type="text" id="mWriteValue" placeholder="如 FF00 或 1000" style="flex:0.6;">
+                        <span class="hint-text" id="mValueHint">HEX 或 DEC</span>
+                    </div>
+                    <div class="flex-between">
+                        <div class="btn-group">
+                            <button class="btn btn-outline" id="sendModbusBtn">📤 发送请求</button>
+                            <button class="btn btn-outline" id="buildFrameBtn">🔍 预览帧</button>
+                        </div>
+                        <div id="crcPreview" class="crc-inline">CRC: —</div>
+                    </div>
+                    <div class="code-output" id="framePreview" style="max-height:60px;min-height:30px;font-size:0.65rem;color:var(--text-muted);">构建的帧将在此处显示</div>
+                </div>
+            </div>
+
+            <!-- 从站寄存器面板 -->
+            <div class="panel panel-accent slave-only" id="slavePanel">
+                <div class="panel-title">③ 从站寄存器 <small>编辑本地寄存器数据</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label>寄存器类型</label>
+                        <select id="regType">
+                            <option value="coils">线圈 — FC01 (0x)</option>
+                            <option value="discrete">离散输入 — FC02 (1x)</option>
+                            <option value="input">输入寄存器 — FC04 (3x)</option>
+                            <option value="holding" selected>保持寄存器 — FC03 (4x)</option>
+                        </select>
+                        <label style="min-width:70px;">显示范围</label>
+                        <input type="number" id="regStart" value="0" min="0" max="65535" style="flex:0.2;">
+                        <span class="unit">~</span>
+                        <input type="number" id="regEnd" value="49" min="0" max="65535" style="flex:0.2;">
+                        <button class="btn btn-outline btn-sm" id="refreshRegBtn">刷新</button>
+                        <button class="btn btn-outline btn-sm" id="initRegBtn">初始化</button>
+                    </div>
+                    <div class="reg-table-wrap" id="regTableWrap">
+                        <table class="reg-table" id="regTable">
+                            <thead><tr><th>地址</th><th>值 (HEX)</th><th>值 (DEC)</th><th>位15~8</th><th>位7~0</th></tr></thead>
+                            <tbody id="regTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主站：响应解析 -->
+            <div class="panel panel-accent master-only">
+                <div class="panel-title">④ 响应数据 <small>解析从站返回</small></div>
+                <div class="input-row" style="margin-bottom:10px;">
+                    <label>数据格式</label>
+                    <div class="format-group">
+                        <button class="fmt-btn active" data-fmt="hex16">UINT16</button>
+                        <button class="fmt-btn" data-fmt="int16">INT16</button>
+                        <button class="fmt-btn" data-fmt="hex32">UINT32</button>
+                        <button class="fmt-btn" data-fmt="float">FLOAT</button>
+                        <button class="fmt-btn" data-fmt="ascii">ASCII</button>
+                    </div>
+                    <span class="hint-text">两个寄存器合并时使用</span>
+                </div>
+                <div class="resp-table-wrap" id="respTableWrap" style="max-height:300px;">
+                    <table class="resp-table" id="respTable">
+                        <thead><tr><th>地址</th><th>HEX</th><th>DEC</th><th>格式化</th></tr></thead>
+                        <tbody id="respTableBody">
+                            <tr><td colspan="4" style="text-align:center;color:var(--text-light);padding:20px;">等待响应数据...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 从站：请求日志 -->
+            <div class="panel panel-accent slave-only">
+                <div class="panel-title">④ 请求日志 <small>收到的主站请求</small></div>
+                <div class="resp-table-wrap" id="slaveReqWrap" style="max-height:300px;">
+                    <table class="resp-table" id="slaveReqTable">
+                        <thead><tr><th>时间</th><th>地址</th><th>功能码</th><th>内容</th><th>响应</th></tr></thead>
+                        <tbody id="slaveReqBody">
+                            <tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:20px;">等待主站请求...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn-group" style="margin-top:6px;">
+                    <button class="btn btn-outline btn-sm" id="clearSlaveLogBtn">清空日志</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 收发日志 ===== -->
+        <div class="panel" style="margin-bottom:18px;">
+            <div class="panel-title">
+                ⑤ 通信日志 <small>原始帧 HEX</small>
+                <span style="flex:1;"></span>
+                <span class="tag" id="txCount">TX: 0</span>
+                <span class="tag" id="rxCount" style="margin-left:4px;">RX: 0</span>
+                <span class="tag" id="errCount" style="margin-left:4px;color:var(--status-error-text);">ERR: 0</span>
+            </div>
+            <div class="code-output" id="logDisplay" style="max-height:220px;min-height:80px;">(等待通信)</div>
+            <div class="btn-group" style="margin-top:6px;">
+                <button class="btn btn-outline btn-sm" id="clearLogBtn">清空日志</button>
+                <button class="btn btn-outline btn-sm" id="exportLogBtn">导出日志</button>
+                <label style="font-size:0.68rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+                    <input type="checkbox" id="autoScrollLog" checked> 自动滚动
+                </label>
+            </div>
+        </div>
+
+        <!-- ===== 快捷指令 ===== -->
+        <div class="panel">
+            <div class="panel-title">⑥ 快捷指令 <small>点击快速发送</small>
+                <span style="flex:1;"></span>
+                <button class="btn btn-outline btn-sm" id="exportCmdsBtn">📤 导出</button>
+                <button class="btn btn-outline btn-sm" id="importCmdsBtn">📥 导入</button>
+                <input type="file" id="importCmdsInput" accept=".json" style="display:none;">
+            </div>
+            <div class="btn-group" id="cmdContainer"></div>
+            <div class="input-row" style="margin-top:8px;flex-wrap:wrap;">
+                <label style="min-width:60px;">添加指令</label>
+                <input type="text" id="customCmdInput" placeholder="HEX帧 (如 01 03 00 00 00 0A)" style="flex:1.2;min-width:100px;">
+                <input type="text" id="customCmdComment" placeholder="注释" style="flex:0.5;min-width:60px;">
+                <button class="btn btn-outline" id="addCmdBtn">➕ 添加</button>
+                <button class="btn btn-outline" id="resetCmdBtn">↺ 默认</button>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            📡 Modbus RTU 串口助手 · Web Serial API · 主站/从站 · CRC-16 自动校验<br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+<script>
+(function() {
+    'use strict';
+
+    // ============================================================
+    //  主题切换
+    // ============================================================
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    function setTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        themeIcon.textContent = t === 'dark' ? '🌙' : '☀️';
+        localStorage.setItem('toolbox-theme', t);
+    }
+    setTheme(localStorage.getItem('toolbox-theme') || 'light');
+    themeToggle.addEventListener('click', () => {
+        setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    // ============================================================
+    //  模式切换 (主站/从站)
+    // ============================================================
+    let currentMode = 'master';
+    const modeSwitcher = document.getElementById('modeSwitcher');
+    modeSwitcher.addEventListener('click', (e) => {
+        const btn = e.target.closest('.mode-btn');
+        if (!btn) return;
+        const mode = btn.dataset.mode;
+        if (mode === currentMode) return;
+        currentMode = mode;
+        document.body.className = 'mode-' + mode;
+        modeSwitcher.querySelectorAll('.mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+        if (mode === 'slave') {
+            stopAutoPoll();
+            renderRegTable();
+        }
+    });
+
+    // ============================================================
+    //  串口连接 (Web Serial API)
+    // ============================================================
+    let port = null, reader = null, writer = null, isConnected = false;
+    let readableStreamClosed = null;
+
+    const baudSelect = document.getElementById('baudRate');
+    const customBaud = document.getElementById('customBaud');
+    const connectBtn = document.getElementById('connectBtn');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const connStatus = document.getElementById('connStatus');
+
+    baudSelect.addEventListener('change', () => {
+        customBaud.style.display = baudSelect.value === 'custom' ? 'inline-block' : 'none';
+    });
+
+    connectBtn.addEventListener('click', async () => {
+        if (!('serial' in navigator)) {
+            alert('当前浏览器不支持 Web Serial API，请使用 Chrome 89+ 或 Edge 89+');
+            return;
+        }
+        try {
+            port = await navigator.serial.requestPort();
+            const baud = baudSelect.value === 'custom' ? parseInt(customBaud.value) : parseInt(baudSelect.value);
+            if (!baud || baud <= 0) { alert('请输入有效的波特率'); return; }
+            await port.open({
+                baudRate: baud,
+                dataBits: parseInt(document.getElementById('dataBits').value),
+                stopBits: parseInt(document.getElementById('stopBits').value),
+                parity: document.getElementById('parity').value
+            });
+            // 立即初始化 writer（必须在 port.open 之后）
+            if (port.writable) {
+                writer = port.writable.getWriter();
+            }
+            isConnected = true;
+            updateConnUI(true);
+            startReading();
+        } catch (err) {
+            if (err.name !== 'NotFoundError') {
+                alert('连接失败: ' + err.message);
+            }
+        }
+    });
+
+    disconnectBtn.addEventListener('click', async () => {
+        await doDisconnect();
+    });
+
+    async function doDisconnect() {
+        stopAutoPoll();
+        // 1. 先标记断开，中断读取循环
+        isConnected = false;
+        // 2. 释放 writer（先关写再关读）
+        if (writer) {
+            try { await writer.close(); } catch(e) {}
+            try { writer.releaseLock(); } catch(e) {}
+            writer = null;
+        }
+        // 3. 取消 reader（使 reader.read() 抛出异常跳出循环）
+        if (reader) {
+            try { await reader.cancel(); } catch(e) {}
+            try { reader.releaseLock(); } catch(e) {}
+            reader = null;
+        }
+        // 4. 等待 readable stream 彻底关闭
+        if (readableStreamClosed) {
+            try { await readableStreamClosed.catch(() => {}); } catch(e) {}
+            readableStreamClosed = null;
+        }
+        // 5. 关闭 port
+        if (port) {
+            try { await port.close(); } catch(e) {}
+            port = null;
+        }
+        frameBuffer = [];
+        updateConnUI(false);
+    }
+
+    function updateConnUI(connected) {
+        connectBtn.disabled = connected;
+        disconnectBtn.disabled = !connected;
+        connStatus.innerHTML = connected
+            ? '<span class="status-ok">● 已连接</span>'
+            : '● 未连接';
+        baudSelect.disabled = connected;
+        document.getElementById('dataBits').disabled = connected;
+        document.getElementById('stopBits').disabled = connected;
+        document.getElementById('parity').disabled = connected;
+    }
+
+    // ============================================================
+    //  数据收发
+    // ============================================================
+    const textDecoder = new TextDecoder();
+    let frameBuffer = [];
+    let rxByteCount = 0, txByteCount = 0, errCount = 0;
+    let frameTimeout = null;
+    const FRAME_GAP_MS = 30; // 帧间隔判定 (ms)
+
+    function updateCounters() {
+        document.getElementById('txCount').textContent = 'TX: ' + txByteCount;
+        document.getElementById('rxCount').textContent = 'RX: ' + rxByteCount;
+        document.getElementById('errCount').textContent = 'ERR: ' + errCount;
+    }
+
+    async function startReading() {
+        try {
+            reader = port.readable.getReader();
+            readableStreamClosed = port.readable.closed;
+            while (isConnected) {
+                try {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+                    if (value && value.length > 0) {
+                        rxByteCount += value.length;
+                        updateCounters();
+                        processRxBytes(value);
+                    }
+                } catch (e) {
+                    // reader.cancel() 或断开时会触发，跳出循环即可
+                    break;
+                }
+            }
+        } catch (e) {
+            // readable stream 不可用
+        } finally {
+            if (reader) { try { reader.releaseLock(); } catch(e2) {} reader = null; }
+        }
+    }
+
+    function processRxBytes(data) {
+        for (let i = 0; i < data.length; i++) {
+            frameBuffer.push(data[i]);
+        }
+        // 帧间隔超时处理
+        if (frameTimeout) clearTimeout(frameTimeout);
+        frameTimeout = setTimeout(() => {
+            if (frameBuffer.length > 0) {
+                const frame = new Uint8Array(frameBuffer);
+                frameBuffer = [];
+                onFrameReceived(frame);
+            }
+        }, FRAME_GAP_MS);
+    }
+
+    async function sendBytes(bytes) {
+        if (!isConnected || !writer) return false;
+        try {
+            const encoder = new TextEncoder();
+            await writer.write(bytes);
+            txByteCount += bytes.length;
+            updateCounters();
+            addLog('tx', bytes);
+            return true;
+        } catch (e) {
+            errCount++;
+            updateCounters();
+            addLog('err', null, '发送失败: ' + e.message);
+            return false;
+        }
+    }
+
+    // ============================================================
+    //  CRC-16 / Modbus
+    // ============================================================
+    function crc16Modbus(bytes) {
+        let crc = 0xFFFF;
+        for (let i = 0; i < bytes.length; i++) {
+            crc ^= bytes[i] & 0xFF;
+            for (let j = 0; j < 8; j++) {
+                if (crc & 0x0001) {
+                    crc = (crc >> 1) ^ 0xA001;
+                } else {
+                    crc >>= 1;
+                }
+            }
+        }
+        return crc;
+    }
+
+    function appendCRC(frame) {
+        const crc = crc16Modbus(frame);
+        const result = new Uint8Array(frame.length + 2);
+        result.set(frame);
+        result[frame.length] = crc & 0xFF;        // CRC Low
+        result[frame.length + 1] = (crc >> 8) & 0xFF; // CRC High
+        return result;
+    }
+
+    function verifyCRC(frame) {
+        if (frame.length < 4) return false;
+        const data = frame.slice(0, frame.length - 2);
+        const crcReceived = frame[frame.length - 2] | (frame[frame.length - 1] << 8);
+        const crcCalc = crc16Modbus(data);
+        return crcReceived === crcCalc;
+    }
+
+    function bytesToHex(bytes) {
+        return Array.from(bytes).map(b => (b & 0xFF).toString(16).toUpperCase().padStart(2, '0')).join(' ');
+    }
+
+    // ============================================================
+    //  通信日志
+    // ============================================================
+    const logDisplay = document.getElementById('logDisplay');
+    let logEntries = [];
+    const MAX_LOG = 500;
+
+    function addLog(type, bytes, text) {
+        const now = new Date();
+        const ts = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+        let html = '';
+        if (type === 'tx') {
+            html = `<span class="time">${ts}</span><span class="dir-tx">TX →</span><span class="hex-part">[${bytes.length}B] ${bytesToHex(bytes)}</span>`;
+        } else if (type === 'rx') {
+            const crcOk = verifyCRC(bytes);
+            html = `<span class="time">${ts}</span><span class="dir-rx">RX ←</span><span class="hex-part">[${bytes.length}B] ${bytesToHex(bytes)}</span> ${crcOk ? '<span class="status-ok">CRC✓</span>' : '<span class="error-msg">CRC✗</span>'}`;
+        } else if (type === 'err') {
+            html = `<span class="time">${ts}</span><span class="dir-err">ERR</span> <span class="error-msg">${text || ''}</span>`;
+        } else if (type === 'info') {
+            html = `<span class="time">${ts}</span><span style="color:var(--accent-blue);font-size:0.62rem;font-weight:600;">INFO</span> <span style="color:var(--text-muted);font-size:0.65rem;">${text || ''}</span>`;
+        }
+        logEntries.push(html);
+        if (logEntries.length > MAX_LOG) logEntries.shift();
+        const shouldScroll = document.getElementById('autoScrollLog').checked;
+        const isAtBottom = logDisplay.scrollTop + logDisplay.clientHeight >= logDisplay.scrollHeight - 20;
+        logDisplay.innerHTML = logEntries.join('\n');
+        if ((shouldScroll || isAtBottom) && type !== 'info') {
+            logDisplay.scrollTop = logDisplay.scrollHeight;
+        }
+    }
+
+    document.getElementById('clearLogBtn').addEventListener('click', () => {
+        logEntries = [];
+        logDisplay.innerHTML = '(已清空)';
+    });
+    document.getElementById('exportLogBtn').addEventListener('click', () => {
+        const text = logDisplay.textContent;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'modbus_log_' + Date.now() + '.txt';
+        a.click();
+    });
+
+    // ============================================================
+    //  主站：帧构建与发送
+    // ============================================================
+    const mSlaveAddr = document.getElementById('mSlaveAddr');
+    const mFuncCode = document.getElementById('mFuncCode');
+    const mStartAddr = document.getElementById('mStartAddr');
+    const mQuantity = document.getElementById('mQuantity');
+    const mWriteValue = document.getElementById('mWriteValue');
+    const framePreview = document.getElementById('framePreview');
+    const crcPreview = document.getElementById('crcPreview');
+
+    const FUNC_INFO = {
+        '01': { name: '读线圈', maxQty: 2000, hasAddr: true, hasQty: true, hasValue: false },
+        '02': { name: '读离散输入', maxQty: 2000, hasAddr: true, hasQty: true, hasValue: false },
+        '03': { name: '读保持寄存器', maxQty: 125, hasAddr: true, hasQty: true, hasValue: false },
+        '04': { name: '读输入寄存器', maxQty: 125, hasAddr: true, hasQty: true, hasValue: false },
+        '05': { name: '写单个线圈', maxQty: 0, hasAddr: true, hasQty: false, hasValue: true, valLabel: '写入值', valHint: 'FF00=ON, 0000=OFF' },
+        '06': { name: '写单个寄存器', maxQty: 0, hasAddr: true, hasQty: false, hasValue: true, valLabel: '写入值', valHint: '0x0000~0xFFFF' },
+        '15': { name: '写多个线圈', maxQty: 1968, hasAddr: true, hasQty: true, hasValue: true, valLabel: '线圈数据(HEX)', valHint: '每bit对应一个线圈, 如 FF00' },
+        '16': { name: '写多个寄存器', maxQty: 123, hasAddr: true, hasQty: true, hasValue: true, valLabel: '寄存器数据(HEX)', valHint: '空格分隔, 如 0001 0002' },
+    };
+
+    function updateFuncUI() {
+        const fc = mFuncCode.value;
+        const info = FUNC_INFO[fc];
+        if (!info) return;
+
+        document.getElementById('mAddrRow').style.display = info.hasAddr ? 'flex' : 'none';
+        document.getElementById('mQtyRow').style.display = info.hasQty ? 'flex' : 'none';
+        document.getElementById('mValueRow').style.display = info.hasValue ? 'flex' : 'none';
+
+        if (info.hasQty) {
+            mQuantity.max = info.maxQty;
+            if (parseInt(mQuantity.value) > info.maxQty) mQuantity.value = info.maxQty;
+            document.getElementById('mQtyUnit').textContent = info.maxQty <= 2000 ? '最大' + info.maxQty : '';
+        }
+        if (info.hasValue) {
+            document.getElementById('mValueLabel').textContent = info.valLabel;
+            document.getElementById('mValueHint').textContent = info.valHint;
+        }
+        updateFramePreview();
+    }
+    mFuncCode.addEventListener('change', updateFuncUI);
+    [mSlaveAddr, mStartAddr, mQuantity, mWriteValue].forEach(el => el.addEventListener('input', updateFramePreview));
+
+    function buildMasterFrame() {
+        const addr = parseInt(mSlaveAddr.value) & 0xFF;
+        const fc = parseInt(mFuncCode.value, 16);
+        const startAddr = parseInt(mStartAddr.value) & 0xFFFF;
+        const qty = parseInt(mQuantity.value) || 0;
+        const info = FUNC_INFO[mFuncCode.value];
+
+        let frame = [addr, fc, (startAddr >> 8) & 0xFF, startAddr & 0xFF];
+
+        if (info.hasQty) {
+            frame.push((qty >> 8) & 0xFF, qty & 0xFF);
+        }
+        if (info.hasValue) {
+            const valStr = mWriteValue.value.trim();
+            if (fc === 0x05) {
+                // 单个线圈: FF00 or 0000
+                let v = 0;
+                if (valStr.toUpperCase() === 'FF00') v = 0xFF00;
+                else if (valStr.toUpperCase() === '0000') v = 0x0000;
+                else v = parseInt(valStr, 16) || 0;
+                frame.push((v >> 8) & 0xFF, v & 0xFF);
+            } else if (fc === 0x06) {
+                let v = parseInt(valStr, valStr.startsWith('0x') || valStr.startsWith('0X') ? 16 : 10) || 0;
+                frame.push((v >> 8) & 0xFF, v & 0xFF);
+            } else if (fc === 0x15) {
+                // 写多个线圈
+                const bytes = parseHexValues(valStr);
+                const byteCount = Math.ceil(qty / 8);
+                frame.push(byteCount);
+                for (let i = 0; i < byteCount && i < bytes.length; i++) {
+                    frame.push(bytes[i] & 0xFF);
+                }
+            } else if (fc === 0x16) {
+                // 写多个寄存器
+                const vals = parseHexValues(valStr);
+                const byteCount = Math.min(qty, vals.length / 2) * 2;
+                frame.push(byteCount);
+                for (let i = 0; i < byteCount && i < vals.length; i++) {
+                    frame.push(vals[i] & 0xFF);
+                }
+            }
+        }
+
+        return appendCRC(new Uint8Array(frame));
+    }
+
+    function parseHexValues(str) {
+        const cleaned = str.replace(/0x/gi, '').replace(/[,，]/g, ' ').trim();
+        if (!cleaned) return [];
+        return cleaned.split(/\s+/).map(s => parseInt(s, 16)).filter(v => !isNaN(v) && v >= 0 && v <= 0xFF);
+    }
+
+    function updateFramePreview() {
+        try {
+            const frame = buildMasterFrame();
+            const crc = frame[frame.length - 2] | (frame[frame.length - 1] << 8);
+            crcPreview.textContent = 'CRC: 0x' + crc.toString(16).toUpperCase().padStart(4, '0');
+            framePreview.textContent = bytesToHex(frame);
+            framePreview.style.color = 'var(--text-code)';
+        } catch (e) {
+            framePreview.textContent = '参数错误';
+            framePreview.style.color = 'var(--status-error-text)';
+            crcPreview.textContent = 'CRC: —';
+        }
+    }
+
+    document.getElementById('buildFrameBtn').addEventListener('click', updateFramePreview);
+
+    // 发送 Modbus 请求
+    document.getElementById('sendModbusBtn').addEventListener('click', async () => {
+        if (!isConnected) { alert('请先连接串口'); return; }
+        try {
+            const frame = buildMasterFrame();
+            await sendBytes(frame);
+        } catch (e) {
+            errCount++;
+            updateCounters();
+            addLog('err', null, '发送失败: ' + e.message);
+        }
+    });
+
+    // ============================================================
+    //  主站：响应解析
+    // ============================================================
+    let currentDataFormat = 'hex16';
+    document.querySelectorAll('.format-group .fmt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.format-group .fmt-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentDataFormat = btn.dataset.fmt;
+            reRenderRespTable();
+        });
+    });
+
+    let lastResponseData = null;
+    let lastResponseMeta = null;
+
+    function onFrameReceived(frame) {
+        if (currentMode === 'master') {
+            parseMasterResponse(frame);
+        } else {
+            handleSlaveRequest(frame);
+        }
+    }
+
+    function parseMasterResponse(frame) {
+        if (frame.length < 4) {
+            addLog('rx', frame);
+            return;
+        }
+
+        // 检查异常响应
+        const addr = frame[0];
+        const fc = frame[1];
+        if (fc & 0x80) {
+            const errCode = frame.length >= 3 ? frame[2] : 0;
+            const errNames = { 1: '非法功能码', 2: '非法数据地址', 3: '非法数据值', 4: '从站故障' };
+            addLog('err', frame, `异常响应 FC=${(fc & 0x7F).toString(16)} ERR=${errCode} (${errNames[errCode] || '未知'})`);
+            errCount++;
+            updateCounters();
+            return;
+        }
+
+        addLog('rx', frame);
+
+        // 解析数据
+        const respTableBody = document.getElementById('respTableBody');
+        const startAddr = parseInt(mStartAddr.value) || 0;
+
+        if (fc === 0x01 || fc === 0x02) {
+            // 读线圈 / 离散输入
+            const byteCount = frame[2];
+            const data = frame.slice(3, 3 + byteCount);
+            lastResponseData = data;
+            lastResponseMeta = { fc, startAddr, count: byteCount * 8 };
+            renderCoilResponse(respTableBody, data, startAddr);
+        } else if (fc === 0x03 || fc === 0x04) {
+            // 读保持/输入寄存器
+            const byteCount = frame[2];
+            const data = frame.slice(3, 3 + byteCount);
+            lastResponseData = data;
+            lastResponseMeta = { fc, startAddr, count: byteCount / 2 };
+            renderRegisterResponse(respTableBody, data, startAddr);
+        } else if (fc === 0x05) {
+            respTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;"><span class="status-ok">写线圈成功</span> 地址=${(frame[2]<<8|frame[3])} 值=${bytesToHex(frame.slice(4,6))}</td></tr>`;
+            lastResponseData = frame;
+            lastResponseMeta = { fc };
+        } else if (fc === 0x06) {
+            respTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;"><span class="status-ok">写寄存器成功</span> 地址=${(frame[2]<<8|frame[3])} 值=${bytesToHex(frame.slice(4,6))}</td></tr>`;
+            lastResponseData = frame;
+            lastResponseMeta = { fc };
+        } else if (fc === 0x15) {
+            const startA = (frame[2] << 8) | frame[3];
+            const qty = (frame[4] << 8) | frame[5];
+            respTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;"><span class="status-ok">写多个线圈成功</span> 起始=${startA} 数量=${qty}</td></tr>`;
+            lastResponseData = frame;
+            lastResponseMeta = { fc };
+        } else if (fc === 0x16) {
+            const startA = (frame[2] << 8) | frame[3];
+            const qty = (frame[4] << 8) | frame[5];
+            respTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;"><span class="status-ok">写多个寄存器成功</span> 起始=${startA} 数量=${qty}</td></tr>`;
+            lastResponseData = frame;
+            lastResponseMeta = { fc };
+        } else {
+            respTableBody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);">未解析的响应 FC=0x${fc.toString(16)}</td></tr>`;
+        }
+    }
+
+    function renderCoilResponse(tbody, data, startAddr) {
+        let html = '';
+        for (let byteIdx = 0; byteIdx < data.length; byteIdx++) {
+            for (let bit = 0; bit < 8; bit++) {
+                const addr = startAddr + byteIdx * 8 + bit;
+                const val = (data[byteIdx] >> bit) & 1;
+                html += `<tr><td class="addr-cell">${addr}</td><td>${val}</td><td>${val ? 'ON' : 'OFF'}</td><td style="color:${val ? 'var(--status-ok-text)' : 'var(--text-light)'};">${val ? '● ON' : '○ OFF'}</td></tr>`;
+            }
+        }
+        tbody.innerHTML = html;
+    }
+
+    function renderRegisterResponse(tbody, data, startAddr) {
+        let html = '';
+        for (let i = 0; i + 1 < data.length; i += 2) {
+            const addr = startAddr + i / 2;
+            const raw = (data[i] << 8) | data[i + 1];
+            const hex = '0x' + raw.toString(16).toUpperCase().padStart(4, '0');
+            let formatted = '';
+
+            if (currentDataFormat === 'hex16') {
+                formatted = hex;
+            } else if (currentDataFormat === 'int16') {
+                const signed = raw > 32767 ? raw - 65536 : raw;
+                formatted = signed.toString();
+            } else if (currentDataFormat === 'hex32' && i + 3 < data.length) {
+                const val = ((data[i] << 24) | (data[i+1] << 16) | (data[i+2] << 8) | data[i+3]) >>> 0;
+                formatted = '0x' + val.toString(16).toUpperCase().padStart(8, '0');
+            } else if (currentDataFormat === 'float' && i + 3 < data.length) {
+                const buf = new ArrayBuffer(4);
+                const dv = new DataView(buf);
+                dv.setUint16(0, (data[i] << 8) | data[i+1], false);
+                dv.setUint16(2, (data[i+2] << 8) | data[i+3], false);
+                formatted = dv.getFloat32(0, false).toFixed(4);
+            } else if (currentDataFormat === 'ascii') {
+                formatted = String.fromCharCode(data[i], data[i+1]).replace(/[^\x20-\x7E]/g, '.');
+            } else {
+                formatted = hex;
+            }
+
+            html += `<tr><td class="addr-cell">${addr}</td><td>${hex}</td><td>${raw}</td><td>${formatted}</td></tr>`;
+        }
+        tbody.innerHTML = html;
+    }
+
+    function reRenderRespTable() {
+        if (!lastResponseData || !lastResponseMeta) return;
+        const { fc, startAddr, count } = lastResponseMeta;
+        const tbody = document.getElementById('respTableBody');
+        if (fc === 0x01 || fc === 0x02) {
+            renderCoilResponse(tbody, lastResponseData, startAddr);
+        } else if (fc === 0x03 || fc === 0x04) {
+            renderRegisterResponse(tbody, lastResponseData, startAddr);
+        }
+    }
+
+    // ============================================================
+    //  主站：自动轮询
+    // ============================================================
+    let autoPollTimer = null;
+    let isAutoPolling = false;
+
+    document.getElementById('autoPollBtn').addEventListener('click', () => {
+        if (isAutoPolling) stopAutoPoll();
+        else startAutoPoll();
+    });
+
+    function startAutoPoll() {
+        if (!isConnected) { alert('请先连接串口'); return; }
+        isAutoPolling = true;
+        document.getElementById('pollIndicator').classList.add('active');
+        document.getElementById('autoPollBtn').style.borderColor = 'var(--accent-blue)';
+        const interval = parseInt(document.getElementById('pollInterval').value) || 1000;
+        autoPollTimer = setInterval(async () => {
+            if (!isConnected) { stopAutoPoll(); return; }
+            try {
+                const frame = buildMasterFrame();
+                await sendBytes(frame);
+            } catch (e) { /* ignore */ }
+        }, interval);
+    }
+
+    function stopAutoPoll() {
+        isAutoPolling = false;
+        if (autoPollTimer) { clearInterval(autoPollTimer); autoPollTimer = null; }
+        document.getElementById('pollIndicator').classList.remove('active');
+        document.getElementById('autoPollBtn').style.borderColor = '';
+    }
+
+    // ============================================================
+    //  从站：寄存器数据
+    // ============================================================
+    const slaveRegData = {
+        coils: new Uint8Array(256).fill(0),      // 256 bytes = 2048 coils
+        discrete: new Uint8Array(256).fill(0),
+        holding: new Uint16Array(256).fill(0),
+        input: new Uint16Array(256).fill(0),
+    };
+
+    function renderRegTable() {
+        const type = document.getElementById('regType').value;
+        const start = parseInt(document.getElementById('regStart').value) || 0;
+        const end = parseInt(document.getElementById('regEnd').value) || 49;
+        const isBit = (type === 'coils' || type === 'discrete');
+        const tbody = document.getElementById('regTableBody');
+        const thead = document.querySelector('#regTable thead tr');
+
+        if (isBit) {
+            thead.innerHTML = '<th>地址</th><th>位7</th><th>位6</th><th>位5</th><th>位4</th><th>位3</th><th>位2</th><th>位1</th><th>位0</th><th>HEX</th>';
+        } else {
+            thead.innerHTML = '<th>地址</th><th>值 (HEX)</th><th>值 (DEC)</th><th>位15~8</th><th>位7~0</th>';
+        }
+
+        let html = '';
+        if (isBit) {
+            for (let byteAddr = Math.floor(start / 8); byteAddr <= Math.floor(end / 8) && byteAddr < 256; byteAddr++) {
+                const val = slaveRegData[type][byteAddr];
+                let bits = '';
+                for (let b = 7; b >= 0; b--) {
+                    const bitVal = (val >> b) & 1;
+                    const bitAddr = byteAddr * 8 + (7 - b);
+                    bits += `<td><input type="number" min="0" max="1" value="${bitVal}" data-type="${type}" data-baddr="${byteAddr}" data-bit="${7-b}" style="width:36px;text-align:center;" ${bitAddr < start || bitAddr > end ? 'disabled' : ''}></td>`;
+                }
+                html += `<tr><td class="addr-cell">${byteAddr * 8}~${byteAddr * 8 + 7}</td>${bits}<td>0x${val.toString(16).toUpperCase().padStart(2, '0')}</td></tr>`;
+            }
+        } else {
+            for (let addr = start; addr <= end && addr < 256; addr++) {
+                const val = slaveRegData[type][addr];
+                const hex = '0x' + val.toString(16).toUpperCase().padStart(4, '0');
+                const hi = (val >> 8) & 0xFF;
+                const lo = val & 0xFF;
+                html += `<tr><td class="addr-cell">${addr}</td><td><input type="text" value="${hex}" data-type="${type}" data-addr="${addr}" data-part="hex"></td><td>${val}</td><td>${hi.toString(16).toUpperCase().padStart(2,'0')}</td><td>${lo.toString(16).toUpperCase().padStart(2,'0')}</td></tr>`;
+            }
+        }
+        tbody.innerHTML = html;
+
+        // 绑定编辑事件
+        tbody.querySelectorAll('input').forEach(inp => {
+            inp.addEventListener('change', function() {
+                const type = this.dataset.type;
+                if (this.dataset.bit !== undefined) {
+                    const bAddr = parseInt(this.dataset.baddr);
+                    const bit = parseInt(this.dataset.bit);
+                    const v = parseInt(this.value) ? 1 : 0;
+                    if (v) slaveRegData[type][bAddr] |= (1 << bit);
+                    else slaveRegData[type][bAddr] &= ~(1 << bit);
+                    renderRegTable();
+                } else if (this.dataset.addr !== undefined) {
+                    const addr = parseInt(this.dataset.addr);
+                    let val = parseInt(this.value, 16);
+                    if (isNaN(val)) val = parseInt(this.value, 10);
+                    if (isNaN(val)) val = 0;
+                    val = val & 0xFFFF;
+                    slaveRegData[type][addr] = val;
+                    renderRegTable();
+                }
+            });
+        });
+    }
+
+    document.getElementById('regType').addEventListener('change', renderRegTable);
+    document.getElementById('refreshRegBtn').addEventListener('click', renderRegTable);
+    document.getElementById('initRegBtn').addEventListener('click', () => {
+        const type = document.getElementById('regType').value;
+        if (type === 'coils' || type === 'discrete') {
+            slaveRegData[type].fill(0);
+        } else {
+            for (let i = 0; i < slaveRegData[type].length; i++) {
+                slaveRegData[type][i] = i; // 初始化为地址值方便调试
+            }
+        }
+        renderRegTable();
+        addLog('info', null, '寄存器已初始化');
+    });
+
+    // ============================================================
+    //  从站：自动响应请求
+    // ============================================================
+    let slaveReqLog = [];
+
+    function handleSlaveRequest(frame) {
+        addLog('rx', frame);
+        if (frame.length < 4) return;
+
+        const myAddr = parseInt(document.getElementById('slaveAddr').value) || 1;
+        const reqAddr = frame[0];
+        const fc = frame[1];
+
+        // 地址不匹配则忽略
+        if (reqAddr !== myAddr) return;
+
+        // CRC 校验
+        if (!verifyCRC(frame)) {
+            addLog('err', null, '从站收到 CRC 错误帧，忽略');
+            errCount++;
+            updateCounters();
+            return;
+        }
+
+        const delay = parseInt(document.getElementById('slaveDelay').value) || 0;
+        setTimeout(() => {
+            const response = buildSlaveResponse(frame);
+            if (response) {
+                sendBytes(response);
+                logSlaveRequest(frame, true, '');
+            } else {
+                // 发送异常响应
+                const errResp = appendCRC(new Uint8Array([myAddr, fc | 0x80, 0x01]));
+                sendBytes(errResp);
+                logSlaveRequest(frame, false, '非法功能码');
+            }
+        }, delay);
+    }
+
+    function buildSlaveResponse(req) {
+        const myAddr = parseInt(document.getElementById('slaveAddr').value) || 1;
+        const fc = req[1];
+        const reqData = req.slice(2, req.length - 2); // 去掉地址、功能码、CRC
+
+        let resp = [myAddr, fc];
+
+        switch (fc) {
+            case 0x01: { // 读线圈
+                const startAddr = (reqData[0] << 8) | reqData[1];
+                const qty = (reqData[2] << 8) | reqData[3];
+                if (qty < 1 || qty > 2000) return appendCRC(new Uint8Array([myAddr, fc | 0x80, 0x03]));
+                const byteCount = Math.ceil(qty / 8);
+                resp.push(byteCount);
+                for (let i = 0; i < byteCount; i++) {
+                    const byteAddr = Math.floor(startAddr / 8) + i;
+                    resp.push(byteAddr < 256 ? (slaveRegData.coils[byteAddr] & 0xFF) : 0);
+                }
+                break;
+            }
+            case 0x02: { // 读离散输入
+                const startAddr = (reqData[0] << 8) | reqData[1];
+                const qty = (reqData[2] << 8) | reqData[3];
+                if (qty < 1 || qty > 2000) return appendCRC(new Uint8Array([myAddr, fc | 0x80, 0x03]));
+                const byteCount = Math.ceil(qty / 8);
+                resp.push(byteCount);
+                for (let i = 0; i < byteCount; i++) {
+                    const byteAddr = Math.floor(startAddr / 8) + i;
+                    resp.push(byteAddr < 256 ? (slaveRegData.discrete[byteAddr] & 0xFF) : 0);
+                }
+                break;
+            }
+            case 0x03: { // 读保持寄存器
+                const startAddr = (reqData[0] << 8) | reqData[1];
+                const qty = (reqData[2] << 8) | reqData[3];
+                if (qty < 1 || qty > 125) return appendCRC(new Uint8Array([myAddr, fc | 0x80, 0x03]));
+                resp.push(qty * 2);
+                for (let i = 0; i < qty; i++) {
+                    const addr = startAddr + i;
+                    const val = addr < 256 ? slaveRegData.holding[addr] : 0;
+                    resp.push((val >> 8) & 0xFF, val & 0xFF);
+                }
+                break;
+            }
+            case 0x04: { // 读输入寄存器
+                const startAddr = (reqData[0] << 8) | reqData[1];
+                const qty = (reqData[2] << 8) | reqData[3];
+                if (qty < 1 || qty > 125) return appendCRC(new Uint8Array([myAddr, fc | 0x80, 0x03]));
+                resp.push(qty * 2);
+                for (let i = 0; i < qty; i++) {
+                    const addr = startAddr + i;
+                    const val = addr < 256 ? slaveRegData.input[addr] : 0;
+                    resp.push((val >> 8) & 0xFF, val & 0xFF);
+                }
+                break;
+            }
+            case 0x05: { // 写单个线圈
+                const addr = (reqData[0] << 8) | reqData[1];
+                const val = (reqData[2] << 8) | reqData[3];
+                // 回声响应
+                resp = [myAddr, fc, reqData[0], reqData[1], reqData[2], reqData[3]];
+                // 更新本地数据
+                if (addr < 2048) {
+                    const byteAddr = Math.floor(addr / 8);
+                    const bit = addr % 8;
+                    if (val === 0xFF00) slaveRegData.coils[byteAddr] |= (1 << bit);
+                    else if (val === 0x0000) slaveRegData.coils[byteAddr] &= ~(1 << bit);
+                    renderRegTable();
+                }
+                break;
+            }
+            case 0x06: { // 写单个寄存器
+                const addr = (reqData[0] << 8) | reqData[1];
+                const val = (reqData[2] << 8) | reqData[3];
+                resp = [myAddr, fc, reqData[0], reqData[1], reqData[2], reqData[3]];
+                if (addr < 256) {
+                    slaveRegData.holding[addr] = val;
+                    renderRegTable();
+                }
+                break;
+            }
+            case 0x0F: { // 写多个线圈
+                const startAddr = (reqData[0] << 8) | reqData[1];
+                const qty = (reqData[2] << 8) | reqData[3];
+                const byteCount = reqData[4];
+                for (let i = 0; i < byteCount; i++) {
+                    const byteAddr = Math.floor(startAddr / 8) + i;
+                    if (byteAddr < 256) {
+                        slaveRegData.coils[byteAddr] = reqData[5 + i];
+                    }
+                }
+                resp = [myAddr, fc, reqData[0], reqData[1], reqData[2], reqData[3]];
+                renderRegTable();
+                break;
+            }
+            case 0x10: { // 写多个寄存器
+                const startAddr = (reqData[0] << 8) | reqData[1];
+                const qty = (reqData[2] << 8) | reqData[3];
+                const byteCount = reqData[4];
+                for (let i = 0; i < qty && (5 + i * 2 + 1) < reqData.length; i++) {
+                    const addr = startAddr + i;
+                    if (addr < 256) {
+                        slaveRegData.holding[addr] = (reqData[5 + i * 2] << 8) | reqData[5 + i * 2 + 1];
+                    }
+                }
+                resp = [myAddr, fc, reqData[0], reqData[1], reqData[2], reqData[3]];
+                renderRegTable();
+                break;
+            }
+            default:
+                return null; // 不支持的功能码
+        }
+
+        return appendCRC(new Uint8Array(resp));
+    }
+
+    function logSlaveRequest(req, ok, msg) {
+        const now = new Date();
+        const ts = now.toTimeString().split(' ')[0];
+        const fc = req[1];
+        const fcNames = {1:'读线圈',2:'读离散输入',3:'读保持寄存器',4:'读输入寄存器',5:'写单线圈',6:'写单寄存器',0x0F:'写多线圈',0x10:'写多寄存器'};
+        const name = fcNames[fc] || ('FC' + fc.toString(16));
+        const tbody = document.getElementById('slaveReqBody');
+        // 清除空提示
+        if (slaveReqLog.length === 0) tbody.innerHTML = '';
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${ts}</td><td class="addr-cell">${req[0]}</td><td>${fc} ${name}</td><td style="font-size:0.65rem;">${bytesToHex(req.slice(0, req.length-2))}</td><td>${ok ? '<span class="status-ok">已响应</span>' : '<span class="error-msg">' + (msg||'失败') + '</span>'}</td>`;
+        tbody.insertBefore(row, tbody.firstChild);
+        slaveReqLog.push({ ts, req, ok });
+        if (slaveReqLog.length > 100) {
+            slaveReqLog.shift();
+            if (tbody.lastChild) tbody.removeChild(tbody.lastChild);
+        }
+    }
+
+    document.getElementById('clearSlaveLogBtn').addEventListener('click', () => {
+        slaveReqLog = [];
+        document.getElementById('slaveReqBody').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-light);padding:20px;">已清空</td></tr>';
+    });
+
+    // ============================================================
+    //  快捷指令
+    // ============================================================
+    const DEFAULT_CMDS = [
+        { cmd: '01 03 00 00 00 0A', comment: '读保持寄存器' },
+        { cmd: '01 01 00 00 00 10', comment: '读线圈' },
+        { cmd: '01 02 00 00 00 10', comment: '读离散输入' },
+        { cmd: '01 04 00 00 00 0A', comment: '读输入寄存器' },
+        { cmd: '01 06 00 00 00 64', comment: '写单寄存器=100' },
+        { cmd: '01 05 00 00 FF 00', comment: '写单线圈=ON' },
+        { cmd: '01 10 00 00 00 02 04 00 64 00 C8', comment: '写多寄存器' },
+        { cmd: '01 0F 00 00 00 08 01 FF', comment: '写多线圈' },
+    ];
+    let cmdList = [...DEFAULT_CMDS];
+
+    function saveCmds() { try { localStorage.setItem('modbus_cmds', JSON.stringify(cmdList)); } catch(e) {} }
+    function loadCmds() {
+        try {
+            const s = localStorage.getItem('modbus_cmds');
+            if (s) { const p = JSON.parse(s); if (Array.isArray(p) && p.length) cmdList = p; }
+        } catch(e) {}
+    }
+    loadCmds();
+
+    function renderCmds() {
+        const container = document.getElementById('cmdContainer');
+        container.innerHTML = '';
+        cmdList.forEach((item, idx) => {
+            const cmd = typeof item === 'string' ? item : item.cmd;
+            const comment = typeof item === 'string' ? '' : (item.comment || '');
+            const wrapper = document.createElement('span');
+            wrapper.className = 'cmd-item';
+            const btn = document.createElement('button');
+            btn.className = 'cmd-btn';
+            btn.textContent = cmd.replace(/\s+/g, ' ');
+            btn.title = comment || cmd;
+            btn.addEventListener('click', () => {
+                if (!isConnected) { alert('请先连接串口'); return; }
+                const bytes = parseHexToBytes(cmd);
+                if (bytes.length > 0) sendBytes(bytes);
+            });
+            wrapper.appendChild(btn);
+            if (comment) {
+                const label = document.createElement('span');
+                label.className = 'cmd-label';
+                label.textContent = comment;
+                wrapper.appendChild(label);
+            }
+            const del = document.createElement('span');
+            del.className = 'cmd-del';
+            del.textContent = '✕';
+            del.addEventListener('click', (e) => {
+                e.stopPropagation();
+                cmdList.splice(idx, 1);
+                renderCmds();
+                saveCmds();
+            });
+            wrapper.appendChild(del);
+            container.appendChild(wrapper);
+        });
+    }
+
+    function parseHexToBytes(str) {
+        const cleaned = str.replace(/0x/gi, '').replace(/[,，]/g, ' ').trim();
+        if (!cleaned) return [];
+        return cleaned.split(/\s+/).map(s => parseInt(s, 16)).filter(v => !isNaN(v) && v >= 0 && v <= 0xFF);
+    }
+
+    renderCmds();
+
+    document.getElementById('addCmdBtn').addEventListener('click', () => {
+        const val = document.getElementById('customCmdInput').value.trim();
+        const comment = document.getElementById('customCmdComment').value.trim();
+        if (!val) return;
+        cmdList.push({ cmd: val, comment: comment || '' });
+        renderCmds();
+        saveCmds();
+        document.getElementById('customCmdInput').value = '';
+        document.getElementById('customCmdComment').value = '';
+    });
+    document.getElementById('customCmdInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addCmdBtn').click(); });
+    document.getElementById('resetCmdBtn').addEventListener('click', () => {
+        cmdList = [...DEFAULT_CMDS];
+        renderCmds();
+        saveCmds();
+    });
+
+    // 导出/导入
+    document.getElementById('exportCmdsBtn').addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(cmdList, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'modbus_commands.json';
+        a.click();
+    });
+    document.getElementById('importCmdsBtn').addEventListener('click', () => document.getElementById('importCmdsInput').click());
+    document.getElementById('importCmdsInput').addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    const data = JSON.parse(ev.target.result);
+                    if (Array.isArray(data)) { cmdList = data; renderCmds(); saveCmds(); }
+                } catch(err) { alert('JSON 解析失败'); }
+            };
+            reader.readAsText(e.target.files[0]);
+            e.target.value = '';
+        }
+    });
+
+    // ============================================================
+    //  初始化
+    // ============================================================
+    updateFuncUI();
+    if (currentMode === 'slave') renderRegTable();
+
+    // 监听串口断开
+    if ('serial' in navigator) {
+        navigator.serial.addEventListener('disconnect', (e) => {
+            if (port && e.target === port) {
+                isConnected = false;
+                port = null; reader = null; writer = null;
+                updateConnUI(false);
+                stopAutoPoll();
+                addLog('err', null, '串口已断开');
+            }
+        });
+    }
+
+})();
+</script>
+</body>
+</html>

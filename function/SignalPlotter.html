@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据曲线可视化 - Yu_ToolBox</title>
+  <script>
+    const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
+  <style>
+    :root {
+        --bg-body: #f1f4f9;
+        --bg-container: #f1f4f9;
+        --bg-panel: #fafcff;
+        --bg-panel-accent: #f8faff;
+        --bg-input: #ffffff;
+        --bg-input-readonly: #f1f5f9;
+        --bg-code: #ffffff;
+        --bg-option-grid: #f8fafc;
+        --bg-swatch-border: #e2e8f0;
+        --bg-tag: #e2e8f0;
+        --bg-badge: #e0e7ff;
+
+        --text-primary: #0f172a;
+        --text-secondary: #1e293b;
+        --text-muted: #64748b;
+        --text-light: #94a3b8;
+        --text-code: #000000;
+        --text-badge: #4338ca;
+
+        --border-light: #e9edf4;
+        --border-input: #d1d9e6;
+        --border-focus: #818cf8;
+
+        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06);
+
+        --btn-primary: #1e293b;
+        --btn-primary-hover: #0f172a;
+        --btn-outline-border: #d1d9e6;
+        --btn-outline-hover-bg: #f1f4f9;
+
+        --status-ok-bg: #d1fae5;
+        --status-ok-text: #0b7e4b;
+        --status-error-bg: #fee2e2;
+        --status-error-text: #b91c1c;
+
+        --scrollbar-track: #f1f4f9;
+        --scrollbar-thumb: #cbd5e1;
+
+        --accent-blue: #818cf8;
+        --accent-blue-hover: #6366f1;
+
+        --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
+    }
+
+    [data-theme="dark"] {
+        --bg-body: #1e1e1e;
+        --bg-container: #2c2c2c;
+        --bg-panel: #2c2c2c;
+        --bg-panel-accent: #2c2c2c;
+        --bg-input: #1e1e1e;
+        --bg-input-readonly: #1e1e1e;
+        --bg-code: #1a1a1a;
+        --bg-option-grid: #262626;
+        --bg-swatch-border: #3d3d3d;
+        --bg-tag: #3d3d3d;
+        --bg-badge: #1e2a4a;
+
+        --text-primary: #e6e6e6;
+        --text-secondary: #cccccc;
+        --text-muted: #888888;
+        --text-light: #666666;
+        --text-code: #e6e6e6;
+        --text-badge: #7a9eff;
+
+        --border-light: #3d3d3d;
+        --border-input: #3d3d3d;
+        --border-focus: #7a9eff;
+
+        --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+        --btn-primary: #3d3d3d;
+        --btn-primary-hover: #4a4a4a;
+        --btn-outline-border: #4a4a4a;
+        --btn-outline-hover-bg: #333333;
+
+        --status-ok-bg: #0a3d2a;
+        --status-ok-text: #5ae0a0;
+        --status-error-bg: #4a1a1a;
+        --status-error-text: #f08080;
+
+        --scrollbar-track: #262626;
+        --scrollbar-thumb: #4a4a4a;
+
+        --accent-blue: #7a9eff;
+        --accent-blue-hover: #5a7fff;
+
+        --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
+    }
+
+    * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
+
+    body {
+        background: var(--bg-body);
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: background 0.25s, color 0.25s;
+        color: var(--text-primary);
+    }
+
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+    ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+    .navbar { width: 100%; background: var(--bg-container); border-bottom: 1px solid var(--border-light); padding: 0 36px; position: sticky; top: 0; z-index: 100; transition: background 0.25s, border-color 0.25s; }
+    .navbar-inner { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 60px; width: 100%; }
+    .navbar-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; background: var(--hero-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .navbar-brand .brand-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: var(--hero-gradient); }
+    .navbar-brand .brand-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; }
+    .navbar-right { display: flex; align-items: center; gap: 12px; }
+    .theme-toggle { display: flex; align-items: center; gap: 10px; background: var(--bg-panel); padding: 6px 16px 6px 20px; border-radius: 40px; border: 1px solid var(--border-light); cursor: pointer; transition: background 0.25s, border-color 0.25s; user-select: none; font-size: 0.85rem; color: var(--text-secondary); }
+    .theme-toggle:hover { border-color: var(--border-focus); }
+    .theme-toggle .toggle-track { width: 44px; height: 24px; background: var(--border-input); border-radius: 40px; position: relative; transition: background 0.3s; flex-shrink: 0; }
+    .theme-toggle .toggle-thumb { width: 18px; height: 18px; background: white; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s, background 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+    [data-theme="dark"] .theme-toggle .toggle-track { background: var(--accent-blue); }
+    [data-theme="dark"] .theme-toggle .toggle-thumb { transform: translateX(20px); background: #e6e6e6; }
+    .theme-toggle .theme-icon { font-size: 1.1rem; line-height: 1; }
+
+    .container { max-width: 1400px; width: 100%; margin: 0 auto; background: var(--bg-container); padding: 32px 36px 40px; transition: background 0.25s; }
+
+    .page-title { font-size: 1.8rem; font-weight: 600; margin: 0; color: var(--text-primary); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; transition: color 0.25s; letter-spacing: -0.02em; }
+
+    .subhead { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 28px; border-left: 3px solid var(--accent-blue); padding-left: 16px; background: var(--bg-panel); border-radius: 0 10px 10px 0; line-height: 1.6; transition: background 0.25s, color 0.25s; }
+
+    .grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel { background: var(--bg-panel); border-radius: 18px; padding: 18px 20px 22px; border: 1px solid transparent; transition: background 0.25s, border-color 0.25s, box-shadow 0.25s; }
+    .panel:hover { border-color: var(--accent-blue); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); }
+
+    .panel-title { font-weight: 600; color: var(--text-secondary); margin-top: 0; margin-bottom: 14px; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; transition: color 0.25s; }
+    .panel-title small { font-weight: 400; font-size: 0.65rem; color: var(--text-light); }
+
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; transition: color 0.25s; }
+    input[type="text"], input[type="number"], select { width: 100%; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); font-size: 0.8rem; font-family: 'SF Mono', 'Fira Code', monospace; transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s; outline: none; }
+    input:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12); }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+    }
+
+    .btn { background: var(--btn-primary); color: white; border: none; padding: 6px 16px; border-radius: 40px; font-weight: 500; font-size: 0.75rem; cursor: pointer; transition: 0.12s, background 0.25s; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-family: inherit; }
+    .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+    .btn-outline { background: transparent; color: var(--text-secondary); border: 1px solid var(--btn-outline-border); }
+    .btn-outline:hover { background: var(--btn-outline-hover-bg); border-color: var(--border-focus); }
+    .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .btn-sm { padding: 3px 12px; font-size: 0.65rem; }
+
+    .canvas-wrap { position: relative; width: 100%; height: 360px; background: var(--bg-panel-accent); border-radius: 12px; border: 1px solid var(--border-light); overflow: hidden; margin-top: 12px; cursor: grab; transition: background 0.25s, border-color 0.25s; contain: strict; }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .tooltip { position: fixed; background: rgba(15,23,42,0.9); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-family: 'SF Mono', 'Fira Code', monospace; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 999; white-space: nowrap; }
+
+    .legend { display: flex; gap: 16px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-color { width: 14px; height: 4px; border-radius: 2px; }
+
+    .stats { margin-top: 10px; font-size: 0.7rem; color: var(--text-muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--border-light); padding-bottom: 4px; }
+    .tab { padding: 6px 14px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.78rem; color: var(--text-muted); transition: all 0.15s; border: none; background: none; font-family: inherit; }
+    .tab.active { background: rgba(129,140,248,0.1); color: var(--accent-blue); font-weight: 600; }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-blue);
+    }
+
+    /* FFT 显示模式切换按钮 */
+    .fft-mode-group {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .fft-mode-btn {
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-input);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      font-size: 0.62rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .fft-mode-btn:hover { border-color: var(--border-focus); }
+    .fft-mode-btn.active {
+      background: var(--hero-gradient);
+      color: white;
+      border-color: transparent;
+    }
+
+    /* 数据表格 */
+    .data-table { width:100%; border-collapse:collapse; font-size:0.8rem; margin-bottom:10px; }
+    .data-table th, .data-table td { padding:4px 6px; border:1px solid var(--border-light); text-align:center; }
+    .data-table th { background:var(--bg-option-grid); color:var(--text-muted); font-weight:600; font-size:0.7rem; }
+    .data-table td input { width:100%; border:none; background:transparent; text-align:center; font-family:'SF Mono','Fira Code',monospace; font-size:0.78rem; color:var(--text-primary); outline:none; padding:2px; }
+    .data-table td input:focus { background:rgba(129,140,248,0.08); border-radius:4px; }
+    .data-table-wrap { max-height:220px; overflow:auto; border:1px solid var(--border-light); border-radius:10px; }
+    .table-toolbar { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+    .file-input { display:none; }
+    .formula-box {
+      background: var(--bg-code);
+      color: var(--text-code);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-top: 6px;
+      transition: background 0.25s, color 0.25s;
+    }
+    .footer-note { margin-top: 24px; color: var(--text-light); font-size: 0.7rem; text-align: center; border-top: 1px solid var(--border-light); padding-top: 16px; transition: color 0.25s, border-color 0.25s; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="navbar-brand" href="../index.html">
+        <div class="brand-icon">
+          <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+        </div>
+        Yu_ToolBox
+      </a>
+      <div class="navbar-right">
+        <div class="theme-toggle" id="themeToggle" title="切换主题">
+          <span class="theme-icon" id="themeIcon">☀️</span>
+          <div class="toggle-track">
+            <div class="toggle-thumb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-title">📈 数据曲线可视化</div>
+    <div class="subhead">信号绘图、FFT 变换与数字滤波分析工具</div>
+
+    <div class="grid-2col">
+      <!-- 数据输入面板 -->
+      <div class="panel">
+        <div class="panel-title">数据输入 <small>原始数据或公式生成</small></div>
+        <div class="tabs">
+          <button class="tab active" data-tab="raw">原始数据</button>
+          <button class="tab" data-tab="formula">公式生成</button>
+        </div>
+
+        <div class="tab-content active" id="tab-raw">
+          <div class="table-toolbar">
+            <button class="btn btn-sm btn-outline" style="padding:4px 12px;font-size:0.7rem;" onclick="addTableRow()">+ 添加行</button>
+            <button class="btn btn-sm btn-outline" style="padding:4px 12px;font-size:0.7rem;" onclick="removeTableRow()">- 删除行</button>
+            <button class="btn btn-sm btn-outline" style="padding:4px 12px;font-size:0.7rem;" onclick="clearTable()">清空</button>
+            <button class="btn btn-sm btn-outline" style="padding:4px 12px;font-size:0.7rem;" onclick="document.getElementById('fileInput').click()">📁 导入 CSV</button>
+            <input type="file" id="fileInput" class="file-input" accept=".csv,.txt" onchange="importFile(event)">
+            <span style="font-size:0.65rem;color:var(--text-light);">支持 .csv / .txt</span>
+          </div>
+          <div class="data-table-wrap">
+            <table class="data-table" id="dataTable">
+              <thead><tr><th>X</th><th>Y</th></tr></thead>
+              <tbody id="dataTableBody">
+                <tr><td><input type="text" value="0"></td><td><input type="text" value="0"></td></tr>
+                <tr><td><input type="text" value="0.01"></td><td><input type="text" value="0.309"></td></tr>
+                <tr><td><input type="text" value="0.02"></td><td><input type="text" value="0.588"></td></tr>
+                <tr><td><input type="text" value="0.03"></td><td><input type="text" value="0.809"></td></tr>
+                <tr><td><input type="text" value="0.04"></td><td><input type="text" value="0.951"></td></tr>
+                <tr><td><input type="text" value="0.05"></td><td><input type="text" value="1.0"></td></tr>
+                <tr><td><input type="text" value="0.06"></td><td><input type="text" value="0.951"></td></tr>
+                <tr><td><input type="text" value="0.07"></td><td><input type="text" value="0.809"></td></tr>
+                <tr><td><input type="text" value="0.08"></td><td><input type="text" value="0.588"></td></tr>
+                <tr><td><input type="text" value="0.09"></td><td><input type="text" value="0.309"></td></tr>
+                <tr><td><input type="text" value="0.1"></td><td><input type="text" value="0.0"></td></tr>
+                <tr><td><input type="text" value="0.11"></td><td><input type="text" value="-0.309"></td></tr>
+                <tr><td><input type="text" value="0.12"></td><td><input type="text" value="-0.588"></td></tr>
+                <tr><td><input type="text" value="0.13"></td><td><input type="text" value="-0.809"></td></tr>
+                <tr><td><input type="text" value="0.14"></td><td><input type="text" value="-0.951"></td></tr>
+                <tr><td><input type="text" value="0.15"></td><td><input type="text" value="-1.0"></td></tr>
+                <tr><td><input type="text" value="0.16"></td><td><input type="text" value="-0.951"></td></tr>
+                <tr><td><input type="text" value="0.17"></td><td><input type="text" value="-0.809"></td></tr>
+                <tr><td><input type="text" value="0.18"></td><td><input type="text" value="-0.588"></td></tr>
+                <tr><td><input type="text" value="0.19"></td><td><input type="text" value="-0.309"></td></tr>
+                <tr><td><input type="text" value="0.2"></td><td><input type="text" value="0.0"></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="btn-group">
+            <button class="btn btn-sm btn-outline" onclick="plotTableData()">绘制数据</button>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-formula">
+          <div class="form-group">
+            <label>公式（使用 x 作为变量）</label>
+            <input type="text" id="formulaInput" value="sin(2*PI*x) + 0.5*sin(6*PI*x)" placeholder="例如 sin(2*PI*x)">
+          </div>
+          <div class="btn-group" style="margin-bottom:8px;">
+            <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:0.7rem;" onclick="setFormula('sin(2*PI*x)')">正弦波</button>
+            <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:0.7rem;" onclick="setFormula('sin(2*PI*x) + 0.5*sin(6*PI*x)')">混合频率</button>
+            <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:0.7rem;" onclick="setFormula('exp(-x)*sin(4*PI*x)')">衰减振荡</button>
+            <button class="btn btn-sm btn-outline" style="padding:4px 10px;font-size:0.7rem;" onclick="setFormula('sin(2*PI*x) + 0.8*(Math.random()-0.5)')">含噪信号</button>
+          </div>
+          <div class="row">
+            <div class="form-group">
+              <label>X 起始</label>
+              <input type="number" id="xStart" value="0" step="any">
+            </div>
+            <div class="form-group">
+              <label>X 结束</label>
+              <input type="number" id="xEnd" value="10" step="any">
+            </div>
+            <div class="form-group">
+              <label>采样点数</label>
+              <input type="number" id="xSamples" value="512" min="2">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="plotFormula()">生成并绘制</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 主图表面板 -->
+      <div class="panel">
+        <div class="panel-title">时域波形 <small>原始信号与滤波后信号</small></div>
+        <div class="canvas-wrap" id="timeWrap">
+          <canvas id="timeCanvas"></canvas>
+        </div>
+        <div class="tooltip" id="timeTooltip"></div>
+        <div class="legend" id="timeLegend">
+          <div class="legend-item"><div class="legend-color" style="background:#4f46e5"></div>原始信号</div>
+          <div class="legend-item"><div class="legend-color" style="background:#10b981"></div>滤波后信号</div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline" onclick="resetView('time')">复位视图</button>
+          <button class="btn btn-outline" onclick="exportData('original')">导出原始 CSV</button>
+          <button class="btn btn-outline" onclick="exportData('filtered')">导出滤波 CSV</button>
+        </div>
+      </div>
+
+      <!-- FFT 面板 -->
+      <div class="panel">
+        <div class="panel-title">FFT 频谱分析 <small>幅度谱</small></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+          <div class="btn-group" style="margin-top:0;">
+            <button class="btn btn-sm btn-outline" onclick="runFFT()">执行 FFT</button>
+            <button class="btn btn-outline" onclick="exportData('fft')">导出频谱 CSV</button>
+          </div>
+          <div class="fft-mode-group">
+            <button class="fft-mode-btn active" data-mode="stem" onclick="setFFTMode('stem',this)">茎叶图</button>
+            <button class="fft-mode-btn" data-mode="bar" onclick="setFFTMode('bar',this)">柱状图</button>
+            <button class="fft-mode-btn" data-mode="line" onclick="setFFTMode('line',this)">折线图</button>
+          </div>
+          <div class="fft-mode-group">
+            <button class="fft-mode-btn active" data-yaxis="magnitude" onclick="setFFTAxis('magnitude',this)">幅度</button>
+            <button class="fft-mode-btn" data-yaxis="dB" onclick="setFFTAxis('dB',this)">dB</button>
+          </div>
+        </div>
+        <div class="canvas-wrap" id="fftWrap">
+          <canvas id="fftCanvas"></canvas>
+        </div>
+        <div class="tooltip" id="fftTooltip"></div>
+        <div class="btn-group" style="margin-top:10px;">
+          <button class="btn btn-outline" onclick="resetView('fft')">复位视图</button>
+        </div>
+        <div class="stats" id="fftStats"></div>
+      </div>
+
+      <!-- 滤波器面板 -->
+      <div class="panel">
+        <div class="panel-title">数字滤波器 <small>8种常用算法</small></div>
+        <div class="form-group">
+          <label>滤波算法</label>
+          <select id="filterAlgo">
+            <option value="moving_avg">移动平均滤波</option>
+            <option value="median">中值滤波</option>
+            <option value="amplitude_limit">限幅滤波</option>
+            <option value="fir_lowpass" selected>低通滤波 (FIR)</option>
+            <option value="iir2_lowpass">二阶 IIR 低通滤波</option>
+            <option value="kalman">卡尔曼滤波</option>
+            <option value="limit_avg">限幅平均滤波</option>
+            <option value="mid_avg">中位值平均滤波</option>
+          </select>
+        </div>
+        <div id="firParams">
+          <div class="form-group">
+            <label>截止频率 (Hz)</label>
+            <input type="number" id="cutoff1" value="2" step="any" min="0">
+          </div>
+          <div class="form-group">
+            <label>滤波器阶数</label>
+            <input type="number" id="filterOrder" value="32" min="2" max="256">
+          </div>
+        </div>
+        <div id="commonParams">
+          <div class="form-group">
+            <label id="commonParamLabel">窗口大小 (点数)</label>
+            <input type="number" id="windowSize" value="5" min="2" max="101">
+          </div>
+        </div>
+        <div id="limitParams" style="display:none;">
+          <div class="form-group">
+            <label>最大偏差限幅值</label>
+            <input type="number" id="limitValue" value="0.5" step="any" min="0">
+          </div>
+        </div>
+        <div id="iirParams" style="display:none;">
+          <div class="form-group">
+            <label>截止频率 (Hz)</label>
+            <input type="number" id="iirCutoff" value="2" step="any" min="0">
+          </div>
+        </div>
+        <div id="kalmanParams" style="display:none;">
+          <div class="row">
+            <div class="form-group">
+              <label>过程噪声 Q</label>
+              <input type="number" id="kalmanQ" value="0.01" step="0.001" min="0">
+            </div>
+            <div class="form-group">
+              <label>测量噪声 R</label>
+              <input type="number" id="kalmanR" value="0.1" step="0.001" min="0">
+            </div>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-sm btn-outline" onclick="applyFilter()">应用滤波器</button>
+          <button class="btn btn-outline" onclick="clearFilter()">清除滤波</button>
+        </div>
+        <div class="formula-box" id="filterFormula" style="display:none;"></div>
+        <div class="stats" id="filterStats"></div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      📈 信号绘图与频谱分析工具 · 支持数据/公式绘图、FFT 频谱分析、多种数字滤波算法<br>
+      © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+    </div>
+  </div>
+
+  <script>
+    // ================= 主题系统 =================
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('toolbox-theme', theme);
+    }
+    function initTheme() {
+      const saved = localStorage.getItem('toolbox-theme');
+      if (saved === 'dark') setTheme('dark');
+      else setTheme('light');
+    }
+    themeToggle.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      setTheme(current === 'dark' ? 'light' : 'dark');
+      requestAnimationFrame(() => {
+        drawChart(timeCanvas, currentData, filteredData, 'time');
+        if (fftData.length) drawChart(fftCanvas, fftData, [], 'fft');
+      });
+    });
+    initTheme();
+
+    // ================= Tab 切换 =================
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ================= 全局状态 =================
+    let currentData = []; // [{x, y}]
+    let filteredData = [];
+    let fftData = []; // [{x:freq, y:mag}]
+    let sampleRate = 1; // 自动计算
+    let fftDisplayMode = 'stem'; // 'stem' | 'bar' | 'line'
+    let fftYAxis = 'magnitude'; // 'magnitude' | 'dB'
+
+    // 缩放/平移状态（与串口工具一致）
+    const viewState = {
+      time: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 },
+      fft: { offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 }
+    };
+
+    const timeCanvas = document.getElementById('timeCanvas');
+    const fftCanvas = document.getElementById('fftCanvas');
+    const timeTooltip = document.getElementById('timeTooltip');
+    const fftTooltip = document.getElementById('fftTooltip');
+
+    function resetView(key) {
+      const vs = viewState[key];
+      vs.offsetX = 0; vs.offsetY = 0; vs.scaleX = 1; vs.scaleY = 1;
+      if (key === 'time') {
+        drawChart(timeCanvas, currentData, filteredData, 'time');
+      } else {
+        drawChart(fftCanvas, fftData, [], 'fft');
+      }
+    }
+
+    // ================= 数学表达式解析 =================
+    function evaluateFormula(expr, x) {
+      // 处理 ^ 为幂运算
+      let clean = expr.replace(/\^/g, '**');
+      // 处理隐式乘法：数字后跟变量或括号，如 2x -> 2*x, 2( -> 2*(
+      clean = clean.replace(/(\d)([xX(])/g, '$1*$2');
+      // 处理闭括号后跟数字/变量，如 )x -> )*x, )2 -> )*2
+      clean = clean.replace(/(\))([a-zA-Z0-9])/g, '$1*$2');
+      // 处理变量 x 后跟括号，如 x( -> x*(
+      clean = clean.replace(/\bx\b(\()/g, 'x*$1');
+      // new Function 不闭包外部变量，必须在函数体内声明
+      // 注意：不能在此 var 声明中包含 Math=Math，否则变量提升会使前面的 Math.xxx 全部为 undefined
+      const preamble = 'var PI=' + Math.PI + ',E=' + Math.E
+        + ',sin=Math.sin,cos=Math.cos,tan=Math.tan'
+        + ',asin=Math.asin,acos=Math.acos,atan=Math.atan'
+        + ',sinh=Math.sinh,cosh=Math.cosh,tanh=Math.tanh'
+        + ',exp=Math.exp,sqrt=Math.sqrt,log=Math.log,log10=Math.log10'
+        + ',abs=Math.abs,pow=Math.pow,floor=Math.floor,ceil=Math.ceil'
+        + ',round=Math.round,min=Math.min,max=Math.max,random=Math.random;';
+      return new Function('x', preamble + 'return ' + clean)(x);
+    }
+
+    // ================= 表格数据操作 =================
+    function getTableData() {
+      const tbody = document.getElementById('dataTableBody');
+      const rows = tbody.querySelectorAll('tr');
+      const data = [];
+      for (const row of rows) {
+        const inputs = row.querySelectorAll('input');
+        const x = parseFloat(inputs[0].value);
+        const y = parseFloat(inputs[1].value);
+        if (!isNaN(x) && !isNaN(y)) data.push({ x, y });
+      }
+      return data;
+    }
+
+    function addTableRow(xVal, yVal) {
+      const tbody = document.getElementById('dataTableBody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td><input type="text" value="${xVal !== undefined ? xVal : ''}"></td><td><input type="text" value="${yVal !== undefined ? yVal : ''}"></td>`;
+      tbody.appendChild(tr);
+    }
+
+    function removeTableRow() {
+      const tbody = document.getElementById('dataTableBody');
+      if (tbody.children.length > 1) tbody.removeChild(tbody.lastElementChild);
+    }
+
+    function clearTable() {
+      const tbody = document.getElementById('dataTableBody');
+      tbody.innerHTML = '<tr><td><input type="text" value="0"></td><td><input type="text" value="0"></td></tr>';
+    }
+
+    function importFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.trim().split(/\r?\n/);
+        const tbody = document.getElementById('dataTableBody');
+        tbody.innerHTML = '';
+        for (let line of lines) {
+          line = line.trim();
+          if (!line) continue;
+          const parts = line.split(/[,;\t\s]+/).map(Number).filter(n => !isNaN(n));
+          if (parts.length >= 2) {
+            addTableRow(parts[0], parts[1]);
+          } else if (parts.length === 1) {
+            addTableRow('', parts[0]);
+          }
+        }
+        if (tbody.children.length === 0) clearTable();
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function plotTableData() {
+      currentData = getTableData();
+      if (currentData.length < 2) { alert('数据点不足，请至少输入2个有效数据点'); return; }
+      computeSampleRate();
+      filteredData = [];
+      drawChart(timeCanvas, currentData, filteredData, 'time');
+      fftData = [];
+      drawChart(fftCanvas, fftData, [], 'fft');
+    }
+
+    // ================= 绘图引擎 =================
+    function resizeCanvas(canvas) {
+      const wrap = canvas.parentElement;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = wrap.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { width: rect.width, height: rect.height, ctx };
+    }
+
+    function getThemeColor() {
+      const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+      return dark ? {
+        bg: '#1e1e1e', text: '#888888', grid: '#3d3d3d', axis: '#888888',
+        line: '#7a9eff', line2: '#5ae0a0', tooltipBg: 'rgba(0,0,0,0.85)'
+      } : {
+        bg: '#ffffff', text: '#64748b', grid: '#e9edf4', axis: '#94a3b8',
+        line: '#6366f1', line2: '#10b981', tooltipBg: 'rgba(15,23,42,0.9)'
+      };
+    }
+
+    function drawChart(canvas, data, overlay, type) {
+      const { width, height, ctx } = resizeCanvas(canvas);
+      const theme = getThemeColor();
+      const padding = { top: 20, right: 20, bottom: 36, left: 56 };
+      const cw = width - padding.left - padding.right;
+      const ch = height - padding.top - padding.bottom;
+
+      ctx.clearRect(0, 0, width, height);
+
+      if (!data.length) {
+        ctx.fillStyle = theme.text;
+        ctx.font = '14px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText('暂无数据', width / 2, height / 2);
+        canvas._chartMeta = null;
+        return;
+      }
+
+      // FFT dB 转换
+      let displayData = data;
+      if (type === 'fft' && fftYAxis === 'dB') {
+        displayData = data.map(d => ({
+          x: d.x,
+          y: d.y > 0 ? 20 * Math.log10(d.y) : -200
+        }));
+      }
+
+      // 计算范围
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const p of displayData) {
+        if (p.x < minX) minX = p.x;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.y > maxY) maxY = p.y;
+      }
+      if (overlay && overlay.length) {
+        for (const p of overlay) {
+          if (p.y < minY) minY = p.y;
+          if (p.y > maxY) maxY = p.y;
+        }
+      }
+      // 应用缩放与平移
+      const vs = type === 'fft' ? viewState.fft : viewState.time;
+      const padY = (maxY - minY) * 0.1 || 1;
+      minY -= padY; maxY += padY;
+      if (minY === maxY) { minY -= 1; maxY += 1; }
+
+      // Y 方向缩放 + 平移
+      const rangeY = maxY - minY;
+      const displayRangeY = rangeY * vs.scaleY;
+      const midY = (minY + maxY) / 2;
+      const chartH = ch; // 绘图区高度（CSS像素）
+      minY = midY - displayRangeY / 2 + vs.offsetY * (displayRangeY / chartH) * 0.5;
+      maxY = midY + displayRangeY / 2 + vs.offsetY * (displayRangeY / chartH) * 0.5;
+
+      // X 方向缩放 + 平移
+      const rangeX = maxX - minX;
+      const displayRangeX = rangeX * vs.scaleX;
+      const midX = (minX + maxX) / 2;
+      const chartW = cw;
+      minX = midX - displayRangeX / 2 + vs.offsetX * (displayRangeX / chartW) * 0.5;
+      maxX = midX + displayRangeX / 2 + vs.offsetX * (displayRangeX / chartW) * 0.5;
+
+      // dB 模式下最小不低于 -120
+      if (type === 'fft' && fftYAxis === 'dB' && minY < -120) minY = -120;
+
+      function tx(x) { return padding.left + (x - minX) / (maxX - minX) * cw; }
+      function ty(y) { return padding.top + (1 - (y - minY) / (maxY - minY)) * ch; }
+
+      // 网格
+      ctx.strokeStyle = theme.grid;
+      ctx.lineWidth = 0.5;
+      const yTickCount = type === 'fft' && fftYAxis === 'dB' ? 6 : 5;
+      const xTickCount = type === 'fft' ? 8 : 5;
+      ctx.beginPath();
+      for (let i = 0; i <= yTickCount; i++) {
+        const y = padding.top + ch * i / yTickCount;
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+      }
+      for (let i = 0; i <= xTickCount; i++) {
+        const x = padding.left + cw * i / xTickCount;
+        ctx.moveTo(x, padding.top);
+        ctx.lineTo(x, height - padding.bottom);
+      }
+      ctx.stroke();
+
+      // 坐标轴
+      ctx.strokeStyle = theme.axis;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, padding.top);
+      ctx.lineTo(padding.left, height - padding.bottom);
+      ctx.lineTo(width - padding.right, height - padding.bottom);
+      ctx.stroke();
+
+      // 标签格式
+      function fmtY(v) {
+        if (type === 'fft' && fftYAxis === 'dB') return v.toFixed(0) + ' dB';
+        if (Math.abs(v) >= 100) return v.toFixed(1);
+        if (Math.abs(v) >= 1) return v.toFixed(2);
+        return v.toFixed(4);
+      }
+      function fmtX(v) {
+        if (type === 'fft') {
+          if (v >= 1000) return (v / 1000).toFixed(1) + 'k';
+          return v.toFixed(1);
+        }
+        return v.toFixed(2);
+      }
+
+      // 标签
+      ctx.fillStyle = theme.text;
+      ctx.font = '11px SF Mono, Fira Code, monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      for (let i = 0; i <= xTickCount; i++) {
+        const x = padding.left + cw * i / xTickCount;
+        const xv = minX + (maxX - minX) * i / xTickCount;
+        ctx.fillText(fmtX(xv), x, height - padding.bottom + 6);
+      }
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i <= yTickCount; i++) {
+        const y = padding.top + ch * (1 - i / yTickCount);
+        const yv = minY + (maxY - minY) * i / yTickCount;
+        ctx.fillText(fmtY(yv), padding.left - 6, y);
+      }
+
+      // 轴名称
+      ctx.fillStyle = theme.text;
+      ctx.font = '11px system-ui';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'top';
+      if (type === 'fft') {
+        ctx.fillText('频率 (Hz)', padding.left + cw / 2, height - 4);
+        ctx.save();
+        ctx.translate(12, padding.top + ch / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.textBaseline = 'middle';
+        ctx.fillText(fftYAxis === 'dB' ? '幅度 (dB)' : '幅度', 0, 0);
+        ctx.restore();
+      }
+
+      // ===== 裁剪到绘图区域（防止缩放后曲线超出轴线） =====
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(padding.left, padding.top, cw, ch);
+      ctx.clip();
+
+      // ===== 绘制数据 =====
+      const lineColor = type === 'fft' ? '#6366f1' : '#4f46e5';
+      const lineColor2 = '#10b981';
+      const baseY = type === 'fft' ? ty(0) : null; // FFT 基线（0幅度处）
+
+      // 绘制折线
+      function drawLine(points, color, lineWidth = 2) {
+        if (!points.length) return;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        for (let i = 0; i < points.length; i++) {
+          const x = tx(points[i].x);
+          const y = ty(points[i].y);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // 茎叶图（FFT 标准显示）
+      function drawStem(points, color) {
+        if (!points.length) return;
+        const by = baseY !== null ? baseY : padding.top + ch;
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.lineWidth = 1;
+        for (const p of points) {
+          const px = tx(p.x);
+          const py = ty(p.y);
+          // 茎
+          ctx.beginPath();
+          ctx.moveTo(px, by);
+          ctx.lineTo(px, py);
+          ctx.stroke();
+          // 叶（小圆点）
+          ctx.beginPath();
+          ctx.arc(px, py, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // 柱状图
+      function drawBars(points, color) {
+        if (!points.length) return;
+        const by = baseY !== null ? baseY : padding.top + ch;
+        const barW = Math.max(1, cw / points.length * 0.8);
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        ctx.fillStyle = color;
+        for (const p of points) {
+          const px = tx(p.x);
+          const py = ty(p.y);
+          const h = by - py;
+          ctx.globalAlpha = 0.8;
+          ctx.fillRect(px - barW / 2, py, barW, h);
+          ctx.globalAlpha = 1;
+        }
+      }
+
+      if (type === 'fft') {
+        // FFT 绘制
+        if (fftDisplayMode === 'stem') {
+          drawStem(displayData, lineColor);
+        } else if (fftDisplayMode === 'bar') {
+          drawBars(displayData, lineColor);
+        } else {
+          drawLine(displayData, lineColor, 2);
+        }
+      } else {
+        // 时域绘制
+        drawLine(displayData, lineColor, 2);
+        if (overlay && overlay.length) {
+          drawLine(overlay, lineColor2, 2);
+        }
+      }
+
+      // 恢复裁剪
+      ctx.restore();
+
+      // 缩放指示器
+      if (vs.scaleX !== 1 || vs.scaleY !== 1) {
+        ctx.fillStyle = theme.text;
+        ctx.font = '11px system-ui';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText(`${vs.scaleX.toFixed(1)}x / ${vs.scaleY.toFixed(1)}x  双击重置`, width - padding.right - 4, height - 4);
+      }
+
+      // 存储映射用于 tooltip
+      canvas._chartMeta = { minX, maxX, minY, maxY, padding, cw, ch, data: displayData, overlay, type };
+    }
+
+    // ================= Tooltip =================
+    function setupTooltip(canvas, tooltip, isOverlay = false) {
+      const wrap = canvas.parentElement;
+      wrap.addEventListener('mousemove', e => {
+        const meta = canvas._chartMeta;
+        if (!meta) return;
+        const rect = wrap.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        const { padding, cw, ch, minX, maxX, minY, maxY, data, overlay, type } = meta;
+
+        if (mx < padding.left || mx > rect.width - padding.right || my < padding.top || my > rect.height - padding.bottom) {
+          tooltip.style.opacity = 0;
+          return;
+        }
+
+        const xVal = minX + (mx - padding.left) / cw * (maxX - minX);
+        const yVal = minY + (1 - (my - padding.top) / ch) * (maxY - minY);
+
+        // 找最近点
+        let nearest = null;
+        let minDist = Infinity;
+        const all = isOverlay && overlay && overlay.length ? overlay : data;
+        for (const p of all) {
+          const dx = (p.x - xVal) / (maxX - minX);
+          const dy = (p.y - yVal) / (maxY - minY);
+          const d = dx * dx + dy * dy;
+          if (d < minDist) { minDist = d; nearest = p; }
+        }
+
+        if (nearest && minDist < 0.01) {
+          tooltip.style.opacity = 1;
+          tooltip.style.left = (e.clientX + 12) + 'px';
+          tooltip.style.top = (e.clientY - 12) + 'px';
+          if (type === 'fft') {
+            const unit = fftYAxis === 'dB' ? ' dB' : '';
+            tooltip.textContent = `f=${nearest.x.toFixed(3)} Hz, A=${nearest.y.toFixed(4)}${unit}`;
+          } else {
+            tooltip.textContent = `x=${nearest.x.toFixed(4)}, y=${nearest.y.toFixed(4)}`;
+          }
+        } else {
+          tooltip.style.opacity = 0;
+        }
+      });
+      wrap.addEventListener('mouseleave', () => { tooltip.style.opacity = 0; });
+    }
+
+    setupTooltip(timeCanvas, timeTooltip);
+    setupTooltip(fftCanvas, fftTooltip);
+
+    // ================= 公式快捷设置 =================
+    function setFormula(expr) {
+      document.getElementById('formulaInput').value = expr;
+    }
+
+    // ================= FFT 显示模式切换 =================
+    function setFFTMode(mode, btn) {
+      fftDisplayMode = mode;
+      document.querySelectorAll('.fft-mode-btn[data-mode]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (fftData.length) drawChart(fftCanvas, fftData, [], 'fft');
+    }
+    function setFFTAxis(axis, btn) {
+      fftYAxis = axis;
+      document.querySelectorAll('.fft-mode-btn[data-yaxis]').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (fftData.length) drawChart(fftCanvas, fftData, [], 'fft');
+    }
+
+    // ================= 绘图触发 =================
+    function plotFormula() {
+      const expr = document.getElementById('formulaInput').value;
+      const x0 = parseFloat(document.getElementById('xStart').value);
+      const x1 = parseFloat(document.getElementById('xEnd').value);
+      const n = parseInt(document.getElementById('xSamples').value);
+      if (!expr || isNaN(x0) || isNaN(x1) || n < 2) { alert('请填写完整的公式和参数'); return; }
+      currentData = [];
+      for (let i = 0; i < n; i++) {
+        const x = x0 + (x1 - x0) * i / (n - 1);
+        try {
+          const y = evaluateFormula(expr, x);
+          if (isFinite(y)) currentData.push({ x, y });
+        } catch (e) { /* ignore */ }
+      }
+      if (currentData.length < 2) { alert('公式计算失败，请检查表达式'); return; }
+      computeSampleRate();
+      filteredData = [];
+      drawChart(timeCanvas, currentData, filteredData, 'time');
+      fftData = [];
+      drawChart(fftCanvas, fftData, [], 'fft');
+    }
+
+    function computeSampleRate() {
+      if (currentData.length >= 2) {
+        const dxs = [];
+        for (let i = 1; i < currentData.length; i++) {
+          dxs.push(currentData[i].x - currentData[i - 1].x);
+        }
+        const avgDx = dxs.reduce((a, b) => a + b, 0) / dxs.length;
+        sampleRate = avgDx > 0 ? 1 / avgDx : 1;
+      }
+    }
+
+    // ================= FFT (Cooley-Tukey) =================
+    function bitReverse(x, bits) {
+      let y = 0;
+      for (let i = 0; i < bits; i++) {
+        y = (y << 1) | (x & 1);
+        x >>= 1;
+      }
+      return y;
+    }
+
+    function fft(real, imag) {
+      const n = real.length;
+      if (n !== imag.length || (n & (n - 1)) !== 0) {
+        throw new Error('FFT 长度必须是2的幂');
+      }
+      const bits = Math.log2(n);
+
+      // 位反转重排
+      for (let i = 0; i < n; i++) {
+        const j = bitReverse(i, bits);
+        if (j > i) {
+          [real[i], real[j]] = [real[j], real[i]];
+          [imag[i], imag[j]] = [imag[j], imag[i]];
+        }
+      }
+
+      // 蝶形运算
+      for (let size = 2; size <= n; size <<= 1) {
+        const half = size >> 1;
+        const wReal = Math.cos(2 * Math.PI / size);
+        const wImag = -Math.sin(2 * Math.PI / size);
+        for (let i = 0; i < n; i += size) {
+          let uReal = 1, uImag = 0;
+          for (let j = 0; j < half; j++) {
+            const evenReal = real[i + j];
+            const evenImag = imag[i + j];
+            const oddReal = real[i + j + half] * uReal - imag[i + j + half] * uImag;
+            const oddImag = real[i + j + half] * uImag + imag[i + j + half] * uReal;
+            real[i + j] = evenReal + oddReal;
+            imag[i + j] = evenImag + oddImag;
+            real[i + j + half] = evenReal - oddReal;
+            imag[i + j + half] = evenImag - oddImag;
+            const nextReal = uReal * wReal - uImag * wImag;
+            const nextImag = uReal * wImag + uImag * wReal;
+            uReal = nextReal; uImag = nextImag;
+          }
+        }
+      }
+    }
+
+    function runFFT() {
+      if (!currentData.length) { alert('请先绘制数据'); return; }
+      let n = 1;
+      while (n < currentData.length) n <<= 1;
+      const real = new Float64Array(n);
+      const imag = new Float64Array(n);
+      for (let i = 0; i < currentData.length; i++) real[i] = currentData[i].y;
+      fft(real, imag);
+
+      fftData = [];
+      const df = sampleRate / n;
+      // 只取前半部分（实信号频谱对称）
+      for (let i = 0; i <= n / 2; i++) {
+        const mag = Math.sqrt(real[i] * real[i] + imag[i] * imag[i]) / (currentData.length);
+        fftData.push({ x: i * df, y: mag });
+      }
+      drawChart(fftCanvas, fftData, [], 'fft');
+
+      // 找峰值频率
+      let peakIdx = 1, peakMag = 0;
+      for (let i = 1; i < fftData.length; i++) {
+        if (fftData[i].y > peakMag) { peakMag = fftData[i].y; peakIdx = i; }
+      }
+      const stats = document.getElementById('fftStats');
+      stats.textContent = `采样点: ${currentData.length} → 补零至 ${n} | 采样率: ${sampleRate.toFixed(3)} Hz | 频率分辨率: ${df.toFixed(4)} Hz | 奈奎斯特: ${(sampleRate / 2).toFixed(2)} Hz | 主峰: ${fftData[peakIdx].x.toFixed(2)} Hz`;
+    }
+
+    // ================= 滤波器参数联动 =================
+    const filterAlgoSelect = document.getElementById('filterAlgo');
+    const firParamsDiv = document.getElementById('firParams');
+    const commonParamsDiv = document.getElementById('commonParams');
+    const limitParamsDiv = document.getElementById('limitParams');
+    const iirParamsDiv = document.getElementById('iirParams');
+    const kalmanParamsDiv = document.getElementById('kalmanParams');
+    const commonParamLabel = document.getElementById('commonParamLabel');
+    const filterFormulaBox = document.getElementById('filterFormula');
+
+    const algoFormulas = {
+      moving_avg: 'y[i] = (1/N) · Σ x[i+j],  j ∈ [-N/2, N/2]',
+      median: 'y[i] = median{ x[i+j] | j ∈ [-N/2, N/2] }',
+      amplitude_limit: 'if |x[i] - y[i-1]| ≤ A:  y[i] = x[i]\nelse:  y[i] = y[i-1] ± A',
+      fir_lowpass: 'h[n] = 2fc · sinc(2fc·n) · w[n]\nw[n] = 0.5 + 0.5·cos(2πn/(N-1))  (汉宁窗)\ny = x * h  (线性卷积)',
+      iir2_lowpass: '二阶巴特沃斯低通 (双线性变换法)\nK = tan(π·fc/(fs/2))\nnorm = 1 / (1 + √2·K + K²)\na0 = a2 = K²·norm,  a1 = 2·a0\nb1 = 2·(K²-1)·norm,  b2 = (1-√2·K+K²)·norm\ny[n] = a0·x[n] + a1·x[n-1] + a2·x[n-2] - b1·y[n-1] - b2·y[n-2]',
+      kalman: '预测:  x⁻ = x,  P⁻ = P + Q\n更新:  K = P⁻ / (P⁻ + R)\n       x = x⁻ + K·(z - x⁻)\n       P = (1 - K)·P⁻',
+      limit_avg: '窗口内去掉与当前点偏差 > A 的值，剩余求平均\ny[i] = mean{ x[i+j] | |x[i+j] - x[i]| ≤ A,  j ∈ [-N/2, N/2] }',
+      mid_avg: '窗口排序后去掉最大值和最小值各 1 个，剩余求平均\ny[i] = mean{ sorted{x[i+j]}[1..N-2] | j ∈ [-N/2, N/2] }'
+    };
+
+    function updateFilterUI() {
+      const v = filterAlgoSelect.value;
+      firParamsDiv.style.display = 'none';
+      commonParamsDiv.style.display = 'none';
+      limitParamsDiv.style.display = 'none';
+      iirParamsDiv.style.display = 'none';
+      kalmanParamsDiv.style.display = 'none';
+
+      if (v === 'fir_lowpass') {
+        firParamsDiv.style.display = 'block';
+      } else if (v === 'iir2_lowpass') {
+        iirParamsDiv.style.display = 'block';
+      } else if (v === 'kalman') {
+        kalmanParamsDiv.style.display = 'block';
+      } else if (v === 'amplitude_limit' || v === 'limit_avg') {
+        limitParamsDiv.style.display = 'block';
+      } else {
+        commonParamsDiv.style.display = 'block';
+        if (v === 'moving_avg') commonParamLabel.textContent = '窗口大小 (点数)';
+        else if (v === 'median') commonParamLabel.textContent = '窗口大小 (点数)';
+        else if (v === 'mid_avg') commonParamLabel.textContent = '窗口大小 (点数，去掉最大最小后平均)';
+      }
+
+      // 显示当前算法公式
+      if (algoFormulas[v]) {
+        filterFormulaBox.textContent = algoFormulas[v];
+        filterFormulaBox.style.display = 'block';
+      } else {
+        filterFormulaBox.style.display = 'none';
+      }
+    }
+    filterAlgoSelect.addEventListener('change', updateFilterUI);
+    updateFilterUI();
+
+    // ================= FIR 低通滤波器 =================
+    function sinc(x) {
+      return x === 0 ? 1 : Math.sin(Math.PI * x) / (Math.PI * x);
+    }
+
+    function designFIRLowpass(order, cutoff, sr) {
+      const N = order;
+      const h = new Float64Array(N);
+      const fc = cutoff / sr;
+      for (let i = 0; i < N; i++) {
+        const n = i - (N - 1) / 2;
+        const ideal = 2 * fc * sinc(2 * fc * n);
+        const w = 0.5 + 0.5 * Math.cos((2 * Math.PI * i) / (N - 1)); // 汉宁窗
+        h[i] = ideal * w;
+      }
+      return h;
+    }
+
+    function convolve(signal, kernel) {
+      const result = new Float64Array(signal.length);
+      const half = Math.floor(kernel.length / 2);
+      for (let i = 0; i < signal.length; i++) {
+        let sum = 0;
+        for (let j = 0; j < kernel.length; j++) {
+          const idx = i - j + half;
+          if (idx >= 0 && idx < signal.length) sum += signal[idx] * kernel[j];
+        }
+        result[i] = sum;
+      }
+      return result;
+    }
+
+    // ================= 移动平均滤波 =================
+    function filterMovingAvg(signal, winSize) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      const half = Math.floor(winSize / 2);
+      for (let i = 0; i < N; i++) {
+        let sum = 0, count = 0;
+        for (let j = -half; j <= half; j++) {
+          const idx = i + j;
+          if (idx >= 0 && idx < N) { sum += signal[idx]; count++; }
+        }
+        result[i] = sum / count;
+      }
+      return result;
+    }
+
+    // ================= 中值滤波 =================
+    function filterMedian(signal, winSize) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      const half = Math.floor(winSize / 2);
+      for (let i = 0; i < N; i++) {
+        const buf = [];
+        for (let j = -half; j <= half; j++) {
+          const idx = i + j;
+          if (idx >= 0 && idx < N) buf.push(signal[idx]);
+        }
+        buf.sort((a, b) => a - b);
+        result[i] = buf[Math.floor(buf.length / 2)];
+      }
+      return result;
+    }
+
+    // ================= 限幅滤波 =================
+    function filterAmplitudeLimit(signal, limit) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      result[0] = signal[0];
+      for (let i = 1; i < N; i++) {
+        const diff = signal[i] - result[i - 1];
+        if (Math.abs(diff) <= limit) {
+          result[i] = signal[i];
+        } else {
+          result[i] = result[i - 1] + (diff > 0 ? limit : -limit);
+        }
+      }
+      return result;
+    }
+
+    // ================= 二阶 IIR 低通滤波 =================
+    function filterIIR2Lowpass(signal, cutoff, sr) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      const fc = cutoff / (sr / 2); // 归一化频率
+      const K = Math.tan(Math.PI * fc);
+      const norm = 1 / (1 + Math.SQRT2 * K + K * K);
+      const a0 = K * K * norm;
+      const a1 = 2 * a0;
+      const a2 = a0;
+      const b1 = 2 * (K * K - 1) * norm;
+      const b2 = (1 - Math.SQRT2 * K + K * K) * norm;
+
+      let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (let i = 0; i < N; i++) {
+        const y = a0 * signal[i] + a1 * x1 + a2 * x2 - b1 * y1 - b2 * y2;
+        x2 = x1; x1 = signal[i];
+        y2 = y1; y1 = y;
+        result[i] = y;
+      }
+      return result;
+    }
+
+    // ================= 卡尔曼滤波 =================
+    function filterKalman(signal, Q, R) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      let x = signal[0]; // 状态估计
+      let P = 1; // 误差协方差
+      for (let i = 0; i < N; i++) {
+        // 预测
+        const xPred = x;
+        const PPred = P + Q;
+        // 更新
+        const K = PPred / (PPred + R);
+        x = xPred + K * (signal[i] - xPred);
+        P = (1 - K) * PPred;
+        result[i] = x;
+      }
+      return result;
+    }
+
+    // ================= 限幅平均滤波 =================
+    function filterLimitAvg(signal, limit, winSize) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      const half = Math.floor(winSize / 2);
+      for (let i = 0; i < N; i++) {
+        const buf = [];
+        for (let j = -half; j <= half; j++) {
+          const idx = i + j;
+          if (idx >= 0 && idx < N) buf.push(signal[idx]);
+        }
+        // 限幅：去掉与当前点偏差超过 limit 的值
+        const center = signal[i];
+        const valid = buf.filter(v => Math.abs(v - center) <= limit);
+        result[i] = valid.length > 0 ? valid.reduce((a, b) => a + b, 0) / valid.length : center;
+      }
+      return result;
+    }
+
+    // ================= 中位值平均滤波 =================
+    function filterMidAvg(signal, winSize) {
+      const N = signal.length;
+      const result = new Float64Array(N);
+      const half = Math.floor(winSize / 2);
+      for (let i = 0; i < N; i++) {
+        const buf = [];
+        for (let j = -half; j <= half; j++) {
+          const idx = i + j;
+          if (idx >= 0 && idx < N) buf.push(signal[idx]);
+        }
+        buf.sort((a, b) => a - b);
+        // 去掉最大和最小各一个，剩余求平均
+        if (buf.length > 2) {
+          const trimmed = buf.slice(1, buf.length - 1);
+          result[i] = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+        } else {
+          result[i] = buf.reduce((a, b) => a + b, 0) / buf.length;
+        }
+      }
+      return result;
+    }
+
+    // ================= 统一应用滤波器 =================
+    function applyFilter() {
+      if (!currentData.length) { alert('请先绘制数据'); return; }
+      const algo = filterAlgoSelect.value;
+      const signal = currentData.map(d => d.y);
+      let filtered;
+      let algoName = '';
+      let formula = '';
+
+      if (algo === 'moving_avg') {
+        const ws = parseInt(document.getElementById('windowSize').value);
+        filtered = filterMovingAvg(signal, ws);
+        algoName = `移动平均滤波, 窗口=${ws}`;
+        formula = `y[i] = (1/N) * Σ x[i+j], j ∈ [-N/2, N/2]`;
+      } else if (algo === 'median') {
+        const ws = parseInt(document.getElementById('windowSize').value);
+        filtered = filterMedian(signal, ws);
+        algoName = `中值滤波, 窗口=${ws}`;
+        formula = `y[i] = median{ x[i+j] | j ∈ [-N/2, N/2] }`;
+      } else if (algo === 'amplitude_limit') {
+        const limit = parseFloat(document.getElementById('limitValue').value);
+        filtered = filterAmplitudeLimit(signal, limit);
+        algoName = `限幅滤波, 限幅值=${limit}`;
+        formula = `if |x[i] - y[i-1]| ≤ A: y[i] = x[i]\nelse: y[i] = y[i-1] ± A`;
+      } else if (algo === 'fir_lowpass') {
+        const c1 = parseFloat(document.getElementById('cutoff1').value);
+        const order = parseInt(document.getElementById('filterOrder').value);
+        if (isNaN(c1) || c1 < 0) { alert('截止频率必须为非负数'); return; }
+        if (sampleRate <= 0) { alert('采样率无效'); return; }
+        const nyquist = sampleRate / 2;
+        if (c1 >= nyquist) { alert(`截止频率必须小于奈奎斯特频率 ${nyquist.toFixed(2)} Hz`); return; }
+        const kernel = designFIRLowpass(order, c1, sampleRate);
+        filtered = convolve(signal, kernel);
+        algoName = `FIR 低通滤波, fc=${c1}Hz, 阶数=${order}`;
+        formula = `h[n] = 2fc · sinc(2fc·n) · w[n],  w[n]=0.5+0.5cos(2πn/(N-1))\ny = x * h (卷积)`;
+      } else if (algo === 'iir2_lowpass') {
+        const c1 = parseFloat(document.getElementById('iirCutoff').value);
+        if (isNaN(c1) || c1 < 0) { alert('截止频率必须为非负数'); return; }
+        if (sampleRate <= 0) { alert('采样率无效'); return; }
+        const nyquist = sampleRate / 2;
+        if (c1 >= nyquist) { alert(`截止频率必须小于奈奎斯特频率 ${nyquist.toFixed(2)} Hz`); return; }
+        filtered = filterIIR2Lowpass(signal, c1, sampleRate);
+        algoName = `二阶 IIR 低通滤波, fc=${c1}Hz`;
+        formula = `y[n] = a0·x[n] + a1·x[n-1] + a2·x[n-2] - b1·y[n-1] - b2·y[n-2]`;
+      } else if (algo === 'kalman') {
+        const Q = parseFloat(document.getElementById('kalmanQ').value);
+        const R = parseFloat(document.getElementById('kalmanR').value);
+        filtered = filterKalman(signal, Q, R);
+        algoName = `卡尔曼滤波, Q=${Q}, R=${R}`;
+        formula = `预测: x⁻ = x,  P⁻ = P + Q\n更新: K = P⁻/(P⁻+R),  x = x⁻ + K(z-x⁻),  P = (1-K)P⁻`;
+      } else if (algo === 'limit_avg') {
+        const limit = parseFloat(document.getElementById('limitValue').value);
+        const ws = parseInt(document.getElementById('windowSize').value);
+        filtered = filterLimitAvg(signal, limit, ws);
+        algoName = `限幅平均滤波, 限幅=${limit}, 窗口=${ws}`;
+        formula = `窗口内去掉与当前点偏差>A的值，剩余求平均`;
+      } else if (algo === 'mid_avg') {
+        const ws = parseInt(document.getElementById('windowSize').value);
+        filtered = filterMidAvg(signal, ws);
+        algoName = `中位值平均滤波, 窗口=${ws}`;
+        formula = `窗口排序后去掉最大最小各1个，剩余求平均`;
+      }
+
+      filteredData = currentData.map((d, i) => ({ x: d.x, y: filtered[i] }));
+      drawChart(timeCanvas, currentData, filteredData, 'time');
+
+      filterFormulaBox.textContent = formula;
+      filterFormulaBox.style.display = 'block';
+      const stats = document.getElementById('filterStats');
+      stats.textContent = `${algoName} | 采样率=${sampleRate.toFixed(3)} Hz | 数据点=${currentData.length}`;
+    }
+
+    function clearFilter() {
+      filteredData = [];
+      drawChart(timeCanvas, currentData, filteredData, 'time');
+      document.getElementById('filterStats').textContent = '';
+      document.getElementById('filterFormula').style.display = 'none';
+    }
+
+    // ================= 导出功能 =================
+    function exportData(kind) {
+      let csv = '';
+      let filename = '';
+      if (kind === 'original') {
+        if (!currentData.length) { alert('没有原始数据'); return; }
+        csv = 'x,y\n' + currentData.map(d => `${d.x},${d.y}`).join('\n');
+        filename = 'original_data.csv';
+      } else if (kind === 'filtered') {
+        if (!filteredData.length) { alert('没有滤波数据，请先应用滤波器'); return; }
+        csv = 'x,y_filtered\n' + filteredData.map(d => `${d.x},${d.y}`).join('\n');
+        filename = 'filtered_data.csv';
+      } else if (kind === 'fft') {
+        if (!fftData.length) { alert('没有频谱数据，请先执行 FFT'); return; }
+        csv = 'frequency_hz,magnitude\n' + fftData.map(d => `${d.x},${d.y}`).join('\n');
+        filename = 'fft_spectrum.csv';
+      }
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // ================= 初始化 =================
+    window.addEventListener('resize', () => {
+      drawChart(timeCanvas, currentData, filteredData, 'time');
+      if (fftData.length) drawChart(fftCanvas, fftData, [], 'fft');
+    });
+
+    // 拖拽状态
+    let isDragging = false, dragStartX = 0, dragStartY = 0;
+    let dragStartOffsetX = 0, dragStartOffsetY = 0;
+
+    [timeCanvas, fftCanvas].forEach((cvs, idx) => {
+      const zKey = idx === 0 ? 'time' : 'fft';
+      const wrap = cvs.parentElement;
+
+      // 滚轮缩放
+      cvs.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const delta = e.deltaY > 0 ? 1.1 : 0.9;
+        const vs = viewState[zKey];
+        vs.scaleX = Math.max(0.1, Math.min(50, vs.scaleX * delta));
+        vs.scaleY = Math.max(0.1, Math.min(50, vs.scaleY * delta));
+        const meta = cvs._chartMeta;
+        if (meta) drawChart(cvs, meta.type === 'fft' ? fftData : currentData,
+                  meta.type === 'fft' ? [] : filteredData, meta.type);
+      }, { passive: false });
+
+      // 拖拽平移
+      cvs.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        const vs = viewState[zKey];
+        dragStartOffsetX = vs.offsetX;
+        dragStartOffsetY = vs.offsetY;
+        wrap.style.cursor = 'grabbing';
+      });
+
+      // 双击重置
+      cvs.addEventListener('dblclick', () => {
+        const vs = viewState[zKey];
+        vs.offsetX = 0;
+        vs.offsetY = 0;
+        vs.scaleX = 1;
+        vs.scaleY = 1;
+        const meta = cvs._chartMeta;
+        if (meta) drawChart(cvs, meta.type === 'fft' ? fftData : currentData,
+                  meta.type === 'fft' ? [] : filteredData, meta.type);
+      });
+    });
+
+    // 全局拖拽移动
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const dx = e.clientX - dragStartX;
+      const dy = e.clientY - dragStartY;
+      for (const key of ['time', 'fft']) {
+        viewState[key].offsetX = dragStartOffsetX - dx;
+        viewState[key].offsetY = dragStartOffsetY + dy;
+      }
+      const meta1 = timeCanvas._chartMeta;
+      const meta2 = fftCanvas._chartMeta;
+      if (meta1) drawChart(timeCanvas, currentData, filteredData, 'time');
+      if (meta2 && fftData.length) drawChart(fftCanvas, fftData, [], 'fft');
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        [timeCanvas, fftCanvas].forEach(c => {
+          c.parentElement.style.cursor = 'grab';
+        });
+      }
+    });
+
+    // 默认使用公式生成示例信号：1Hz + 3Hz 混合正弦波
+    document.getElementById('formulaInput').value = 'sin(2*PI*x) + 0.5*sin(6*PI*x)';
+    document.getElementById('xStart').value = '0';
+    document.getElementById('xEnd').value = '2';
+    document.getElementById('xSamples').value = '256';
+    plotFormula();
+  </script>
+</body>
+</html>
