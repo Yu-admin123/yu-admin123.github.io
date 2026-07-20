@@ -707,6 +707,10 @@
                         <span class="detail-key">基础电压补偿系数（平均电流）</span>
                         <span class="detail-val" id="detFactorAvg">—</span>
                     </div>
+                    <div class="detail-row" id="lowCurrentRow" style="display:none;">
+                        <span class="detail-key">低电流放电修正</span>
+                        <span class="detail-val" id="detLowCurrent">—</span>
+                    </div>
                     <div class="detail-row">
                         <span class="detail-key">峰值电流内阻压降</span>
                         <span class="detail-val" id="detVSag">—</span>
@@ -737,12 +741,15 @@
             <div class="formula-box">有效容量 = 标称容量 × 综合补偿系数
 基础利用率 fv = 放电曲线查表(V最低/节 + I平均×R单节内阻)
 峰值利用率 fp = 放电曲线查表(V最低/节 + I最大×R单节内阻)
+低电流修正（当 I平均 < 50mA 时）：fv = fv + (1-fv) × k × scale
+  其中 scale = log₁₀(50/I) / 3，k 为电池类型系数（碱性0.38 / 碳性0.45 / 锂电0.20）
 峰值占空比 D = (I平均 - I睡眠) / (I最大 - I睡眠)  （自适应估算）
 综合补偿系数 = D × fp + (1-D) × fv
 工作时长(小时) = 有效容量(mAh) / 待机平均电流(mA)
 天 = 小时 / 24 ，  周 = 天 / 7 ，  月 = 天 / 30</div>
             <div class="hint-text" style="margin-top:8px;">
-                ⚠️ 放电曲线为基于南孚等典型电池的非线性经验模型，实际受温度、放电速率、自放电与新旧程度影响，结果仅供参考。
+                ⚠️ 放电曲线为基于南孚等典型电池中等电流(~50mA)的非线性经验模型。当平均电流远小于50mA时，电化学极化显著减小，
+                相同电压下可释放出更多容量，因此引入低电流修正。实际仍受温度、自放电与新旧程度影响，结果仅供参考。
                 碱性 / 碳电池默认为 AA 规格；锂电池需自行输入容量（如 CR2032≈220mAh，CR123A≈1500mAh，18650≈3000mAh）。
             </div>
         </div>
@@ -881,6 +888,8 @@
             const detDuty      = document.getElementById('detDuty');
             const detFactor   = document.getElementById('detFactor');
             const detUsable   = document.getElementById('detUsable');
+            const lowCurrentRow = document.getElementById('lowCurrentRow');
+            const detLowCurrent = document.getElementById('detLowCurrent');
 
             // ============================================================
             //  工具函数
@@ -930,6 +939,28 @@
                 } else if (fromUnit === 'uA' && toUnit === 'mA') {
                     inputEl.value = (val / 1000).toFixed(4);
                 }
+            }
+
+            // ============================================================
+            //  低电流放电曲线修正
+            //  当前放电曲线基于中等电流(~50mA)，对极低电流过于悲观
+            //  原理：小电流下电化学极化更小，相同带载电压对应更深放电深度
+            // ============================================================
+            const lowCurrentCoeffs = {
+                alkaline: 0.38,
+                carbon: 0.45,
+                lithium: 0.20
+            };
+            function correctUtilizationForLowCurrent(util, iMa, batteryTypeKey) {
+                const I_REF = 50; // mA，参考电流
+                if (iMa >= I_REF || util >= 1) return util;
+                const ratio = Math.max(0.001, iMa / I_REF);
+                // 电流越小，scale 越接近 1
+                const scale = Math.log10(1 / ratio) / 3; // log10(1000)=3
+                const coeff = lowCurrentCoeffs[batteryTypeKey] || 0.35;
+                // 利用率越低，可修正空间越大；高利用率时修正较小
+                const correction = (1 - util) * coeff * scale;
+                return Math.min(1, util + correction);
             }
 
             // ============================================================
@@ -989,11 +1020,16 @@
                 vSagAvg  = (iAvg / 1000) * packR;
                 vSagPeak = (iMax / 1000) * packR;
 
+                let fvAvgRaw = fvAvg, fvPeakRaw = fvPeak;
                 if (curve) {
-                    fvAvg  = clamp(getUtilization(vMinSingleAvg,  curve), 0, 1);
-                    fvPeak = clamp(getUtilization(vMinSinglePeak, curve), 0, 1);
+                    fvAvgRaw  = clamp(getUtilization(vMinSingleAvg,  curve), 0, 1);
+                    fvPeakRaw = clamp(getUtilization(vMinSinglePeak, curve), 0, 1);
+                    // 低电流修正：当前曲线基于~50mA，对极小电流过于悲观
+                    fvAvg  = correctUtilizationForLowCurrent(fvAvgRaw,  iAvg, batteryType.value);
+                    fvPeak = correctUtilizationForLowCurrent(fvPeakRaw, iMax, batteryType.value);
                 } else {
                     fvAvg = fvPeak = 1;
+                    fvAvgRaw = fvPeakRaw = 1;
                 }
 
                 // 峰值占空比自适应估算：D = (Iavg - Isleep) / (Imax - Isleep)
@@ -1011,6 +1047,15 @@
                 detDuty.textContent       = `${fmt(dutyCycle * 100, 2)} %`;
                 detFactor.textContent     = `${fmt(factor * 100, 1)} %`;
                 detUsable.textContent     = `${fmt(usableCap, 1)} mAh`;
+
+                // 低电流修正明细    基础 ${fmt(fvAvgRaw*100,1)}% → 修正后 ${fmt(fvAvg*100,1)}% (+${fmt((fvAvg-fvAvgRaw)*100,1)}%)
+                if (iAvg < 50 && fvAvg > fvAvgRaw) {
+                    lowCurrentRow.style.display = 'flex';
+                    detLowCurrent.textContent = `${fmt(fvAvg*100,1)}%`;
+                } else {
+                    lowCurrentRow.style.display = 'none';
+                    detLowCurrent.textContent = '—';
+                }
 
                 // 工作时长
                 const hours = usableCap / iAvg;
@@ -1034,12 +1079,15 @@
                 }
 
                 // 状态提示
+                const lowCurrentHint = (iAvg < 50 && fvAvg > fvAvgRaw)
+                    ? ` · 已应用低电流修正 (+${fmt((fvAvg-fvAvgRaw)*100,1)}%)`
+                    : '';
                 if (factor < 0.05) {
                     showStatus('error', `⚠️ 综合补偿系数过低 (${fmt(factor*100,1)}%)，峰值电流或最低电压使电池几乎不可用`);
                 } else if (factor < 0.3) {
                     showStatus('ok', `ℹ️ 容量利用率较低 (${fmt(factor*100,1)}%)，建议降低设备最低工作电压或减小峰值电流`);
                 } else {
-                    showStatus('ok', `✅ 计算完成 · 有效容量 ${fmt(usableCap,1)} mAh · 利用率 ${fmt(factor*100,1)}%`);
+                    showStatus('ok', `✅ 计算完成 · 有效容量 ${fmt(usableCap,1)} mAh · 利用率 ${fmt(factor*100,1)}%${lowCurrentHint}`);
                 }
             }
 
@@ -1055,6 +1103,7 @@
                 detPackV.textContent = '—'; detCutoffV.textContent = '—';
                 detFactorAvg.textContent = '—'; detVSag.textContent = '—';
                 detFactorPeak.textContent = '—'; detDuty.textContent = '—'; detFactor.textContent = '—'; detUsable.textContent = '—';
+                lowCurrentRow.style.display = 'none'; detLowCurrent.textContent = '—';
             }
 
             // ============================================================
