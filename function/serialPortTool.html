@@ -244,6 +244,13 @@
             grid-template-columns: 1fr 1fr;
             gap: 18px;
         }
+        .grid-2col.single-column {
+            grid-template-columns: 1fr;
+        }
+        .panel-data-expanded .code-output {
+            max-height: 720px;
+            min-height: 320px;
+        }
         @media (max-width: 900px) {
             .grid-2col {
                 grid-template-columns: 1fr;
@@ -279,6 +286,33 @@
             font-weight: 400;
             font-size: 0.65rem;
             color: var(--text-light);
+        }
+        .panel-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .panel-toggle {
+            padding: 4px 10px;
+            font-size: 0.65rem;
+            border-radius: 999px;
+            border: 1px solid var(--btn-outline-border);
+            background: transparent;
+            color: var(--text-secondary);
+        }
+        .panel-toggle:hover {
+            background: var(--btn-outline-hover-bg);
+            border-color: var(--border-focus);
+        }
+        .panel-collapsed-hint {
+            margin-top: 8px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background: var(--bg-tag);
+            color: var(--text-muted);
+            font-size: 0.68rem;
         }
         .input-group {
             display: flex;
@@ -670,8 +704,8 @@
         <div class="subhead">🔹 可自定义波特率 · 实时数据曲线
         </div>
 
-        <div class="grid-2col">
-            <div class="panel panel-accent">
+        <div class="grid-2col" id="mainGrid">
+            <div class="panel panel-accent" id="receivePanel">
                 <div class="panel-title">① 串口控制 <small>连接 / 参数</small></div>
                 <div class="input-group">
                     <div class="input-row">
@@ -738,9 +772,13 @@
                 </div>
             </div>
 
-            <div class="panel panel-accent">
-                <div class="panel-title">③ 多曲线绘制 <small>每帧提取多个数值，分别对应各曲线</small></div>
-                <div class="input-group">
+            <div class="panel panel-accent" id="chartPanelWrapper">
+                <div class="panel-title-row">
+                    <div class="panel-title">③ 多曲线绘制 <small>每帧提取多个数值，分别对应各曲线</small></div>
+                    <button class="panel-toggle" id="toggleChartPanelBtn" type="button">▾ 收起曲线</button>
+                </div>
+                <div class="panel-collapsed-hint" id="chartCollapsedHint" style="display:none;">曲线已隐藏，点击“展开曲线”继续查看图表</div>
+                <div class="input-group" id="chartPanelBody">
                     <div class="input-row">
                         <label>解析正则</label>
                         <input type="text" id="parseRule" class="parse-rule-input" value="(\d+\.?\d*)\s*[,，]\s*(\d+\.?\d*)" style="flex:2;">
@@ -868,6 +906,12 @@
             const resetViewBtn = document.getElementById('resetViewBtn');
             const chartCanvas = document.getElementById('chartCanvas');
             const chartContainer = document.getElementById('chartContainer');
+            const mainGrid = document.getElementById('mainGrid');
+            const receivePanel = document.getElementById('receivePanel');
+            const chartPanelWrapper = document.getElementById('chartPanelWrapper');
+            const chartPanelBody = document.getElementById('chartPanelBody');
+            const toggleChartPanelBtn = document.getElementById('toggleChartPanelBtn');
+            const chartCollapsedHint = document.getElementById('chartCollapsedHint');
             const tooltipFloat = document.getElementById('tooltipFloat');
             const chartInfo = document.getElementById('chartInfo');
             const lastValueTag = document.getElementById('lastValueTag');
@@ -890,6 +934,22 @@
             // ===== 曲线颜色 =====
             const CURVE_COLORS = ['#818cf8', '#f472b6', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#fb923c'];
             const DARK_CURVE_COLORS = ['#7a9eff', '#f472b6', '#34d399', '#fbbf24', '#f87171', '#60a5fa', '#a78bfa', '#fb923c'];
+            let chartPanelCollapsed = false;
+
+            function updateChartPanelState() {
+                if (!mainGrid || !receivePanel || !chartPanelWrapper || !chartPanelBody || !toggleChartPanelBtn || !chartCollapsedHint) return;
+                chartPanelBody.style.display = chartPanelCollapsed ? 'none' : 'flex';
+                chartCollapsedHint.style.display = chartPanelCollapsed ? 'block' : 'none';
+                mainGrid.classList.toggle('single-column', chartPanelCollapsed);
+                receivePanel.classList.toggle('panel-data-expanded', chartPanelCollapsed);
+                toggleChartPanelBtn.textContent = chartPanelCollapsed ? '▶ 展开曲线' : '▾ 收起曲线';
+                toggleChartPanelBtn.setAttribute('aria-expanded', String(!chartPanelCollapsed));
+            }
+
+            toggleChartPanelBtn.addEventListener('click', () => {
+                chartPanelCollapsed = !chartPanelCollapsed;
+                updateChartPanelState();
+            });
 
             function getCurveColors() {
                 const isDark = document.documentElement.getAttribute('data-theme') === 'dark';

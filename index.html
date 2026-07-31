@@ -6,7 +6,7 @@
     <title>Yu_ToolBox - 嵌入式开发者工具箱</title>
     <link rel="icon" href="./Logo/Yu_Tools.png" type="image/png">
     <style>
-        /* ===== CSS Variables (完全继承工具页风格) ===== */
+        /* ===== CSS Variables  ===== */
         :root {
             --bg-body: #f1f4f9;
             --bg-container: #ffffff;
@@ -146,6 +146,7 @@
         /* ===== 导航栏 ===== */
         .navbar {
             width: 100%;
+            background: var(--bg-body);
             border-bottom: 1px solid var(--border-light);
             padding: 0 24px;
             position: sticky;
@@ -934,6 +935,30 @@
                 url: './function/SignalPlotter.html',
                 tagAccent: [true, false, false],
                 category: '数据曲线可视化',
+                isNew: false
+            },
+            //PID调节器
+             {
+                id: 'PIDController',
+                title: 'PID调节器',
+                desc: '实时PID参数调节与仿真工具',
+                icon: '🎯',
+                iconClass: 'icon-blue',
+                url: './function/PIDemulator.html',
+                tagAccent: [true, false, false],
+                category: 'PID调节器',
+                isNew: false
+            },
+            //PID调节器
+             {
+                id: 'MqttTool',
+                title: 'MQTT助手',
+                desc: '基于 MQTT over WebSocket · 支持订阅/发布',
+                icon: '📶',
+                iconClass: 'icon-blue',
+                url: './function/MqttTool.html',
+                tagAccent: [true, false, false],
+                category: 'PID调节器',
                 isNew: true
             }
         ];
