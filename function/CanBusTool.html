@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>CAN 总线助手</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/CanBusTool.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title"><span data-i18n="can.page.title">🔗 CAN 总线助手</span></div>
+        <div class="subhead" data-i18n="can.subhead">🔹 CAN 2.0A/B 帧解析 · J1939 协议拆解 · DBC 文件解析 · 信号解码 (Intel/Motorola) · 反向计算 · 模拟收发</div>
+
+        <!-- ① 帧输入 & 解析 (全宽) -->
+        <div class="panel panel-accent" style="margin-bottom:18px;">
+            <div class="panel-title"><span data-i18n="can.p1.title">① CAN 帧输入</span> <small data-i18n="can.p1.small">ID & 数据</small></div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label data-i18n="can.label.idHex">ID (HEX)</label>
+                    <input type="text" id="canId" value="18FEF100" style="flex:0.6; font-family: 'SF Mono', monospace;">
+                    <span class="unit" data-i18n="can.unit.stdExt">(标准/扩展)</span>
+                    <label data-i18n="can.label.frameType">帧类型</label>
+                    <select id="canType">
+                        <option value="standard" data-i18n="can.option.std">标准帧 (11-bit)</option>
+                        <option value="extended" selected data-i18n="can.option.ext">扩展帧 (29-bit)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <label data-i18n="can.label.dlc">DLC</label>
+                    <input type="number" id="canDlc" value="8" min="0" max="8" style="flex:0.3;">
+                    <span class="unit" data-i18n="can.unit.dlcRange">(0-8)</span>
+                    <label data-i18n="can.label.dataHex">数据 (HEX)</label>
+                    <textarea id="canData" rows="2" placeholder="11 22 33 44 55 66 77 88" data-i18n-placeholder="can.placeholder.data">11 22 33 44 55 66 77 88</textarea>
+                    <span class="hint-text" data-i18n="can.hint.dataFmt">空格/连续/0x前缀</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn btn-outline" id="parseBtn" data-i18n="can.btn.parse">▶ 解析帧</button>
+                    <button class="btn btn-outline" id="clearBtn" data-i18n="can.btn.clear">🗑️ 清空</button>
+                    <button class="btn btn-outline" id="exampleBtn" data-i18n="can.btn.example">📄 示例 (J1939)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ② 帧解析结果 + ③ J1939 协议拆解 (两列) -->
+        <div class="grid-2col" style="margin-bottom:18px;">
+            <div class="panel panel-accent">
+                <div class="panel-title" data-i18n="can.p2.title">② 帧解析结果</div>
+                <div class="detail-grid">
+                    <span class="key" data-i18n="can.label.idHex">ID (HEX)</span>
+                    <span class="val" id="parsedIdHex">—</span>
+                    <span class="key" data-i18n="can.label.idDec">ID (DEC)</span>
+                    <span class="val" id="parsedIdDec">—</span>
+                    <span class="key" data-i18n="can.label.frameType">帧类型</span>
+                    <span class="val" id="parsedType">—</span>
+                    <span class="key" data-i18n="can.label.dlc">DLC</span>
+                    <span class="val" id="parsedDlc">—</span>
+                    <span class="key" data-i18n="can.label.dataHex">数据 (HEX)</span>
+                    <span class="val" id="parsedData" style="word-break:break-all;">—</span>
+                    <span class="key" data-i18n="can.label.dataLen">数据长度</span>
+                    <span class="val" id="parsedLen">—</span>
+                </div>
+                <div class="result-box" style="margin-top:8px;">
+                    <div class="result-label" data-i18n="can.result.fullFrame">完整帧 (用于模拟)</div>
+                    <div class="result-value" id="fullFrameDisplay" style="font-size:0.8rem;">—</div>
+                </div>
+            </div>
+
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="can.p3.title">③ J1939 协议拆解</span> <small data-i18n="can.p3.small">(扩展帧)</small></div>
+                <div class="detail-grid" id="j1939Details">
+                    <span class="key" data-i18n="can.label.priority">优先级</span>
+                    <span class="val" id="j1939Priority">—</span>
+                    <span class="key" data-i18n="can.label.pf">PDU 格式 (PF)</span>
+                    <span class="val" id="j1939Pf">—</span>
+                    <span class="key" data-i18n="can.label.ps">PDU 特定 (PS)</span>
+                    <span class="val" id="j1939Ps">—</span>
+                    <span class="key" data-i18n="can.label.sa">源地址 (SA)</span>
+                    <span class="val" id="j1939Sa">—</span>
+                    <span class="key" data-i18n="can.label.pgn">PGN (参数组)</span>
+                    <span class="val" id="j1939Pgn">—</span>
+                    <span class="key" data-i18n="can.label.pgnType">PGN 类型</span>
+                    <span class="val" id="j1939PgnType">—</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================================== -->
+        <!-- ④ ID 位视图 ———— 单独一整行 (与 ① 相同)                    -->
+        <!-- ========================================================== -->
+        <div class="panel panel-accent panel-full" style="margin-bottom:18px;">
+            <div class="panel-title"><span data-i18n="can.p4.title">④ ID 位视图</span> <small data-i18n="can.p4.small">29-bit 扩展帧 · 全宽展示</small></div>
+            <div id="bitViewContainer">
+                <div class="bit-view" id="bitView"></div>
+                <div class="bit-view-legend" id="bitViewLegend">
+                    <span class="legend-item"><span class="legend-swatch" style="background:#ff6b6b;"></span> <span data-i18n="can.legend.pri">优先级 (PRI)</span></span>
+                    <span class="legend-item"><span class="legend-swatch" style="background:#4ecdc4;"></span> <span data-i18n="can.legend.pf">PDU 格式 (PF)</span></span>
+                    <span class="legend-item"><span class="legend-swatch" style="background:#ffe66d;"></span> <span data-i18n="can.legend.ps">PDU 特定 (PS)</span></span>
+                    <span class="legend-item"><span class="legend-swatch" style="background:#a29bfe;"></span> <span data-i18n="can.legend.sa">源地址 (SA)</span></span>
+                    <span class="legend-item" style="color:var(--text-light);" data-i18n="can.legend.bit">█ 每个色块代表 1 bit</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ⑤ DBC 文件加载 + ⑥ 信号解码 (两列) -->
+        <div class="grid-2col" style="margin-bottom:18px;">
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="can.p5.title">⑤ DBC 文件加载</span> <small data-i18n="can.p5.small">上传 .dbc 自动匹配信号</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="can.label.dbcFile">DBC 文件</label>
+                        <div class="file-input-wrapper">
+                            <button class="btn btn-outline btn-sm" data-i18n="can.btn.chooseDbc">📁 选择 .dbc</button>
+                            <input type="file" id="dbcFileInput" accept=".dbc">
+                        </div>
+                        <span id="dbcFileInfo" style="font-size:0.65rem;color:var(--text-muted);" data-i18n="can.dbc.notLoaded">未加载</span>
+                        <button class="btn btn-outline btn-sm" id="clearDbcBtn" data-i18n="can.btn.clearDbc">清除</button>
+                    </div>
+                    <div class="code-output" id="dbcStatus" style="max-height:80px;" data-i18n="can.dbc.waiting">等待加载 DBC...</div>
+                </div>
+                <div class="panel-title" style="margin-top:12px;"><span data-i18n="can.p6.title">⑥ 信号解码</span> <small data-i18n="can.p6.small">从 DBC 或手动定义</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="can.label.sigName">信号名称</label>
+                        <input type="text" id="sigName" placeholder="e.g. EngineSpeed" data-i18n-placeholder="can.placeholder.sigName" style="flex:0.6;">
+                        <label data-i18n="can.label.startBit">起始位</label>
+                        <input type="number" id="sigStart" value="0" min="0" max="63" style="flex:0.3;">
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="can.label.length">长度 (bit)</label>
+                        <input type="number" id="sigLen" value="16" min="1" max="64" style="flex:0.3;">
+                        <label data-i18n="can.label.byteOrder">字节序</label>
+                        <select id="sigEndian">
+                            <option value="big" data-i18n="can.option.moto">Motorola (大端)</option>
+                            <option value="little" data-i18n="can.option.intel">Intel (小端)</option>
+                        </select>
+                        <label data-i18n="can.label.type">类型</label>
+                        <select id="sigType">
+                            <option value="unsigned" data-i18n="can.option.unsigned">无符号</option>
+                            <option value="signed" data-i18n="can.option.signed">有符号</option>
+                            <option value="float" data-i18n="can.option.float">IEEE 754 浮点</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="can.label.scale">缩放因子</label>
+                        <input type="number" id="sigScale" value="1.0" step="0.1" style="flex:0.3;">
+                        <label data-i18n="can.label.offset">偏移量</label>
+                        <input type="number" id="sigOffset" value="0" step="0.1" style="flex:0.3;">
+                        <label data-i18n="can.label.unit">单位</label>
+                        <input type="text" id="sigUnit" placeholder="rpm" data-i18n-placeholder="can.placeholder.unit" style="flex:0.3;">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline btn-sm" id="addSigBtn" data-i18n="can.btn.addSig">➕ 添加信号</button>
+                        <button class="btn btn-outline btn-sm" id="decodeSigBtn" data-i18n="can.btn.decode">🔍 解码</button>
+                        <button class="btn btn-outline btn-sm" id="clearSigBtn" data-i18n="can.btn.clearSig">🗑️ 清空信号</button>
+                    </div>
+                </div>
+                <div style="margin-top:8px; max-height:200px; overflow:auto;">
+                    <table class="signal-table" id="sigTable">
+                        <thead><tr><th data-i18n="can.th.name">名称</th><th data-i18n="can.th.start">起始位</th><th data-i18n="can.th.length">长度</th><th data-i18n="can.th.endian">字节序</th><th data-i18n="can.th.type">类型</th><th data-i18n="can.th.scale">缩放</th><th data-i18n="can.th.offset">偏移</th><th data-i18n="can.th.unit">单位</th><th data-i18n="can.th.raw">原始值</th><th data-i18n="can.th.phys">物理值</th><th data-i18n="can.th.op">操作</th></tr></thead>
+                        <tbody id="sigTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="can.p7.title">⑦ 反向计算</span> <small data-i18n="can.p7.small">物理值 → 原始值</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="can.label.sigName">信号名称</label>
+                        <input type="text" id="invSigName" placeholder="选择信号" data-i18n-placeholder="can.placeholder.invSig" style="flex:0.5;">
+                        <label data-i18n="can.label.physVal">物理值</label>
+                        <input type="number" id="invPhysVal" value="1500" step="any" style="flex:0.5;">
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="can.label.startBit">起始位</label>
+                        <input type="number" id="invStart" value="0" min="0" max="63" style="flex:0.3;">
+                        <label data-i18n="can.label.length2">长度</label>
+                        <input type="number" id="invLen" value="16" min="1" max="64" style="flex:0.3;">
+                        <label data-i18n="can.label.byteOrder">字节序</label>
+                        <select id="invEndian">
+                            <option value="big">Motorola</option>
+                            <option value="little">Intel</option>
+                        </select>
+                        <label data-i18n="can.label.type">类型</label>
+                        <select id="invType">
+                            <option value="unsigned" data-i18n="can.option.unsigned">无符号</option>
+                            <option value="signed" data-i18n="can.option.signed">有符号</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="can.label.scale2">缩放</label>
+                        <input type="number" id="invScale" value="1.0" step="0.1" style="flex:0.3;">
+                        <label data-i18n="can.label.offset2">偏移</label>
+                        <input type="number" id="invOffset" value="0" step="0.1" style="flex:0.3;">
+                        <button class="btn btn-outline btn-sm" id="invCalcBtn" data-i18n="can.btn.invCalc">🔄 计算原始值</button>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label" data-i18n="can.result.rawVal">原始值 (DEC / HEX)</div>
+                        <div class="result-value" id="invResult">—</div>
+                        <div class="result-sub" id="invResultSub" data-i18n="can.sub.waitCalc">等待计算</div>
+                    </div>
+                </div>
+                <div class="panel-title" style="margin-top:12px;" data-i18n="can.p8.title">⑧ 常用 J1939 PGN 预设</div>
+                <div class="btn-group" id="pgnPresetContainer">
+                    <button class="btn btn-outline btn-sm" data-pgn="0xF004" data-i18n="can.pgn.engineSpeed">发动机转速</button>
+                    <button class="btn btn-outline btn-sm" data-pgn="0xFEF1" data-i18n="can.pgn.vehicleSpeed">车速</button>
+                    <button class="btn btn-outline btn-sm" data-pgn="0xFEF2" data-i18n="can.pgn.coolantTemp">冷却液温度</button>
+                    <button class="btn btn-outline btn-sm" data-pgn="0xFEEF" data-i18n="can.pgn.oilPressure">油压</button>
+                    <button class="btn btn-outline btn-sm" data-pgn="0xFEC3" data-i18n="can.pgn.throttle">油门踏板位置</button>
+                </div>
+                <div class="hint-text" style="margin-top:4px;" data-i18n="can.hint.pgnPreset">点击预设自动填入 ID (PGN + 源地址 0x00)</div>
+            </div>
+        </div>
+
+        <!-- ⑨ CRC 校验 + ⑩ 模拟收发 (两列) -->
+        <div class="grid-2col">
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="can.p9.title">⑨ CRC 校验</span> <small data-i18n="can.p9.small">对当前数据</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="can.label.algo">算法</label>
+                        <select id="crcAlgo">
+                            <option value="crc8">CRC-8</option>
+                            <option value="crc8_dallas">CRC-8/Dallas</option>
+                            <option value="crc16_modbus">CRC-16/Modbus</option>
+                            <option value="crc16_ccitt">CRC-16/CCITT</option>
+                            <option value="crc32">CRC-32</option>
+                            <option value="crc64_ecma">CRC-64/ECMA</option>
+                        </select>
+                        <button class="btn btn-outline btn-sm" id="crcCalcBtn" data-i18n="can.btn.calcCrc">计算 CRC</button>
+                    </div>
+                    <div class="result-box">
+                        <div class="result-label" data-i18n="can.result.crc">CRC 结果</div>
+                        <div class="result-value" id="crcResult">—</div>
+                        <div class="result-sub" id="crcResultSub" data-i18n="can.sub.waitCalc">等待计算</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="can.p10.title">⑩ 模拟收发</span> <small data-i18n="can.p10.small">发送 & 日志</small></div>
+                <div class="input-group">
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="sendBtn" data-i18n="can.btn.send">📤 发送当前帧</button>
+                        <button class="btn btn-outline btn-sm" id="clearLogBtn" data-i18n="can.btn.clearLog">🗑️ 清空日志</button>
+                    </div>
+                    <div class="log-area" id="logArea">[系统] 就绪，等待发送...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="can.footer">🔗 CAN 总线助手 · 支持 J1939 拆解、DBC 解析、信号解码、反向计算</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/CanBusTool.js"></script>
+</body>
+</html>

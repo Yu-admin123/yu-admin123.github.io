@@ -4,589 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>图片取模 / 渲染工具</title>
-   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
     <script>
         const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
-    <style>
-        /* ===== CSS Variables (主题) ===== */
-        :root {
-            --bg-body: #f1f4f9;
-            --bg-container: #f1f4f9;
-            --bg-panel: #fafcff;
-            --bg-panel-accent: #f8faff;
-            --bg-input: #ffffff;
-            --bg-input-readonly: #f1f5f9;
-            --bg-code: #ffffff;
-            --bg-option-grid: #f8fafc;
-            --bg-swatch-border: #e2e8f0;
-            --bg-tag: #e2e8f0;
-            --bg-badge: #e0e7ff;
-
-            --text-primary: #0f172a;
-            --text-secondary: #1e293b;
-            --text-muted: #64748b;
-            --text-light: #94a3b8;
-            --text-code: #000000;
-            --text-badge: #4338ca;
-
-            --border-light: #e9edf4;
-            --border-input: #d1d9e6;
-            --border-focus: #818cf8;
-
-            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06);
-            --shadow-swatch: 0 6px 16px rgba(0, 0, 0, 0.06);
-
-            --btn-primary: #1e293b;
-            --btn-primary-hover: #0f172a;
-            --btn-outline-border: #d1d9e6;
-            --btn-outline-hover-bg: #f1f4f9;
-
-            --status-ok-bg: #d1fae5;
-            --status-ok-text: #0b7e4b;
-            --status-error-bg: #fee2e2;
-            --status-error-text: #b91c1c;
-
-            --scrollbar-track: #f1f4f9;
-            --scrollbar-thumb: #cbd5e1;
-
-            --accent-blue: #818cf8;
-            --accent-blue-hover: #6366f1;
-
-            --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
-        }
-
-        [data-theme="dark"] {
-            --bg-body: #1e1e1e;
-            --bg-container: #2c2c2c;
-            --bg-panel: #2c2c2c;
-            --bg-panel-accent: #2c2c2c;
-            --bg-input: #1e1e1e;
-            --bg-input-readonly: #1e1e1e;
-            --bg-code: #1a1a1a;
-            --bg-option-grid: #262626;
-            --bg-swatch-border: #3d3d3d;
-            --bg-tag: #3d3d3d;
-            --bg-badge: #1e2a4a;
-
-            --text-primary: #e6e6e6;
-            --text-secondary: #cccccc;
-            --text-muted: #888888;
-            --text-light: #666666;
-            --text-code: #e6e6e6;
-            --text-badge: #7a9eff;
-
-            --border-light: #3d3d3d;
-            --border-input: #3d3d3d;
-            --border-focus: #7a9eff;
-
-            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
-            --shadow-swatch: 0 6px 16px rgba(0, 0, 0, 0.4);
-
-            --btn-primary: #3d3d3d;
-            --btn-primary-hover: #4a4a4a;
-            --btn-outline-border: #4a4a4a;
-            --btn-outline-hover-bg: #333333;
-
-            --status-ok-bg: #0a3d2a;
-            --status-ok-text: #5ae0a0;
-            --status-error-bg: #4a1a1a;
-            --status-error-text: #f08080;
-
-            --scrollbar-track: #262626;
-            --scrollbar-thumb: #4a4a4a;
-
-            --accent-blue: #7a9eff;
-            --accent-blue-hover: #5a7fff;
-
-            --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
-        }
-
-        * { box-sizing: border-box; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; }
-        body {
-            background: var(--bg-body);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.25s ease, color 0.25s ease;
-            color: var(--text-primary);
-        }
-
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
-
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            background: var(--bg-container);
-            border-radius: 0;
-            padding: 32px 36px 40px;
-            box-shadow: none;
-            transition: background 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        /* 导航栏 */
-        .navbar {
-            width: 100%;
-            background: var(--bg-container);
-            border-bottom: 1px solid var(--border-light);
-            padding: 0 24px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            transition: background 0.25s ease, border-color 0.25s ease;
-        }
-        .navbar-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 60px;
-        }
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.2rem;
-            letter-spacing: -0.02em;
-            background: var(--hero-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .navbar-brand .brand-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: hidden;
-            background: var(--hero-gradient);
-        }
-        .navbar-brand .brand-icon img { width: 100%; height: 100%; object-fit: cover; border-radius: 10px; display: block; }
-        .navbar-right { display: flex; align-items: center; gap: 12px; }
-        .theme-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--bg-panel);
-            padding: 6px 16px 6px 20px;
-            border-radius: 40px;
-            border: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: background 0.25s ease, border-color 0.25s ease;
-            user-select: none;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        .theme-toggle:hover { border-color: var(--border-focus); }
-        .theme-toggle .toggle-track {
-            width: 44px;
-            height: 24px;
-            background: var(--border-input);
-            border-radius: 40px;
-            position: relative;
-            transition: background 0.3s ease;
-            flex-shrink: 0;
-        }
-        .theme-toggle .toggle-thumb {
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            transition: transform 0.3s ease, background 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        }
-        [data-theme="dark"] .theme-toggle .toggle-track { background: var(--accent-blue); }
-        [data-theme="dark"] .theme-toggle .toggle-thumb { transform: translateX(20px); background: #e6e6e6; }
-        .theme-toggle .theme-icon { font-size: 1.1rem; line-height: 1; }
-
-        .page-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin: 0;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            transition: color 0.25s ease;
-            letter-spacing: -0.02em;
-        }
-        .subhead {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 28px;
-            border-left: 3px solid var(--accent-blue);
-            padding-left: 16px;
-            background: var(--bg-panel);
-            border-radius: 0 10px 10px 0;
-            line-height: 1.6;
-            transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-        }
-
-        .grid-3col {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 18px;
-        }
-        @media (max-width: 1024px) { .grid-3col { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 700px) { .grid-3col { grid-template-columns: 1fr; } }
-
-        .panel {
-            background: var(--bg-panel);
-            border-radius: 18px;
-            padding: 18px 20px 22px;
-            border: 1px solid transparent;
-            transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-        }
-        .panel:hover { border-color: var(--accent-blue); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); }
-        .panel-accent { background: var(--bg-panel-accent); }
-        .panel-title {
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-top: 0;
-            margin-bottom: 14px;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            transition: color 0.25s ease;
-        }
-        .panel-title small { font-weight: 400; font-size: 0.65rem; color: var(--text-light); }
-
-        .input-group { display: flex; flex-direction: column; gap: 10px; }
-        .input-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 6px;
-        }
-        .input-row label {
-            font-weight: 500;
-            color: var(--text-secondary);
-            min-width: 48px;
-            font-size: 0.78rem;
-            transition: color 0.25s ease;
-        }
-        .input-row input, .input-row textarea, .input-row select {
-            flex: 1;
-            min-width: 60px;
-            padding: 6px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-input);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            transition: 0.15s, background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-            outline: none;
-        }
-        .input-row input:focus, .input-row textarea:focus, .input-row select:focus {
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
-        }
-        .input-row textarea { min-height: 72px; resize: vertical; font-size: 0.75rem; line-height: 1.5; }
-        .input-row select { flex: 0.8; min-width: 80px; background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
-        .input-row input:disabled, .input-row select:disabled {
-            background: var(--bg-input-readonly);
-            color: var(--text-light);
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        .input-row input[readonly] { background: var(--bg-input-readonly); color: var(--text-secondary); }
-
-        .btn {
-            background: var(--btn-primary);
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: 0.12s, background 0.25s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-        .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
-        .btn-outline {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--btn-outline-border);
-        }
-        .btn-outline:hover { background: var(--btn-outline-hover-bg); border-color: var(--border-focus); }
-        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-        .btn-sm { padding: 3px 12px; font-size: 0.65rem; }
-
-        .swatch-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 2px;
-        }
-        .swatch-box {
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
-            border: 2px solid var(--bg-swatch-border);
-            background: #ccc;
-            flex-shrink: 0;
-            transition: border-color 0.25s ease;
-        }
-        .color-info-text { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.75rem; color: var(--text-primary); transition: color 0.25s ease; }
-        .tag {
-            background: var(--bg-tag);
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.55rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: background 0.25s ease, color 0.25s ease;
-        }
-        .range-badge {
-            display: inline-block;
-            background: var(--bg-badge);
-            color: var(--text-badge);
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.6rem;
-            font-weight: 600;
-            transition: background 0.25s ease, color 0.25s ease;
-        }
-        .conv-arrow { font-size: 1.2rem; color: var(--text-light); padding: 0 6px; transition: color 0.25s ease; }
-        .hint-text { font-size: 0.6rem; color: var(--text-light); font-style: italic; transition: color 0.25s ease; }
-
-        .error-msg {
-            color: var(--status-error-text);
-            background: var(--status-error-bg);
-            padding: 2px 12px;
-            border-radius: 40px;
-            font-size: 0.65rem;
-            display: inline-block;
-            transition: background 0.25s ease, color 0.25s ease;
-        }
-        .status-ok {
-            color: var(--status-ok-text);
-            background: var(--status-ok-bg);
-            padding: 2px 12px;
-            border-radius: 40px;
-            font-size: 0.65rem;
-            transition: background 0.25s ease, color 0.25s ease;
-        }
-        .status-info { color: var(--text-muted); font-size: 0.65rem; }
-
-        .canvas-wrapper {
-            background: var(--bg-option-grid);
-            border-radius: 14px;
-            padding: 12px;
-            width: 100%;
-            overflow: auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 140px;
-            border: 1px solid var(--border-light);
-            transition: background 0.25s ease, border-color 0.25s ease;
-        }
-        .canvas-wrapper canvas {
-            display: block;
-            max-width: 100%;
-            height: auto;
-            image-rendering: pixelated;
-            border-radius: 6px;
-            background-image:
-                linear-gradient(45deg, #ccc 25%, transparent 25%),
-                linear-gradient(-45deg, #ccc 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #ccc 75%),
-                linear-gradient(-45deg, transparent 75%, #ccc 75%);
-            background-size: 16px 16px;
-            background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
-            background-color: #fff;
-        }
-
-        .option-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px 12px;
-            background: var(--bg-option-grid);
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin-top: 4px;
-            transition: background 0.25s ease;
-        }
-        .option-grid .opt-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 0.72rem;
-            color: var(--text-secondary);
-            transition: color 0.25s ease;
-        }
-        .option-grid .opt-item input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent-blue); cursor: pointer; }
-        .option-grid .opt-item select {
-            padding: 3px 6px;
-            border-radius: 6px;
-            border: 1px solid var(--border-input);
-            font-size: 0.65rem;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-            cursor: pointer;
-        }
-        .option-grid .opt-item input[type="number"] {
-            padding: 3px 6px;
-            border-radius: 6px;
-            border: 1px solid var(--border-input);
-            font-size: 0.65rem;
-            width: 52px;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-        }
-        .option-grid .opt-item input[type="number"]:disabled {
-            background: var(--bg-input-readonly);
-            color: var(--text-light);
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .code-output {
-            background: var(--bg-code);
-            color: var(--text-code);
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.6rem;
-            max-height: 130px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-            margin-top: 6px;
-            transition: background 0.25s ease, color 0.25s ease;
-        }
-        .code-output::-webkit-scrollbar { width: 4px; height: 4px; }
-        .code-output::-webkit-scrollbar-track { background: var(--scrollbar-track); }
-        .code-output::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 8px; }
-
-        .file-input-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            left: 0;
-            top: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        .import-preview {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-        .import-preview img {
-            max-height: 48px;
-            max-width: 80px;
-            border-radius: 6px;
-            border: 1px solid var(--border-light);
-            background: var(--bg-option-grid);
-            transition: border-color 0.25s ease;
-        }
-
-        .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
-        .mt-8 { margin-top: 8px; }
-        .mt-12 { margin-top: 12px; }
-
-        .footer-note {
-            margin-top: 24px;
-            color: var(--text-light);
-            font-size: 0.7rem;
-            text-align: center;
-            border-top: 1px solid var(--border-light);
-            padding-top: 16px;
-            transition: color 0.25s ease, border-color 0.25s ease;
-        }
-        .color-mode-select {
-            padding: 3px 8px;
-            border-radius: 6px;
-            border: 1px solid var(--border-input);
-            font-size: 0.7rem;
-            background: var(--bg-input);
-            color: var(--text-primary);
-            transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
-            cursor: pointer;
-        }
-
-        .input-row input[type="range"] {
-            flex: 2;
-            min-width: 50px;
-            padding: 0;
-            height: 4px;
-            border-radius: 4px;
-            background: var(--border-input);
-            border: none;
-            accent-color: var(--accent-blue);
-            -webkit-appearance: none;
-            appearance: none;
-            transition: background 0.25s ease;
-        }
-        .input-row input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: var(--accent-blue);
-            cursor: pointer;
-            border: none;
-            transition: background 0.25s ease;
-        }
-        .input-row input[type="range"]::-moz-range-thumb {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: var(--accent-blue);
-            cursor: pointer;
-            border: none;
-        }
-        .input-row input[type="color"] {
-            width: 36px;
-            height: 36px;
-            padding: 2px;
-            border-radius: 8px;
-            border: 1px solid var(--border-input);
-            background: var(--bg-input);
-            cursor: pointer;
-            transition: border-color 0.25s ease;
-        }
-
-        [data-theme="dark"] .code-output { border: 1px solid #333; }
-        [data-theme="dark"] .swatch-box { border-color: #4a4a4a; }
-        [data-theme="dark"] .input-row input[type="color"] { background: #1e1e1e; }
-    </style>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/ImageToData.css">
 </head>
 <body>
     <!-- 导航栏 -->
@@ -594,12 +20,18 @@
         <div class="navbar-inner">
             <a class="navbar-brand" href="../index.html">
                 <div class="brand-icon">
-                    <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
                 </div>
                 Yu_ToolBox
             </a>
             <div class="navbar-right">
-                <div class="theme-toggle" id="themeToggle" title="切换主题">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
                     <span class="theme-icon" id="themeIcon">☀️</span>
                     <div class="toggle-track"><div class="toggle-thumb"></div></div>
                 </div>
@@ -608,21 +40,24 @@
     </nav>
 
     <div class="container">
-        <div class="page-title">🎨 图片取模 / 渲染工具</div>
-        <div class="subhead">🔹支持多种颜色格式的互转、取模与数组渲染，含多种扫描方向与 Floyd 抖动。</div>
+        <div class="page-title"><span data-i18n="image.page.title">🎨 图片取模 / 渲染工具</span></div>
+        <div class="subhead" data-i18n="image.subhead">🔹 支持多种颜色格式的互转 · 取模与数组渲染 · 多种扫描方向 · Floyd 抖动</div>
 
         <div class="grid-3col">
             <!-- 模块1: 取模 -->
             <div class="panel panel-accent">
-                <div class="panel-title">① 图片取模 <small>图片 → 数组</small></div>
+                <div class="panel-title"><span data-i18n="image.p1.title">① 图片取模</span> <small data-i18n="image.p1.small">图片 → 数组</small></div>
                 <div class="input-group">
                     <div class="input-row">
-                        <label>图片</label>
+                        <label data-i18n="image.label.image">图片</label>
                         <div class="file-input-wrapper">
-                            <button class="btn btn-outline btn-sm">📁 选择</button>
+                            <button class="btn btn-outline btn-sm" data-i18n="image.btn.choose">📁 选择</button>
                             <input type="file" id="imageFileInput" accept="image/*">
                         </div>
-                        <button class="btn btn-outline btn-sm" id="loadSampleBtn">示例</button>
+
+                        
+
+                        <button class="btn btn-outline btn-sm" id="loadSampleBtn" data-i18n="image.btn.sample">示例</button>
                     </div>
                     <div class="import-preview">
                         <img id="importPreviewImg" src="" alt="预览" style="display:none; max-height:48px;">
@@ -631,92 +66,92 @@
 
                     <div class="option-grid">
                         <div class="opt-item">
-                            <span>方向</span>
+                            <span data-i18n="image.label.direction">方向</span>
                             <select id="scanDir">
-                                <option value="row">行扫描</option>
-                                <option value="col">列扫描</option>
-                                <option value="zigzag">Z字形</option>
+                                <option value="row" data-i18n="image.opt.scanRow">行扫描</option>
+                                <option value="col" data-i18n="image.opt.scanCol">列扫描</option>
+                                <option value="zigzag" data-i18n="image.opt.scanZigzag">Z字形</option>
                             </select>
                         </div>
                         <div class="opt-item">
-                            <span>位序</span>
+                            <span data-i18n="image.label.bitOrder">位序</span>
                             <select id="bitOrder">
-                                <option value="msb">MSB 优先</option>
-                                <option value="lsb">LSB 优先</option>
+                                <option value="msb" data-i18n="image.opt.msb">MSB 优先</option>
+                                <option value="lsb" data-i18n="image.opt.lsb">LSB 优先</option>
                             </select>
                         </div>
                         <div class="opt-item">
-                            <span>格式</span>
+                            <span data-i18n="image.label.format">格式</span>
                             <select id="outputFormat">
-                                <option value="c_array">C 数组</option>
-                                <option value="hex_list">HEX 列表</option>
-                                <option value="binary">二进制流</option>
+                                <option value="c_array" data-i18n="image.opt.cArray">C 数组</option>
+                                <option value="hex_list" data-i18n="image.opt.hexList">HEX 列表</option>
+                                <option value="binary" data-i18n="image.opt.binary">二进制流</option>
                             </select>
                         </div>
                         <div class="opt-item">
-                            <span>压缩</span>
+                            <span data-i18n="image.label.compress">压缩</span>
                             <input type="number" id="compressWidth" value="16" min="1" max="1920" style="max-width:48px;padding:3px 6px;">
                             <span>x</span>
                             <input type="number" id="compressHeight" value="16" min="1" max="1080" style="max-width:48px;padding:3px 6px;">
                             <span class="hint-text" id="compressHint">(拉伸可用)</span>
                         </div>
                         <div class="opt-item" style="grid-column: span 2; gap:6px; flex-wrap:wrap;">
-                            <span style="font-weight:500;">颜色范围</span>
+                            <span style="font-weight:500;" data-i18n="image.label.colorRange">颜色范围</span>
                             <select id="colorRange" style="flex:0.8;min-width:80px;padding:3px 6px;">
-                                <option value="rgb565">RGB565 (16位)</option>
-                                <option value="bgr565">BGR565 (16位)</option>
-                                <option value="rgb666">RGB666 (18位)</option>
-                                <option value="rgb888">RGB888 (24位)</option>
-                                <option value="argb8888">ARGB8888 (32位)</option>
-                                <option value="rgba8888">RGBA8888 (32位)</option>
-                                <option value="rgb555">RGB555 (15位)</option>
-                                <option value="rgb444">RGB444 (12位)</option>
-                                <option value="rgb332">RGB332 (8位)</option>
-                                <option value="gray8">灰度8位</option>
-                                <option value="mono1">单色1位</option>
+                                <option value="rgb565" data-i18n="image.crange.rgb565">RGB565 (16位)</option>
+                                <option value="bgr565" data-i18n="image.crange.bgr565">BGR565 (16位)</option>
+                                <option value="rgb666" data-i18n="image.crange.rgb666">RGB666 (18位)</option>
+                                <option value="rgb888" data-i18n="image.crange.rgb888">RGB888 (24位)</option>
+                                <option value="argb8888" data-i18n="image.crange.argb8888">ARGB8888 (32位)</option>
+                                <option value="rgba8888" data-i18n="image.crange.rgba8888">RGBA8888 (32位)</option>
+                                <option value="rgb555" data-i18n="image.crange.rgb555">RGB555 (15位)</option>
+                                <option value="rgb444" data-i18n="image.crange.rgb444">RGB444 (12位)</option>
+                                <option value="rgb332" data-i18n="image.crange.rgb332">RGB332 (8位)</option>
+                                <option value="gray8" data-i18n="image.crange.gray8">灰度8位</option>
+                                <option value="mono1" data-i18n="image.crange.mono1">单色1位</option>
                             </select>
                             <span class="range-badge" id="rangeBadge">R5 G6 B5</span>
                         </div>
                         <!-- 数据格式与字节序（默认字节流+高字节在前） -->
                         <div class="opt-item">
-                            <span>数据格式</span>
+                            <span data-i18n="image.label.dataFormat">数据格式</span>
                             <select id="dataPack">
-                                <option value="byte" selected>字节流 (8位)</option>
-                                <option value="word">字 (16/32位)</option>
+                                <option value="byte" selected data-i18n="image.opt.byteStream">字节流 (8位)</option>
+                                <option value="word" data-i18n="image.opt.word">字 (16/32位)</option>
                             </select>
                         </div>
                         <div class="opt-item">
-                            <span>字节序</span>
+                            <span data-i18n="image.label.byteOrder">字节序</span>
                             <select id="byteOrder">
-                                <option value="msb" selected>高字节在前</option>
-                                <option value="lsb">低字节在前</option>
+                                <option value="msb" selected data-i18n="image.opt.msbFirst">高字节在前</option>
+                                <option value="lsb" data-i18n="image.opt.lsbFirst">低字节在前</option>
                             </select>
                         </div>
                         <div class="opt-item" style="grid-column: span 2; gap:6px; flex-wrap:wrap;">
                             <label style="min-width:auto;font-weight:400;font-size:0.7rem;">
-                                <input type="checkbox" id="optReverse" style="width:15px;height:15px;"> 反色
+                                <input type="checkbox" id="optReverse" style="width:15px;height:15px;"> <span data-i18n="image.opt.reverse">反色</span>
                             </label>
                             <label style="min-width:auto;font-weight:400;font-size:0.7rem;">
-                                <input type="checkbox" id="optMirrorH" style="width:15px;height:15px;"> 水平镜像
+                                <input type="checkbox" id="optMirrorH" style="width:15px;height:15px;"> <span data-i18n="image.opt.mirrorH">水平镜像</span>
                             </label>
                             <label style="min-width:auto;font-weight:400;font-size:0.7rem;">
-                                <input type="checkbox" id="optMirrorV" style="width:15px;height:15px;"> 垂直镜像
+                                <input type="checkbox" id="optMirrorV" style="width:15px;height:15px;"> <span data-i18n="image.opt.mirrorV">垂直镜像</span>
                             </label>
                             <label style="min-width:auto;font-weight:400;font-size:0.7rem;">
-                                <input type="checkbox" id="optRotate90" style="width:15px;height:15px;"> 旋转90°
+                                <input type="checkbox" id="optRotate90" style="width:15px;height:15px;"> <span data-i18n="image.opt.rotate90">旋转90°</span>
                             </label>
                             <label style="min-width:auto;font-weight:400;font-size:0.7rem;">
-                                <input type="checkbox" id="optDither" style="width:15px;height:15px;"> 抖动 (Floyd)
+                                <input type="checkbox" id="optDither" style="width:15px;height:15px;"> <span data-i18n="image.opt.dither">抖动 (Floyd)</span>
                             </label>
                         </div>
                         <div class="opt-item" style="grid-column: span 2; gap:6px;">
-                            <span>模式</span>
+                            <span data-i18n="image.label.mode">模式</span>
                             <select id="compressMode" style="flex:1;padding:3px 6px;">
-                                <option value="fit">等比适配 (原始比例)</option>
-                                <option value="stretch">拉伸填充 (自定义)</option>
+                                <option value="fit" data-i18n="image.opt.fit">等比适配 (原始比例)</option>
+                                <option value="stretch" data-i18n="image.opt.stretch">拉伸填充 (自定义)</option>
                             </select>
-                            <button class="btn btn-outline btn-sm" id="importConvertBtn" style="padding:4px 16px;font-size:0.7rem;">⬇ 取模</button>
-                            <button class="btn btn-outline btn-sm" id="copyImportArrayBtn">📋 复制</button>
+                            <button class="btn btn-outline btn-sm" id="importConvertBtn" style="padding:4px 16px;font-size:0.7rem;" data-i18n="image.btn.extract">⬇ 取模</button>
+                            <button class="btn btn-outline btn-sm" id="copyImportArrayBtn" data-i18n="image.btn.copy">📋 复制</button>
                         </div>
                     </div>
 
@@ -727,21 +162,21 @@
 
             <!-- 模块2: 数组渲染 -->
             <div class="panel panel-accent">
-                <div class="panel-title">② 数组渲染 <small>数组 → 图片</small></div>
+                <div class="panel-title"><span data-i18n="image.p2.title">② 数组渲染</span> <small data-i18n="image.p2.small">数组 → 图片</small></div>
                 <div class="input-group">
                     <div class="input-row">
-                        <label>数组</label>
-                        <textarea id="arrayInput" placeholder="[0x86, 0x1F, 0x84, 0x10, 0xFF, 0xFF, 0x00, 0x00]" style="min-height:72px;height: 160px;">[0x86, 0x1F, 0x84, 0x10, 0xFF, 0xFF, 0x00, 0x00]</textarea>
+                        <label data-i18n="image.label.array">数组</label>
+                        <textarea id="arrayInput" placeholder="[0x86, 0x1F, 0x84, 0x10, 0xFF, 0xFF, 0x00, 0x00]" data-i18n-placeholder="image.placeholder.array" style="min-height:72px;height: 160px;">[0x86, 0x1F, 0x84, 0x10, 0xFF, 0xFF, 0x00, 0x00]</textarea>
                     </div>
                     <div class="input-row" style="gap: 4px;">
-                        <label style="min-width: auto;">宽：</label> 
+                        <label style="min-width: auto;" data-i18n="image.label.width">宽：</label>
                         <input type="number" id="imgWidth" value="2" min="1" max="1920" style="max-width:88px;">
-                        <label style="min-width: auto;">高：</label>
+                        <label style="min-width: auto;" data-i18n="image.label.height">高：</label>
                         <input type="number" id="imgHeight" value="2" min="1" max="1080" style="max-width:88px;">
                         <span class="tag">≤1920x1080</span>
                     </div>
                     <div class="input-row">
-                        <label>格式</label>
+                        <label data-i18n="image.label.format">格式</label>
                         <select id="arrayFormat" class="color-mode-select">
                             <option value="rgb565">RGB565</option>
                             <option value="bgr565">BGR565</option>
@@ -752,48 +187,48 @@
                             <option value="rgb555">RGB555</option>
                             <option value="rgb444">RGB444</option>
                             <option value="rgb332">RGB332</option>
-                            <option value="gray8">灰度8位</option>
-                            <option value="mono1">单色1位</option>
+                            <option value="gray8" data-i18n="image.fmt.gray8">灰度8位</option>
+                            <option value="mono1" data-i18n="image.fmt.mono1">单色1位</option>
                         </select>
                     </div>
                     <!-- 输入模式（默认字节模式） -->
                     <div class="input-row" style="flex-wrap: wrap; gap: 4px;">
-                        <label style="min-width: auto;">输入模式</label>
+                        <label style="min-width: auto;" data-i18n="image.label.inputMode">输入模式</label>
                         <select id="inputPack" class="color-mode-select" style="flex:0.6;">
-                            <option value="byte" selected>字节模式 (2字节/像素)</option>
-                            <option value="word">字模式 (1像素/元素)</option>
+                            <option value="byte" selected data-i18n="image.opt.byteMode">字节模式 (2字节/像素)</option>
+                            <option value="word" data-i18n="image.opt.wordMode">字模式 (1像素/元素)</option>
                         </select>
-                        <span class="hint-text">(兼容 Image2Lcd)</span>
-                        <label style="min-width: auto;">字节序</label>
+                        <span class="hint-text" data-i18n="image.hint.image2lcd">(兼容 Image2Lcd)</span>
+                        <label style="min-width: auto;" data-i18n="image.label.byteOrder">字节序</label>
                         <select id="inputByteOrder" class="color-mode-select" style="flex:0.5;">
-                            <option value="msb" selected>高字节在前</option>
-                            <option value="lsb">低字节在前</option>
+                            <option value="msb" selected data-i18n="image.opt.msbFirst">高字节在前</option>
+                            <option value="lsb" data-i18n="image.opt.lsbFirst">低字节在前</option>
                         </select>
                     </div>
                     <div class="input-row">
-                        <label>扫描</label>
+                        <label data-i18n="image.label.scan">扫描</label>
                         <select id="arrayScanDir" class="color-mode-select" style="flex:0.8;">
-                            <option value="row">行扫描</option>
-                            <option value="col">列扫描</option>
-                            <option value="zigzag">Z字形</option>
+                            <option value="row" data-i18n="image.opt.scanRow">行扫描</option>
+                            <option value="col" data-i18n="image.opt.scanCol">列扫描</option>
+                            <option value="zigzag" data-i18n="image.opt.scanZigzag">Z字形</option>
                         </select>
-                        <span class="hint-text">数据排列方式</span>
+                        <span class="hint-text" data-i18n="image.hint.dataArr">数据排列方式</span>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-outline btn-sm" id="renderArrayBtn">▶ 渲染</button>
-                        <button class="btn btn-outline btn-sm" id="randomArrayBtn">🎲 随机</button>
-                        <button class="btn btn-outline btn-sm" id="clearCanvasBtn">🧹 清空</button>
+                        <button class="btn btn-outline btn-sm" id="renderArrayBtn" data-i18n="image.btn.render">▶ 渲染</button>
+                        <button class="btn btn-outline btn-sm" id="randomArrayBtn" data-i18n="image.btn.random">🎲 随机</button>
+                        <button class="btn btn-outline btn-sm" id="clearCanvasBtn" data-i18n="image.btn.clear">🧹 清空</button>
                     </div>
                     <div id="arrayStatus" style="font-size:0.65rem;color:var(--text-muted);"></div>
                 </div>
             </div>
 
-            <!-- 模块3: 色彩转换 -->
+            <!-- 模块3: 色彩转换 (添加取色按钮) -->
             <div class="panel panel-accent">
-                <div class="panel-title">③ 色彩互转 <small>任意格式 ↔ 任意格式</small></div>
+                <div class="panel-title"><span data-i18n="image.p3.title">③ 色彩互转</span> <small data-i18n="image.p3.small">任意格式 ↔ 任意格式</small></div>
                 <div class="input-group">
                     <div class="input-row">
-                        <label>源格式</label>
+                        <label data-i18n="image.label.srcFormat">源格式</label>
                         <select id="srcFormat" class="color-mode-select">
                             <option value="rgb565">RGB565</option>
                             <option value="bgr565">BGR565</option>
@@ -804,11 +239,11 @@
                             <option value="rgb555">RGB555</option>
                             <option value="rgb444">RGB444</option>
                             <option value="rgb332">RGB332</option>
-                            <option value="gray8">灰度8位</option>
-                            <option value="mono1">单色1位</option>
+                            <option value="gray8" data-i18n="image.fmt.gray8">灰度8位</option>
+                            <option value="mono1" data-i18n="image.fmt.mono1">单色1位</option>
                         </select>
                         <span class="conv-arrow">⇄</span>
-                        <label>目标格式</label>
+                        <label data-i18n="image.label.dstFormat">目标格式</label>
                         <select id="dstFormat" class="color-mode-select">
                             <option value="rgb565">RGB565</option>
                             <option value="bgr565">BGR565</option>
@@ -819,15 +254,17 @@
                             <option value="rgb555">RGB555</option>
                             <option value="rgb444">RGB444</option>
                             <option value="rgb332">RGB332</option>
-                            <option value="gray8">灰度8位</option>
-                            <option value="mono1">单色1位</option>
+                            <option value="gray8" data-i18n="image.fmt.gray8">灰度8位</option>
+                            <option value="mono1" data-i18n="image.fmt.mono1">单色1位</option>
                         </select>
                     </div>
 
+                    <!-- 源值 + 取色按钮 + 转换按钮 -->
                     <div class="input-row">
-                        <label>源值</label>
-                        <input type="text" id="srcValue" placeholder="例如: 0x2196F3" value="0x2196F3">
-                        <button class="btn btn-outline btn-sm" id="convertBtn">→ 转换</button>
+                        <label data-i18n="image.label.srcValue">源值</label>
+                        <input type="text" id="srcValue" placeholder="例如: 0x2196F3" data-i18n-placeholder="image.placeholder.srcValue" value="0x2196F3">
+                        <button class="btn btn-outline btn-sm" id="pickColorBtn" title="从屏幕取色 (支持 Chrome/Edge 85+)" data-i18n-title="image.title.pickColor" data-i18n="image.btn.pickColor">🎨 取色</button>
+                        <button class="btn btn-outline btn-sm" id="convertBtn" data-i18n="image.btn.convert">→ 转换</button>
                     </div>
 
                     <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top:2px;">
@@ -845,9 +282,9 @@
                     </div>
 
                     <div class="input-row">
-                        <label>结果</label>
+                        <label data-i18n="image.label.result">结果</label>
                         <input type="text" id="dstResult" value="0x861F" readonly style="background:var(--bg-input-readonly);flex:1;font-size:0.75rem;">
-                        <button class="btn btn-outline btn-sm" id="copyDstResultBtn">复制</button>
+                        <button class="btn btn-outline btn-sm" id="copyDstResultBtn" data-i18n="image.btn.copyResult">复制</button>
                     </div>
 
                     <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.65rem; color:var(--text-muted); font-family:monospace;">
@@ -873,10 +310,12 @@
                             <span id="convAVal" style="min-width:22px;font-family:monospace;font-size:0.75rem;color:var(--text-primary);">255</span>
                         </div>
                         <div class="input-row">
-                            <label>HEX</label>
-                            <input type="text" id="convHexInput" placeholder="#RRGGBB" value="#2196F3" style="flex:1;">
+                            <label data-i18n="image.label.hex">HEX</label>
+                            <input type="text" id="convHexInput" placeholder="#RRGGBB" data-i18n-placeholder="image.placeholder.hex" value="#2196F3" style="flex:1;">
                             <input type="color" id="convColorPicker" value="#2196f3" style="width:36px;height:36px;padding:2px;border-radius:8px;border:1px solid var(--border-input);">
                         </div>
+                        <!-- 取色状态提示 -->
+                        <div id="colorPickStatus" style="font-size:0.6rem;color:var(--text-muted);margin-top:4px;min-height:1.2em;"></div>
                     </div>
                 </div>
             </div>
@@ -885,7 +324,7 @@
         <!-- 画布区域 -->
         <div class="panel" style="margin-top:18px;">
             <div class="flex-between">
-                <span class="panel-title" style="margin-bottom:0;">🖼️ 画布预览 <small id="canvasSizeLabel">2 x 2</small></span>
+                <span class="panel-title" style="margin-bottom:0;"><span data-i18n="image.canvas.title">🖼️ 画布预览</span> <small id="canvasSizeLabel">2 x 2</small></span>
                 <span style="font-size:0.75rem;color:var(--text-muted);" id="pixelCountLabel">像素: 4</span>
                 <span style="font-size:0.7rem;color:var(--text-light);" id="renderTime"></span>
             </div>
@@ -894,862 +333,23 @@
             </div>
             <div class="flex-between mt-8">
                 <div class="btn-group">
-                    <button class="btn btn-outline btn-sm" id="exportPngBtn">⬇ 导出 PNG</button>
-                    <button class="btn btn-outline btn-sm" id="exportArrayBtn">📋 导出数组</button>
+                    <button class="btn btn-outline btn-sm" id="exportPngBtn" data-i18n="image.btn.exportPng">⬇ 导出 PNG</button>
+                    <button class="btn btn-outline btn-sm" id="exportArrayBtn" data-i18n="image.btn.exportArray">📋 导出数组</button>
                 </div>
             </div>
         </div>
 
         <div class="footer-note">
-            ⚡ 支持多种颜色格式的互转、取模与数组渲染，含多种扫描方向与 Floyd 抖动。<br>
-             ©<script>document.write(new Date().getFullYear())</script>&nbsp;&nbsp;Yu_ToolBox
+            <span data-i18n="image.footer">⚡ 支持多种颜色格式的互转、取模与数组渲染，含多种扫描方向与 Floyd 抖动。</span><br>
+            ©
+            <script>
+                document.write(new Date().getFullYear())
+            </script>&nbsp;&nbsp;Yu_ToolBox
         </div>
     </div>
 
-    <script>
-        (function() {
-            // 主题切换
-            const themeToggle = document.getElementById('themeToggle');
-            const themeIcon = document.getElementById('themeIcon');
-            function setTheme(theme) {
-                document.documentElement.setAttribute('data-theme', theme);
-                themeIcon.textContent = theme === 'dark' ? '🌙' : '☀️';
-                localStorage.setItem('toolbox-theme', theme);
-            }
-            setTheme(localStorage.getItem('toolbox-theme') || 'light');
-            themeToggle.addEventListener('click', () => {
-                const cur = document.documentElement.getAttribute('data-theme');
-                setTheme(cur === 'dark' ? 'light' : 'dark');
-            });
-
-            // ---- DOM 引用 ----
-            const imageFileInput = document.getElementById('imageFileInput');
-            const loadSampleBtn = document.getElementById('loadSampleBtn');
-            const importPreviewImg = document.getElementById('importPreviewImg');
-            const importFileInfo = document.getElementById('importFileInfo');
-            const compressWidth = document.getElementById('compressWidth');
-            const compressHeight = document.getElementById('compressHeight');
-            const compressMode = document.getElementById('compressMode');
-            const compressHint = document.getElementById('compressHint');
-            const scanDir = document.getElementById('scanDir');
-            const bitOrder = document.getElementById('bitOrder');
-            const outputFormat = document.getElementById('outputFormat');
-            const colorRange = document.getElementById('colorRange');
-            const rangeBadge = document.getElementById('rangeBadge');
-            const dataPack = document.getElementById('dataPack');
-            const byteOrder = document.getElementById('byteOrder');
-            const optReverse = document.getElementById('optReverse');
-            const optMirrorH = document.getElementById('optMirrorH');
-            const optMirrorV = document.getElementById('optMirrorV');
-            const optRotate90 = document.getElementById('optRotate90');
-            const optDither = document.getElementById('optDither');
-            const importConvertBtn = document.getElementById('importConvertBtn');
-            const copyImportArrayBtn = document.getElementById('copyImportArrayBtn');
-            const importStatus = document.getElementById('importStatus');
-            const codeOutput = document.getElementById('codeOutput');
-
-            const arrayInput = document.getElementById('arrayInput');
-            const imgWidth = document.getElementById('imgWidth');
-            const imgHeight = document.getElementById('imgHeight');
-            const arrayFormat = document.getElementById('arrayFormat');
-            const arrayScanDir = document.getElementById('arrayScanDir');
-            const inputPack = document.getElementById('inputPack');
-            const inputByteOrder = document.getElementById('inputByteOrder');
-            const renderArrayBtn = document.getElementById('renderArrayBtn');
-            const randomArrayBtn = document.getElementById('randomArrayBtn');
-            const clearCanvasBtn = document.getElementById('clearCanvasBtn');
-            const arrayStatus = document.getElementById('arrayStatus');
-
-            const srcFormat = document.getElementById('srcFormat');
-            const dstFormat = document.getElementById('dstFormat');
-            const srcValue = document.getElementById('srcValue');
-            const convertBtn = document.getElementById('convertBtn');
-            const srcSwatch = document.getElementById('srcSwatch');
-            const srcColorInfo = document.getElementById('srcColorInfo');
-            const srcTag = document.getElementById('srcTag');
-            const dstSwatch = document.getElementById('dstSwatch');
-            const dstColorInfo = document.getElementById('dstColorInfo');
-            const dstTag = document.getElementById('dstTag');
-            const dstResult = document.getElementById('dstResult');
-            const copyDstResultBtn = document.getElementById('copyDstResultBtn');
-            const srcDetail = document.getElementById('srcDetail');
-            const dstDetail = document.getElementById('dstDetail');
-            const convR = document.getElementById('convR');
-            const convG = document.getElementById('convG');
-            const convB = document.getElementById('convB');
-            const convA = document.getElementById('convA');
-            const convRVal = document.getElementById('convRVal');
-            const convGVal = document.getElementById('convGVal');
-            const convBVal = document.getElementById('convBVal');
-            const convAVal = document.getElementById('convAVal');
-            const convHexInput = document.getElementById('convHexInput');
-            const convColorPicker = document.getElementById('convColorPicker');
-
-            const mainCanvas = document.getElementById('mainCanvas');
-            const ctx = mainCanvas.getContext('2d');
-            const canvasWrapper = document.getElementById('canvasWrapper');
-            const canvasSizeLabel = document.getElementById('canvasSizeLabel');
-            const pixelCountLabel = document.getElementById('pixelCountLabel');
-            const renderTime = document.getElementById('renderTime');
-            const exportPngBtn = document.getElementById('exportPngBtn');
-            const exportArrayBtn = document.getElementById('exportArrayBtn');
-
-            // ---- 辅助 ----
-            function toUint32(v) { return v >>> 0; }
-            function clamp(v, min, max) { return Math.min(max, Math.max(min, v)); }
-            function getBitsPerPixel(mode) {
-                switch(mode) {
-                    case 'rgb565': case 'bgr565': return 16;
-                    case 'rgb666': return 18;
-                    case 'rgb888': return 24;
-                    case 'argb8888': case 'rgba8888': return 32;
-                    case 'rgb555': return 15;
-                    case 'rgb444': return 12;
-                    case 'rgb332': return 8;
-                    case 'gray8': return 8;
-                    case 'mono1': return 1;
-                    default: return 24;
-                }
-            }
-            function rgbToHex(r,g,b) {
-                const toHex = (c) => clamp(Math.round(c),0,255).toString(16).padStart(2,'0').toUpperCase();
-                return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
-            }
-
-            // ---- 核心颜色转换 ----
-            function convertColor(r,g,b,a,mode) {
-                r=clamp(r,0,255); g=clamp(g,0,255); b=clamp(b,0,255); a=(a!==undefined)?clamp(a,0,255):255;
-                let val=0, bits=0, rr=r, gg=g, bb=b, aa=a, hexStr='';
-                switch(mode) {
-                    case 'rgb565': {
-                        const r5=Math.round(r/255*31), g6=Math.round(g/255*63), b5=Math.round(b/255*31);
-                        val=(r5<<11)|(g6<<5)|b5; bits=16;
-                        rr=Math.round(r5/31*255); gg=Math.round(g6/63*255); bb=Math.round(b5/31*255);
-                        hexStr='0x'+val.toString(16).padStart(4,'0').toUpperCase();
-                        break;
-                    }
-                    case 'bgr565': {
-                        const b5=Math.round(b/255*31), g6=Math.round(g/255*63), r5=Math.round(r/255*31);
-                        val=(b5<<11)|(g6<<5)|r5; bits=16;
-                        rr=Math.round(r5/31*255); gg=Math.round(g6/63*255); bb=Math.round(b5/31*255);
-                        hexStr='0x'+val.toString(16).padStart(4,'0').toUpperCase();
-                        break;
-                    }
-                    case 'rgb666': {
-                        const r6=Math.round(r/255*63), g6b=Math.round(g/255*63), b6=Math.round(b/255*63);
-                        val=(r6<<12)|(g6b<<6)|b6; bits=18;
-                        rr=Math.round(r6/63*255); gg=Math.round(g6b/63*255); bb=Math.round(b6/63*255);
-                        hexStr='0x'+val.toString(16).padStart(6,'0').toUpperCase();
-                        break;
-                    }
-                    case 'rgb888': {
-                        val=(r<<16)|(g<<8)|b; bits=24; rr=r; gg=g; bb=b; hexStr='0x'+val.toString(16).padStart(6,'0').toUpperCase(); break;
-                    }
-                    case 'argb8888': {
-                        val=toUint32((a<<24)|(r<<16)|(g<<8)|b); bits=32; rr=r; gg=g; bb=b; aa=a; hexStr='0x'+val.toString(16).padStart(8,'0').toUpperCase(); break;
-                    }
-                    case 'rgba8888': {
-                        val=toUint32((r<<24)|(g<<16)|(b<<8)|a); bits=32; rr=r; gg=g; bb=b; aa=a; hexStr='0x'+val.toString(16).padStart(8,'0').toUpperCase(); break;
-                    }
-                    case 'rgb555': {
-                        const r4=Math.round(r/255*31), g4=Math.round(g/255*31), b4=Math.round(b/255*31);
-                        val=(r4<<10)|(g4<<5)|b4; bits=15;
-                        rr=Math.round(r4/31*255); gg=Math.round(g4/31*255); bb=Math.round(b4/31*255);
-                        hexStr='0x'+val.toString(16).padStart(4,'0').toUpperCase(); break;
-                    }
-                    case 'rgb444': {
-                        const r3=Math.round(r/255*15), g3=Math.round(g/255*15), b3=Math.round(b/255*15);
-                        val=(r3<<8)|(g3<<4)|b3; bits=12;
-                        rr=Math.round(r3/15*255); gg=Math.round(g3/15*255); bb=Math.round(b3/15*255);
-                        hexStr='0x'+val.toString(16).padStart(3,'0').toUpperCase(); break;
-                    }
-                    case 'rgb332': {
-                        const r2=Math.round(r/255*7), g2=Math.round(g/255*7), b2=Math.round(b/255*3);
-                        val=(r2<<5)|(g2<<2)|b2; bits=8;
-                        rr=Math.round(r2/7*255); gg=Math.round(g2/7*255); bb=Math.round(b2/3*255);
-                        hexStr='0x'+val.toString(16).padStart(2,'0').toUpperCase(); break;
-                    }
-                    case 'gray8': {
-                        const gray=Math.round(0.299*r+0.587*g+0.114*b);
-                        val=gray; bits=8; rr=gray; gg=gray; bb=gray; hexStr='0x'+val.toString(16).padStart(2,'0').toUpperCase(); break;
-                    }
-                    case 'mono1': {
-                        const mono=(0.299*r+0.587*g+0.114*b)>127?1:0;
-                        val=mono; bits=1; rr=mono*255; gg=mono*255; bb=mono*255; hexStr='0x'+val.toString(16).toUpperCase(); break;
-                    }
-                    default: { val=(r<<16)|(g<<8)|b; bits=24; hexStr='0x'+val.toString(16).padStart(6,'0').toUpperCase(); }
-                }
-                return { val, bits, rr, gg, bb, aa, hexStr };
-            }
-
-            function decodeColor(val, mode) {
-                let r=0,g=0,b=0,a=255,rBits=0,gBits=0,bBits=0;
-                switch(mode) {
-                    case 'rgb565': {
-                        const r5=(val>>11)&0x1F, g6=(val>>5)&0x3F, b5=val&0x1F;
-                        r=Math.round(r5/31*255); g=Math.round(g6/63*255); b=Math.round(b5/31*255);
-                        rBits=5; gBits=6; bBits=5; break;
-                    }
-                    case 'bgr565': {
-                        const b5=(val>>11)&0x1F, g6=(val>>5)&0x3F, r5=val&0x1F;
-                        r=Math.round(r5/31*255); g=Math.round(g6/63*255); b=Math.round(b5/31*255);
-                        rBits=5; gBits=6; bBits=5; break;
-                    }
-                    case 'rgb666': {
-                        const r6=(val>>12)&0x3F, g6b=(val>>6)&0x3F, b6=val&0x3F;
-                        r=Math.round(r6/63*255); g=Math.round(g6b/63*255); b=Math.round(b6/63*255);
-                        rBits=6; gBits=6; bBits=6; break;
-                    }
-                    case 'rgb888': { r=(val>>16)&0xFF; g=(val>>8)&0xFF; b=val&0xFF; rBits=8; gBits=8; bBits=8; break; }
-                    case 'argb8888': {
-                        val=toUint32(val);
-                        a=(val>>>24)&0xFF; r=(val>>>16)&0xFF; g=(val>>>8)&0xFF; b=val&0xFF;
-                        rBits=8; gBits=8; bBits=8; break;
-                    }
-                    case 'rgba8888': {
-                        val=toUint32(val);
-                        r=(val>>>24)&0xFF; g=(val>>>16)&0xFF; b=(val>>>8)&0xFF; a=val&0xFF;
-                        rBits=8; gBits=8; bBits=8; break;
-                    }
-                    case 'rgb555': {
-                        const r4=(val>>10)&0x1F, g4=(val>>5)&0x1F, b4=val&0x1F;
-                        r=Math.round(r4/31*255); g=Math.round(g4/31*255); b=Math.round(b4/31*255);
-                        rBits=5; gBits=5; bBits=5; break;
-                    }
-                    case 'rgb444': {
-                        const r3=(val>>8)&0xF, g3=(val>>4)&0xF, b3=val&0xF;
-                        r=Math.round(r3/15*255); g=Math.round(g3/15*255); b=Math.round(b3/15*255);
-                        rBits=4; gBits=4; bBits=4; break;
-                    }
-                    case 'rgb332': {
-                        const r2=(val>>5)&0x7, g2=(val>>2)&0x7, b2=val&0x3;
-                        r=Math.round(r2/7*255); g=Math.round(g2/7*255); b=Math.round(b2/3*255);
-                        rBits=3; gBits=3; bBits=2; break;
-                    }
-                    case 'gray8': { r=g=b=val&0xFF; rBits=8; gBits=8; bBits=8; break; }
-                    case 'mono1': { const mono=val&0x1; r=g=b=mono?255:0; rBits=1; gBits=1; bBits=1; break; }
-                    default: { r=(val>>16)&0xFF; g=(val>>8)&0xFF; b=val&0xFF; rBits=8; gBits=8; bBits=8; }
-                }
-                return { r,g,b,a,rBits,gBits,bBits };
-            }
-
-            function parseHexValue(str, mode) {
-                let s=str.trim();
-                if(s.startsWith('0x')||s.startsWith('0X')) s=s.substring(2);
-                s=s.replace(/,/g,'').trim();
-                if(s==='') return null;
-                let maxVal=0;
-                switch(mode) {
-                    case 'rgb565': maxVal=0xFFFF; break;
-                    case 'bgr565': maxVal=0xFFFF; break;
-                    case 'rgb666': maxVal=0x3FFFF; break;
-                    case 'rgb888': maxVal=0xFFFFFF; break;
-                    case 'argb8888': maxVal=0xFFFFFFFF; break;
-                    case 'rgba8888': maxVal=0xFFFFFFFF; break;
-                    case 'rgb555': maxVal=0x7FFF; break;
-                    case 'rgb444': maxVal=0xFFF; break;
-                    case 'rgb332': maxVal=0xFF; break;
-                    case 'gray8': maxVal=0xFF; break;
-                    case 'mono1': maxVal=0x1; break;
-                    default: maxVal=0xFFFFFF;
-                }
-                const parsed=parseInt(s,16);
-                if(isNaN(parsed)) return null;
-                if(maxVal>0xFFFFFF) {
-                    const val=toUint32(parsed);
-                    if(val>maxVal) return null;
-                    return val;
-                }
-                if(parsed<0||parsed>maxVal) return null;
-                return parsed;
-            }
-
-            function parseArray(str, mode) {
-                let cleaned=str.replace(/[\[\]]/g,'').trim();
-                if(cleaned==='') return [];
-                const parts=cleaned.split(',').map(s=>s.trim()).filter(s=>s!=='');
-                const result=[];
-                for(let p of parts) {
-                    const val=parseHexValue(p, mode);
-                    if(val===null) return null;
-                    result.push(val);
-                }
-                return result;
-            }
-
-            // ---- 数组转字符串（支持字/字节模式） ----
-            function arrayToStr(arr, mode, packType='byte', byteOrderVal='msb') {
-                const bitsPerPixel=getBitsPerPixel(mode);
-                let pad=4;
-                if(packType==='byte') {
-                    pad=2;
-                } else {
-                    if(bitsPerPixel<=8) pad=2;
-                    else if(bitsPerPixel<=16) pad=4;
-                    else if(bitsPerPixel<=24) pad=6;
-                    else pad=8;
-                }
-
-                let parts=[];
-                if(packType==='byte') {
-                    let bytesPerPixel=Math.ceil(bitsPerPixel/8);
-                    for(let v of arr) {
-                        let temp=[];
-                        for(let i=bytesPerPixel-1; i>=0; i--) {
-                            temp.push((v>>(i*8))&0xFF);
-                        }
-                        if(byteOrderVal==='msb') {
-                            temp.forEach(b=>parts.push('0x'+b.toString(16).padStart(2,'0').toUpperCase()));
-                        } else {
-                            temp.reverse().forEach(b=>parts.push('0x'+b.toString(16).padStart(2,'0').toUpperCase()));
-                        }
-                    }
-                } else {
-                    parts=arr.map(v=>'0x'+v.toString(16).padStart(pad,'0').toUpperCase());
-                }
-
-                const lines=[];
-                for(let i=0; i<parts.length; i+=8) {
-                    lines.push(parts.slice(i,i+8).join(', '));
-                }
-                return '['+lines.join(',\n ')+']';
-            }
-
-            // ---- 模块1: 压缩控制 ----
-            function updateCompressControls() {
-                const mode=compressMode.value;
-                const isFit=mode==='fit';
-                compressWidth.disabled=isFit;
-                compressHeight.disabled=isFit;
-                compressWidth.style.opacity=isFit?'0.5':'1';
-                compressHeight.style.opacity=isFit?'0.5':'1';
-                compressHint.textContent=isFit?'(等比适配，自动)':'(拉伸填充，自定义)';
-            }
-
-            // ---- 模块3: 转换 ----
-            function performConversion() {
-                const srcMode=srcFormat.value, dstMode=dstFormat.value, raw=srcValue.value;
-                const srcVal=parseHexValue(raw, srcMode);
-                if(srcVal===null) {
-                    srcSwatch.style.backgroundColor='#ccc'; srcColorInfo.textContent='❌ 无效';
-                    dstSwatch.style.backgroundColor='#ccc'; dstColorInfo.textContent='❌ 无效';
-                    dstResult.value=''; return;
-                }
-                const decoded=decodeColor(srcVal, srcMode);
-                const srcHex=rgbToHex(decoded.r, decoded.g, decoded.b);
-                srcSwatch.style.backgroundColor=srcHex; srcColorInfo.textContent=srcHex;
-                const tagNames={'rgb565':'RGB565','bgr565':'BGR565','rgb666':'RGB666','rgb888':'RGB888','argb8888':'ARGB8888','rgba8888':'RGBA8888','rgb555':'RGB555','rgb444':'RGB444','rgb332':'RGB332','gray8':'灰度8','mono1':'单色1'};
-                srcTag.textContent=tagNames[srcMode]||'RGB';
-                srcDetail.textContent=`R:${decoded.r} G:${decoded.g} B:${decoded.b}`+(srcMode==='argb8888'||srcMode==='rgba8888'?` A:${decoded.a}`:'');
-                const result=convertColor(decoded.r,decoded.g,decoded.b,decoded.a,dstMode);
-                const dstHex=rgbToHex(result.rr, result.gg, result.bb);
-                dstSwatch.style.backgroundColor=dstHex; dstColorInfo.textContent=dstHex;
-                dstTag.textContent=tagNames[dstMode]||'RGB';
-                dstResult.value=result.hexStr;
-                const dstDecoded=decodeColor(result.val,dstMode);
-                dstDetail.textContent=`R:${dstDecoded.r} G:${dstDecoded.g} B:${dstDecoded.b}`+(dstMode==='argb8888'||dstMode==='rgba8888'?` A:${dstDecoded.a}`:'');
-                convR.value=decoded.r; convG.value=decoded.g; convB.value=decoded.b; convA.value=decoded.a;
-                convRVal.textContent=decoded.r; convGVal.textContent=decoded.g; convBVal.textContent=decoded.b; convAVal.textContent=decoded.a;
-                convHexInput.value=srcHex; convColorPicker.value=srcHex;
-                dstResult.dataset.hex=dstHex; dstResult.dataset.val=result.val; dstResult.dataset.mode=dstMode;
-            }
-            function updateFromSliders() {
-                const r=parseInt(convR.value,10), g=parseInt(convG.value,10), b=parseInt(convB.value,10), a=parseInt(convA.value,10);
-                convRVal.textContent=r; convGVal.textContent=g; convBVal.textContent=b; convAVal.textContent=a;
-                const hex=rgbToHex(r,g,b); convHexInput.value=hex; convColorPicker.value=hex;
-                const srcMode=srcFormat.value;
-                const srcResult=convertColor(r,g,b,a,srcMode);
-                srcValue.value=srcResult.hexStr;
-                performConversion();
-            }
-
-            // ---- 模块2: 渲染 ----
-            function renderCanvasWithScan(width, height, dataArray, mode, scanDirValue) {
-                const w=clamp(width,1,1920), h=clamp(height,1,1080);
-                const total=w*h;
-                const pixels=[];
-                for(let i=0;i<total;i++) pixels.push(i<dataArray.length?clamp(dataArray[i],0,0xFFFFFFFF):0);
-
-                let matrix=[];
-                if(scanDirValue==='row') {
-                    let idx=0;
-                    for(let y=0;y<h;y++){ let row=[]; for(let x=0;x<w;x++) row.push(pixels[idx++]); matrix.push(row); }
-                } else if(scanDirValue==='col') {
-                    let idx=0;
-                    for(let x=0;x<w;x++){ for(let y=0;y<h;y++){ if(!matrix[y]) matrix[y]=[]; matrix[y][x]=pixels[idx++]; } }
-                } else if(scanDirValue==='zigzag') {
-                    let idx=0;
-                    for(let y=0;y<h;y++){ let row=[]; if(y%2===0){ for(let x=0;x<w;x++) row.push(pixels[idx++]); } else { for(let x=w-1;x>=0;x--) row.push(pixels[idx++]); } matrix.push(row); }
-                }
-                const flatPixels=[];
-                for(let y=0;y<h;y++) for(let x=0;x<w;x++) flatPixels.push(matrix[y][x]);
-
-                mainCanvas.width=w; mainCanvas.height=h;
-                const imageData=ctx.createImageData(w,h);
-                const data=imageData.data;
-                for(let i=0;i<total;i++) {
-                    const decoded=decodeColor(flatPixels[i], mode);
-                    const idx=i*4;
-                    data[idx]=clamp(decoded.r,0,255); data[idx+1]=clamp(decoded.g,0,255); data[idx+2]=clamp(decoded.b,0,255);
-                    data[idx+3]=(mode==='argb8888'||mode==='rgba8888')?clamp(decoded.a,0,255):255;
-                }
-                ctx.putImageData(imageData,0,0);
-
-                canvasSizeLabel.textContent=`${w} x ${h}`;
-                pixelCountLabel.textContent=`像素: ${total}`;
-                const wrapperWidth=canvasWrapper.clientWidth-24;
-                let displaySize=Math.min(wrapperWidth,400);
-                if(w>400||h>400){ const ratio=Math.min(400/w,400/h,1); displaySize=Math.min(w*ratio,400); }
-                const displayW=Math.max(30, Math.min(displaySize, w*2));
-                mainCanvas.style.width=Math.min(displayW, wrapperWidth)+'px';
-                mainCanvas.style.height='auto';
-                window._currentMatrix=matrix;
-                window._currentScanDir=scanDirValue;
-                window._currentMode=mode;
-                return flatPixels;
-            }
-
-            function renderFromArray() {
-                const mode=arrayFormat.value;
-                const raw=arrayInput.value;
-                let parsed=parseArray(raw, mode);
-                if(parsed===null) { arrayStatus.innerHTML='<span class="error-msg">⚠️ 数组格式错误</span>'; return; }
-
-                const packType=inputPack.value;
-                const order=inputByteOrder.value;
-                if(packType==='byte') {
-                    let merged=[];
-                    for(let i=0;i<parsed.length;i+=2) {
-                        if(i+1<parsed.length) {
-                            let b1=parsed[i], b2=parsed[i+1];
-                            let val = (order==='msb') ? ((b1<<8)|b2) : ((b2<<8)|b1);
-                            merged.push(val);
-                        }
-                    }
-                    parsed=merged;
-                }
-
-                const w=parseInt(imgWidth.value,10)||2, h=parseInt(imgHeight.value,10)||2;
-                if(w<1||w>1920||h<1||h>1080) { arrayStatus.innerHTML='<span class="error-msg">⚠️ 尺寸 1~1920 x 1~1080</span>'; return; }
-                const scan=arrayScanDir.value;
-                const start=performance.now();
-                renderCanvasWithScan(w,h,parsed,mode,scan);
-                const end=performance.now();
-                const dirNames={'row':'行','col':'列','zigzag':'Z字形'};
-                arrayStatus.innerHTML=`✅ ${dirNames[scan]}扫描 ${w*h} 像素 ${(end-start).toFixed(1)}ms`;
-                renderTime.textContent=`⏱ ${(end-start).toFixed(1)}ms`;
-            }
-
-            function randomFill() {
-                const mode=arrayFormat.value;
-                const w=clamp(parseInt(imgWidth.value,10)||2,1,1920), h=clamp(parseInt(imgHeight.value,10)||2,1,1080);
-                const total=w*h;
-                let maxVal=0xFFFFFF;
-                switch(mode) {
-                    case 'rgb565': maxVal=0xFFFF; break;
-                    case 'bgr565': maxVal=0xFFFF; break;
-                    case 'rgb666': maxVal=0x3FFFF; break;
-                    case 'rgb888': maxVal=0xFFFFFF; break;
-                    case 'argb8888': maxVal=0xFFFFFFFF; break;
-                    case 'rgba8888': maxVal=0xFFFFFFFF; break;
-                    case 'rgb555': maxVal=0x7FFF; break;
-                    case 'rgb444': maxVal=0xFFF; break;
-                    case 'rgb332': maxVal=0xFF; break;
-                    case 'gray8': maxVal=0xFF; break;
-                    case 'mono1': maxVal=0x1; break;
-                    default: maxVal=0xFFFFFF;
-                }
-                const arr=[]; for(let i=0;i<total;i++) arr.push(Math.floor(Math.random()*(maxVal+1)));
-                const packType=inputPack.value;
-                const order=inputByteOrder.value;
-                arrayInput.value=arrayToStr(arr, mode, packType, order);
-                renderFromArray();
-            }
-
-            function clearCanvas() {
-                const mode=arrayFormat.value;
-                const w=clamp(parseInt(imgWidth.value,10)||2,1,1920), h=clamp(parseInt(imgHeight.value,10)||2,1,1080);
-                const arr=new Array(w*h).fill(0);
-                const scan=arrayScanDir.value;
-                renderCanvasWithScan(w,h,arr,mode,scan);
-                arrayStatus.innerHTML='🧹 已清空';
-            }
-
-            // ---- 模块1: 取模 ----
-            let importedImageData=null;
-
-            function updateRangeBadge() {
-                const range=colorRange.value;
-                const labels={'rgb565':'R5 G6 B5','bgr565':'B5 G6 R5','rgb666':'R6 G6 B6','rgb888':'R8 G8 B8','argb8888':'A8 R8 G8 B8','rgba8888':'R8 G8 B8 A8','rgb555':'R5 G5 B5','rgb444':'R4 G4 B4','rgb332':'R3 G3 B2','gray8':'8位灰度','mono1':'1位单色'};
-                rangeBadge.textContent=labels[range]||'R5 G6 B5';
-            }
-            colorRange.addEventListener('change', updateRangeBadge);
-            updateRangeBadge();
-
-            function loadImageFromFile(file) {
-                if(!file) return;
-                const reader=new FileReader();
-                reader.onload=function(e) {
-                    const img=new Image();
-                    img.onload=function() {
-                        importedImageData=img;
-                        importPreviewImg.src=e.target.result;
-                        importPreviewImg.style.display='block';
-                        importFileInfo.textContent=`${file.name} (${img.width}x${img.height})`;
-                        if(compressMode.value==='fit') {
-                            compressWidth.value=img.width;
-                            compressHeight.value=img.height;
-                        } else {
-                            compressWidth.value=Math.min(img.width,32);
-                            compressHeight.value=Math.min(img.height,32);
-                        }
-                        importStatus.innerHTML=`<span class="status-ok">✅ 已加载: ${img.width}x${img.height}</span>`;
-                        codeOutput.textContent='// 图片已加载，点击 "取模" 生成数据';
-                    };
-                    img.src=e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-
-            // ---- 取模核心（默认字节流+高字节在前，最近邻缩放） ----
-            function performTakeMod() {
-                if(!importedImageData) {
-                    importStatus.innerHTML='<span class="error-msg">⚠️ 请先导入图片</span>';
-                    return;
-                }
-                const srcW=importedImageData.width, srcH=importedImageData.height;
-                const mode=compressMode.value;
-                let drawW, drawH;
-                if(mode==='fit') { drawW=srcW; drawH=srcH; } else {
-                    let tw=parseInt(compressWidth.value,10)||srcW, th=parseInt(compressHeight.value,10)||srcH;
-                    drawW=clamp(tw,1,1920); drawH=clamp(th,1,1080);
-                }
-                let rotate=optRotate90.checked;
-                let finalW=drawW, finalH=drawH;
-                if(rotate) { finalW=drawH; finalH=drawW; }
-
-                const offCanvas=document.createElement('canvas');
-                offCanvas.width=drawW; offCanvas.height=drawH;
-                const offCtx=offCanvas.getContext('2d');
-                // 【关键】关闭抗锯齿，使用最近邻插值
-                offCtx.imageSmoothingEnabled = false;
-                offCtx.drawImage(importedImageData, 0, 0, drawW, drawH);
-
-                const imageData=offCtx.getImageData(0,0,drawW,drawH);
-                const data=imageData.data;
-                const total=drawW*drawH;
-                const range=colorRange.value;
-                let pixelArr=[];
-                for(let i=0;i<total;i++) {
-                    const idx=i*4;
-                    let r=data[idx], g=data[idx+1], b=data[idx+2], a=data[idx+3];
-                    if(optReverse.checked) { r=255-r; g=255-g; b=255-b; }
-                    pixelArr.push({r,g,b,a,val:0,bits:0});
-                }
-                for(let i=0;i<pixelArr.length;i++) {
-                    const p=pixelArr[i];
-                    const result=convertColor(p.r,p.g,p.b,p.a,range);
-                    p.val=result.val; p.bits=result.bits; p.r=result.rr; p.g=result.gg; p.b=result.bb; p.a=result.aa;
-                }
-                let pixels=pixelArr.map(p=>p.val);
-                const w=drawW, h=drawH;
-                let matrix=[];
-                for(let y=0;y<h;y++){ let row=[]; for(let x=0;x<w;x++) row.push(pixels[y*w+x]); matrix.push(row); }
-                if(optMirrorH.checked) for(let y=0;y<h;y++) matrix[y].reverse();
-                if(optMirrorV.checked) matrix.reverse();
-                if(rotate) {
-                    const newMatrix=[];
-                    for(let x=0;x<w;x++){ const row=[]; for(let y=h-1;y>=0;y--) row.push(matrix[y][x]); newMatrix.push(row); }
-                    matrix=newMatrix;
-                    const tmp=finalW; finalW=finalH; finalH=tmp;
-                }
-                const rows=matrix.length, cols=matrix[0]?matrix[0].length:0;
-                let scanResult=[];
-                const dir=scanDir.value;
-                if(dir==='row') { for(let y=0;y<rows;y++) for(let x=0;x<cols;x++) scanResult.push(matrix[y][x]); }
-                else if(dir==='col') { for(let x=0;x<cols;x++) for(let y=0;y<rows;y++) scanResult.push(matrix[y][x]); }
-                else { for(let y=0;y<rows;y++){ if(y%2===0){ for(let x=0;x<cols;x++) scanResult.push(matrix[y][x]); } else { for(let x=cols-1;x>=0;x--) scanResult.push(matrix[y][x]); } } }
-
-                const bitOrderVal=bitOrder.value;
-                let finalData=scanResult;
-                const bitLen=pixelArr.length>0?pixelArr[0].bits:16;
-                const maxBits=bitLen;
-                if(bitOrderVal==='lsb' && maxBits>1) {
-                    finalData=scanResult.map(v=>{ let r=0; for(let i=0;i<maxBits;i++) r=(r<<1)|((v>>i)&1); return r; });
-                }
-
-                // 数据打包
-                const packType=dataPack.value;
-                const order=byteOrder.value;
-                let outputData=finalData;
-                let outType='uint32_t', outPad=4, outBits=maxBits;
-                if(packType==='byte') {
-                    let bytesPerPixel=Math.ceil(maxBits/8);
-                    let byteArray=[];
-                    for(let v of finalData) {
-                        let temp=[];
-                        for(let i=bytesPerPixel-1; i>=0; i--) temp.push((v>>(i*8))&0xFF);
-                        if(order==='msb') byteArray.push(...temp);
-                        else byteArray.push(...temp.reverse());
-                    }
-                    outputData=byteArray;
-                    outType='uint8_t';
-                    outPad=2;
-                    outBits=8;
-                } else {
-                    if(maxBits<=8) outType='uint8_t';
-                    else if(maxBits<=16) outType='uint16_t';
-                    else if(maxBits<=32) outType='uint32_t';
-                    if(maxBits<=8) outPad=2;
-                    else if(maxBits<=16) outPad=4;
-                    else if(maxBits<=24) outPad=6;
-                    else outPad=8;
-                }
-
-                const fmt=outputFormat.value;
-                let outputStr='';
-                const count=outputData.length;
-                const wStr=finalW, hStr=finalH;
-                const rangeLabel={'rgb565':'RGB565','bgr565':'BGR565','rgb666':'RGB666','rgb888':'RGB888','argb8888':'ARGB8888','rgba8888':'RGBA8888','rgb555':'RGB555','rgb444':'RGB444','rgb332':'RGB332','gray8':'灰度8','mono1':'单色1'}[range]||range.toUpperCase();
-
-                const parts=outputData.map(v=>{
-                    if(packType==='byte') return '0x'+v.toString(16).padStart(2,'0').toUpperCase();
-                    else return '0x'+v.toString(16).padStart(outPad,'0').toUpperCase();
-                });
-                const lines=[];
-                for(let i=0;i<parts.length;i+=8) lines.push(parts.slice(i,i+8).join(', '));
-
-                if(fmt==='c_array') {
-                    outputStr=`// ${rangeLabel} 取模: ${wStr}x${hStr}\n`;
-                    outputStr+=`const ${outType} image_${wStr}x${hStr}[${count}] = {\n  `;
-                    outputStr+=lines.join(',\n  ');
-                    outputStr+='\n};';
-                } else if(fmt==='hex_list') {
-                    outputStr=`// ${rangeLabel} 数据: ${wStr}x${hStr}\n`;
-                    outputStr+=lines.join(',\n');
-                } else {
-                    outputStr=`// 二进制流 (${outBits}位/像素) ${wStr}x${hStr}\n`;
-                    const bytes=[];
-                    if(packType==='byte') { for(let v of outputData) bytes.push(v&0xFF); }
-                    else { const bp=Math.ceil(maxBits/8); for(let v of finalData){ for(let i=bp-1;i>=0;i--) bytes.push((v>>(i*8))&0xFF); } }
-                    let hexStr='';
-                    for(let b of bytes) hexStr+=b.toString(16).padStart(2,'0').toUpperCase()+' ';
-                    outputStr+=hexStr;
-                }
-                codeOutput.textContent=outputStr;
-
-                // 更新画布和文本框
-                const displayW2=finalW, displayH2=finalH;
-                const total2=displayW2*displayH2;
-                const displayArr=[];
-                for(let i=0;i<total2;i++) displayArr.push(i<finalData.length?finalData[i]:0);
-                const scanForDisplay=scanDir.value;
-                renderCanvasWithScan(displayW2, displayH2, displayArr, range, scanForDisplay);
-
-                imgWidth.value=displayW2; imgHeight.value=displayH2;
-                const rowData=[]; const matrixData=window._currentMatrix||[];
-                for(let y=0;y<displayH2;y++) for(let x=0;x<displayW2;x++) rowData.push((matrixData[y]&&matrixData[y][x]!==undefined)?matrixData[y][x]:0);
-                arrayInput.value=arrayToStr(rowData, range, packType, order);
-
-                const modeLabel=mode==='fit'?'等比':'拉伸';
-                const dirNames={'row':'行','col':'列','zigzag':'Z字形'};
-                const packLabel=packType==='byte'?'字节流':'字';
-                importStatus.innerHTML=`<span class="status-ok">✅ 取模完成 [${modeLabel}] ${dirNames[scanDir.value]}扫描: ${displayW2}x${displayH2} (${total2} 像素, ${outBits}位, ${packLabel})</span>`;
-                renderTime.textContent='⏱ 取模完成';
-                window._lastImportArray=finalData;
-                window._lastMode=range;
-            }
-
-            // ---- 复制 ----
-            function copyText(text, btn) {
-                if(navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(text).then(()=>{ const orig=btn.textContent; btn.textContent='✓'; setTimeout(()=>btn.textContent=orig,800); }).catch(()=>fallbackCopy(text));
-                } else { fallbackCopy(text); }
-            }
-            function fallbackCopy(text) {
-                const ta=document.createElement('textarea');
-                ta.value=text; ta.style.position='fixed'; ta.style.left='-9999px';
-                document.body.appendChild(ta); ta.select();
-                try{ document.execCommand('copy'); }catch(e){ alert('复制失败，请手动复制'); }
-                document.body.removeChild(ta);
-            }
-
-            // ---- 画布点击 ----
-            mainCanvas.addEventListener('click', function(e) {
-                const rect=this.getBoundingClientRect();
-                const scaleX=this.width/rect.width, scaleY=this.height/rect.height;
-                const x=Math.floor((e.clientX-rect.left)*scaleX), y=Math.floor((e.clientY-rect.top)*scaleY);
-                if(x<0||x>=this.width||y<0||y>=this.height) return;
-                const imageData=ctx.getImageData(x,y,1,1);
-                const d=imageData.data;
-                const r=d[0],g=d[1],b=d[2],a=d[3];
-                const mode=arrayFormat.value;
-                const result=convertColor(r,g,b,a,mode);
-                arrayStatus.innerHTML=`📍 (${x},${y}) ${mode}: ${result.hexStr}`;
-            });
-
-            // ---- 事件绑定 ----
-            convertBtn.addEventListener('click', performConversion);
-            srcValue.addEventListener('keydown', (e)=>{ if(e.key==='Enter') performConversion(); });
-            srcFormat.addEventListener('change', performConversion);
-            dstFormat.addEventListener('change', performConversion);
-            convR.addEventListener('input', updateFromSliders);
-            convG.addEventListener('input', updateFromSliders);
-            convB.addEventListener('input', updateFromSliders);
-            convA.addEventListener('input', updateFromSliders);
-            convHexInput.addEventListener('change', function() {
-                const raw=this.value;
-                const match=raw.match(/^#?([0-9a-fA-F]{6})$/);
-                if(match) {
-                    const h=match[1];
-                    const r=parseInt(h.substring(0,2),16), g=parseInt(h.substring(2,4),16), b=parseInt(h.substring(4,6),16);
-                    if(!isNaN(r)&&!isNaN(g)&&!isNaN(b)) {
-                        convR.value=r; convG.value=g; convB.value=b; convA.value=255;
-                        convRVal.textContent=r; convGVal.textContent=g; convBVal.textContent=b; convAVal.textContent=255;
-                        const srcMode=srcFormat.value;
-                        const srcResult=convertColor(r,g,b,255,srcMode);
-                        srcValue.value=srcResult.hexStr;
-                        performConversion();
-                    }
-                }
-            });
-            convColorPicker.addEventListener('input', function() {
-                const hex=this.value;
-                const match=hex.match(/^#?([0-9a-fA-F]{6})$/);
-                if(match) {
-                    const h=match[1];
-                    const r=parseInt(h.substring(0,2),16), g=parseInt(h.substring(2,4),16), b=parseInt(h.substring(4,6),16);
-                    convR.value=r; convG.value=g; convB.value=b; convA.value=255;
-                    convRVal.textContent=r; convGVal.textContent=g; convBVal.textContent=b; convAVal.textContent=255;
-                    convHexInput.value=hex;
-                    const srcMode=srcFormat.value;
-                    const srcResult=convertColor(r,g,b,255,srcMode);
-                    srcValue.value=srcResult.hexStr;
-                    performConversion();
-                }
-            });
-            copyDstResultBtn.addEventListener('click', function(){ copyText(dstResult.value, this); });
-
-            renderArrayBtn.addEventListener('click', renderFromArray);
-            randomArrayBtn.addEventListener('click', randomFill);
-            clearCanvasBtn.addEventListener('click', clearCanvas);
-            arrayFormat.addEventListener('change', function() {
-                const w=parseInt(imgWidth.value,10)||2, h=parseInt(imgHeight.value,10)||2, mode=this.value;
-                const raw=arrayInput.value;
-                const parsed=parseArray(raw,mode);
-                if(parsed!==null) { const scan=arrayScanDir.value; renderCanvasWithScan(w,h,parsed,mode,scan); }
-            });
-            arrayScanDir.addEventListener('change', function() {
-                const w=parseInt(imgWidth.value,10)||2, h=parseInt(imgHeight.value,10)||2, mode=arrayFormat.value;
-                const raw=arrayInput.value;
-                const parsed=parseArray(raw,mode);
-                if(parsed!==null) {
-                    const scan=this.value;
-                    renderCanvasWithScan(w,h,parsed,mode,scan);
-                    const dirNames={'row':'行','col':'列','zigzag':'Z字形'};
-                    arrayStatus.innerHTML=`🔄 切换为 ${dirNames[scan]}扫描`;
-                }
-            });
-
-            exportPngBtn.addEventListener('click', function() {
-                const link=document.createElement('a');
-                link.download=`image_${mainCanvas.width}x${mainCanvas.height}.png`;
-                link.href=mainCanvas.toDataURL('image/png');
-                link.click();
-            });
-
-            exportArrayBtn.addEventListener('click', function() {
-                const w=mainCanvas.width, h=mainCanvas.height;
-                const total=w*h;
-                const imageData=ctx.getImageData(0,0,w,h);
-                const data=imageData.data;
-                const mode=arrayFormat.value;
-                const arr=[];
-                for(let i=0;i<total;i++) {
-                    const idx=i*4;
-                    const r=data[idx],g=data[idx+1],b=data[idx+2],a=data[idx+3];
-                    const result=convertColor(r,g,b,a,mode);
-                    arr.push(result.val);
-                }
-                const packType=inputPack.value;
-                const order=inputByteOrder.value;
-                const str=arrayToStr(arr, mode, packType, order);
-                copyText(str, this);
-                arrayStatus.innerHTML='✅ 数组已复制';
-            });
-
-            compressMode.addEventListener('change', function() {
-                updateCompressControls();
-                if(this.value==='fit' && importedImageData) {
-                    compressWidth.value=importedImageData.width;
-                    compressHeight.value=importedImageData.height;
-                }
-            });
-
-            imageFileInput.addEventListener('change', function(e) {
-                if(this.files && this.files[0]) loadImageFromFile(this.files[0]);
-            });
-
-            loadSampleBtn.addEventListener('click', function() {
-                const c=document.createElement('canvas');
-                c.width=128; c.height=128;
-                const cx=c.getContext('2d');
-                const grad=cx.createLinearGradient(0,0,128,128);
-                grad.addColorStop(0,'#ff0000'); grad.addColorStop(0.33,'#00ff00'); grad.addColorStop(0.66,'#0000ff'); grad.addColorStop(1,'#ff00ff');
-                cx.fillStyle=grad; cx.fillRect(0,0,128,128);
-                cx.fillStyle='white'; cx.font='bold 20px sans-serif'; cx.textAlign='center'; cx.fillText('取模',64,72);
-                c.toBlob(function(blob) {
-                    const file=new File([blob],'sample.png',{type:'image/png'});
-                    loadImageFromFile(file);
-                    const dt=new DataTransfer();
-                    dt.items.add(file);
-                    imageFileInput.files=dt.files;
-                },'image/png');
-            });
-
-            importConvertBtn.addEventListener('click', performTakeMod);
-
-            copyImportArrayBtn.addEventListener('click', function() {
-                if(window._lastImportArray) {
-                    copyText(codeOutput.textContent, this);
-                    importStatus.innerHTML='✅ 已复制到剪贴板';
-                } else {
-                    importStatus.innerHTML='<span class="error-msg">⚠️ 请先取模</span>';
-                }
-            });
-
-            window.addEventListener('resize', ()=>{
-                const w=mainCanvas.width, h=mainCanvas.height;
-                if(w>0 && h>0) {
-                    const wrapperWidth=canvasWrapper.clientWidth-24;
-                    let displaySize=Math.min(wrapperWidth,400);
-                    if(w>400||h>400){ const ratio=Math.min(400/w,400/h,1); displaySize=Math.min(w*ratio,400); }
-                    const displayW=Math.max(30, Math.min(displaySize, w*2));
-                    mainCanvas.style.width=Math.min(displayW, wrapperWidth)+'px';
-                    mainCanvas.style.height='auto';
-                }
-            });
-
-            // ---- 初始化 ----
-            const defaultArr = [0x861F, 0x8410, 0xFFFF, 0x0000];
-            // 默认采用字节模式显示
-            const defaultPack = 'byte';
-            const defaultOrder = 'msb';
-            arrayInput.value = arrayToStr(defaultArr, 'rgb565', defaultPack, defaultOrder);
-            imgWidth.value = 2;
-            imgHeight.value = 2;
-            // 渲染时用字模式，但展示用字节模式，需要转换
-            renderCanvasWithScan(2, 2, defaultArr, 'rgb565', 'row');
-            arrayStatus.innerHTML = '✅ 就绪 (行扫描, 字节模式)';
-            compressWidth.value = 16;
-            compressHeight.value = 16;
-            codeOutput.textContent = '// 导入图片后点击 "取模" 生成数据';
-            updateCompressControls();
-
-            performConversion();
-
-            setTimeout(()=>{ loadSampleBtn.click(); }, 300);
-        })();
-    </script>
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/ImageToData.js"></script>
 </body>
 </html>

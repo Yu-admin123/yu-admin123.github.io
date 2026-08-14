@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>HTTP 调试助手</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/HttpTool.css">
+</head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title" data-i18n="http.page.title">🌐 HTTP 调试助手</div>
+        <div class="subhead" data-i18n="http.subhead">🔹 支持 GET / POST / PUT / DELETE / PATCH · 自动解析 URL · 生成 TCP 原始帧</div>
+
+        <!-- ===== 请求配置 + 响应显示 ===== -->
+        <div class="grid-2col" style="margin-bottom:18px;">
+            <!-- 左：请求配置 -->
+            <div class="panel panel-accent">
+                <div class="panel-title" data-i18n="http.p1.title">① 请求配置</div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="http.method.label">方法</label>
+                        <select id="httpMethod" style="flex:0.6;">
+                            <option value="GET">GET</option>
+                            <option value="POST" selected>POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="PATCH">PATCH</option>
+                            <option value="HEAD">HEAD</option>
+                            <option value="OPTIONS">OPTIONS</option>
+                        </select>
+                        <label style="min-width:40px;" data-i18n="http.timeout.label">超时</label>
+                        <input type="number" id="httpTimeout" value="10000" min="1000" max="120000" style="flex:0.4;">
+                        <span class="unit">ms</span>
+                    </div>
+
+                    <!-- ===== URL 输入 ===== -->
+                    <div class="input-row">
+                        <label>URL</label>
+                        <input type="text" id="httpUrl" value="https://api.shanhe.kim/API/随机一言.php" placeholder="http://192.168.1.100:8080/api/status" style="flex:2;">
+                    </div>
+
+                    <div class="input-row" style="flex-wrap:nowrap;gap:4px;">
+                        <label style="min-width:70px;font-size:0.7rem;">Headers</label>
+                        <button class="btn btn-outline btn-sm" id="addHeaderBtn" data-i18n="http.add.header">➕ 添加</button>
+                        <button class="btn btn-outline btn-sm" id="clearHeadersBtn" data-i18n="http.clear">清空</button>
+                        <span class="hint-text" data-i18n="http.headers.hint">Key: Value</span>
+                    </div>
+                    <div id="headersContainer" style="max-height:120px;overflow:auto;border:1px solid var(--border-light);border-radius:10px;padding:4px 6px;background:var(--bg-input);">
+                        <div class="header-row">
+                            <input class="header-key" placeholder="Content-Type" value="Content-Type">
+                            <input class="header-val" placeholder="application/json" value="application/json">
+                            <span class="header-del" title="删除" data-i18n-title="http.header.del.title">✕</span>
+                        </div>
+                    </div>
+                    <div class="input-row" style="flex-wrap:nowrap;gap:4px;">
+                        <label style="min-width:70px;font-size:0.7rem;">Body</label>
+                        <div class="body-format-selector" id="bodyFormatSelector">
+                            <button class="fmt-btn active" data-format="json">JSON</button>
+                            <button class="fmt-btn" data-format="form" data-i18n="http.body.format.form">表单</button>
+                            <button class="fmt-btn" data-format="text" data-i18n="http.body.format.text">文本</button>
+                            <button class="fmt-btn" data-format="raw">Raw</button>
+                        </div>
+                        <span class="hint-text" id="bodyFormatHint">application/json</span>
+                    </div>
+                    <textarea id="httpBody" rows="4" placeholder="请求体内容 ..." data-i18n-placeholder="http.body.placeholder">{"cmd":"get_status"}</textarea>
+
+                    <!-- ===== TCP 原始帧生成区 ===== -->
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="sendBtn" data-i18n="http.send">🚀 发送请求</button>
+                        <button class="btn btn-outline" id="genTcpBtn" data-i18n="http.gen.tcp">🔍 生成TCP帧</button>
+                        <button class="btn btn-outline" id="copyTcpBtn" disabled data-i18n="http.copy.tcp.cstr">📋 复制C字符串</button>
+                        <button class="btn btn-outline" id="clearReqBtn" data-i18n="http.clear">清空</button>
+                        <button class="btn btn-outline" id="duplicateReqBtn" data-i18n="http.copy.req">📋 复制请求</button>
+                    </div>
+                    <div class="code-output tcp-raw-output" id="tcpFrameDisplay">
+                        <span class="empty-hint" data-i18n="http.tcp.empty">点击「生成TCP帧」预览通过TCP Socket发送的原始HTTP请求字符串</span>
+                    </div>
+
+                    <!-- ===== 解析信息（主机名/端口）使用主题变量 ===== -->
+                    <div class="url-parse-display" id="urlParseDisplay">
+                        <span><span class="parse-label" data-i18n="http.parse.protocol">协议</span> <span class="parse-value" id="parsedProtocol">http</span></span>
+                        <span><span class="parse-label" data-i18n="http.parse.host">主机</span> <span class="parse-value" id="parsedHost">api.shanhe.kim</span></span>
+                        <span><span class="parse-label" data-i18n="http.parse.port">端口</span> <span class="parse-value" id="parsedPort">80</span></span>
+                        <span><span class="parse-label" data-i18n="http.parse.path">路径</span> <span class="parse-value" id="parsedPath">/API/随机一言.php</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右：响应显示 -->
+            <div class="panel panel-accent">
+                <div class="panel-title">
+                    <span data-i18n="http.p2.title">② 响应数据</span>
+                    <span id="respStatus" class="status-info" data-i18n="http.resp.waiting">等待请求</span>
+                    <span id="respTime" class="badge-ms" style="display:none;"></span>
+                </div>
+                <div class="input-group">
+                    <!-- 状态行 -->
+                    <div class="input-row">
+                        <label style="min-width:60px;" data-i18n="http.status.label">状态</label>
+                        <span id="respStatusDetail" style="font-size:0.8rem;font-weight:600;">—</span>
+                        <span style="flex:1;"></span>
+                        <button class="btn btn-outline btn-sm" id="copyStatusBtn" disabled data-i18n="http.copy.status">📋 复制状态</button>
+                        <button class="btn btn-outline btn-sm" id="clearRespBtn" data-i18n="http.clear">清空</button>
+                    </div>
+                    <!-- 响应头 -->
+                    <div class="input-row" style="flex-wrap:nowrap;">
+                        <label style="min-width:60px;flex-shrink:0;" data-i18n="http.resp.headers.label">响应头</label>
+                        <span style="flex:1;"></span>
+                        <button class="btn btn-outline btn-sm" id="copyHeadersBtn" disabled data-i18n="http.copy">📋 复制</button>
+                    </div>
+                    <div class="resp-headers" id="respHeadersDisplay" data-i18n="http.headers.none">(无)</div>
+                    <!-- 响应体 -->
+                    <div class="input-row" style="flex-wrap:nowrap;">
+                        <label style="min-width:60px;" data-i18n="http.resp.body.label">响应体</label>
+                        <span style="flex:1;"></span>
+                        <span id="respSize" class="hint-text"></span>
+                    </div>
+                    <!-- 响应体工具栏 -->
+                    <div class="resp-toolbar">
+                        <button class="btn btn-outline btn-sm" id="copyRespRawBtn" disabled data-i18n="http.copy.resp.raw">📋 复制原始</button>
+                        <button class="btn btn-outline btn-sm" id="copyRespCStrBtn" disabled data-i18n="http.copy.resp.cstr">📋 复制C字符串</button>
+                        <label style="font-size:0.65rem;display:flex;align-items:center;gap:4px;color:var(--text-muted);">
+                            <input type="checkbox" id="autoFormatJson" checked> <span data-i18n="http.auto.format.json">自动格式化JSON</span>
+                        </label>
+                    </div>
+                    <div class="code-output" id="respBodyDisplay"><span class="empty-hint" data-i18n="http.resp.body.empty">等待响应 ...</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 快捷指令 ===== -->
+        <div class="panel" style="margin-bottom:18px;">
+            <div class="panel-title">
+                <span data-i18n="http.p3.title">③ 快捷指令</span> <small data-i18n="http.p3.small">点击快速填充（仅路径，需配合 URL）</small>
+                <span style="flex:1;"></span>
+                <button class="btn btn-outline btn-sm" id="exportCmdsBtn" data-i18n="http.export">📤 导出</button>
+                <button class="btn btn-outline btn-sm" id="importCmdsBtn" data-i18n="http.import">📥 导入</button>
+                <input type="file" id="importCmdsInput" accept=".json" style="display:none;">
+            </div>
+            <div class="btn-group" id="cmdContainer"></div>
+            <div class="input-row" style="margin-top:8px;flex-wrap:wrap;">
+                <label style="min-width:60px;" data-i18n="http.add.cmd.label">添加指令</label>
+                <select id="cmdMethodSelect" style="flex:0.3;min-width:70px;">
+                    <option value="GET">GET</option>
+                    <option value="POST" selected>POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+                <input type="text" id="customCmdPath" placeholder="路径 (如 /api/status)" data-i18n-placeholder="http.cmd.path.placeholder" style="flex:1.2;min-width:100px;">
+                <input type="text" id="customCmdComment" placeholder="注释" data-i18n-placeholder="http.cmd.comment.placeholder" style="flex:0.5;min-width:60px;">
+                <button class="btn btn-outline" id="addCmdBtn" data-i18n="http.add.cmd">➕ 添加</button>
+                <button class="btn btn-outline" id="resetCmdBtn" data-i18n="http.reset.default">↺ 默认</button>
+            </div>
+        </div>
+
+        <!-- ===== 历史记录 ===== -->
+        <div class="panel" style="margin-bottom:18px;">
+            <div class="panel-title">
+                <span data-i18n="http.p4.title">④ 请求历史</span>
+                <span class="tag" id="historyCount" data-i18n="http.history.count.zero">0 条</span>
+                <span style="flex:1;"></span>
+                <button class="btn btn-outline btn-sm" id="clearHistoryBtn" data-i18n="http.clear.history">清空历史</button>
+                <button class="btn btn-outline btn-sm" id="exportHistoryBtn" data-i18n="http.export.history">导出历史</button>
+            </div>
+            <div class="history-table-wrap" id="historyTableWrap">
+                <table class="history-table" id="historyTable">
+                    <thead><tr><th data-i18n="http.history.col.time">时间</th><th data-i18n="http.history.col.method">方法</th><th data-i18n="http.history.col.url">URL</th><th data-i18n="http.history.col.status">状态</th><th data-i18n="http.history.col.duration">耗时</th><th data-i18n="http.history.col.action">操作</th></tr></thead>
+                    <tbody id="historyBody">
+                        <tr><td colspan="6" style="text-align:center;color:var(--text-light);padding:20px;" data-i18n="http.history.empty">暂无历史记录</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="http.footer">🌐 HTTP 调试助手 · 嵌入式工程师专用 · 自动解析 URL · 生成 TCP 原始帧 · 历史记录持久化</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/HttpTool.js"></script>
+</body>
+</html>

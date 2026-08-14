@@ -1,0 +1,120 @@
+/* ============================================================
+   电池功耗计算器 PowerCalculator.css
+   仅包含页面特有样式（共用样式见 common.css）
+   ============================================================ */
+
+/* ===== 输入禁用态 ===== */
+.input-row input:disabled {
+    background: var(--bg-input-readonly);
+    color: var(--text-light);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ===== 电流单位下拉框 ===== */
+.unit-select {
+    flex: 0 0 auto;
+    min-width: 64px;
+    max-width: 80px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+.unit-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
+}
+.unit-select:hover { border-color: var(--border-focus); }
+
+/* ===== 结果展示卡片 ===== */
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+@media (max-width: 560px) {
+    .result-grid { grid-template-columns: 1fr; }
+}
+.result-card {
+    background: var(--bg-option-grid);
+    border-radius: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+.result-card.highlight {
+    background: var(--bg-badge);
+    border-color: var(--accent-blue);
+    grid-column: span 2;
+}
+.result-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    transition: color 0.25s ease;
+}
+.result-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    letter-spacing: -0.02em;
+    transition: color 0.25s ease;
+}
+.result-card.highlight .result-value {
+    font-size: 1.5rem;
+    color: var(--text-badge);
+}
+.result-sub {
+    font-size: 0.65rem;
+    color: var(--text-light);
+    margin-top: 2px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ===== 计算明细列表 ===== */
+.detail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.74rem;
+    padding: 6px 10px;
+    background: var(--bg-option-grid);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+.detail-row .detail-key { color: var(--text-muted); }
+.detail-row .detail-val {
+    color: var(--text-primary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-weight: 600;
+    transition: color 0.25s ease;
+}
+
+/* ===== 容量修正公式说明框 ===== */
+.formula-box {
+    background: var(--bg-code);
+    color: var(--text-code);
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.68rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-top: 6px;
+    transition: background 0.25s ease, color 0.25s ease;
+}

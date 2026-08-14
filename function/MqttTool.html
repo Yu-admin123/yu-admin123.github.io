@@ -4,586 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>MQTT 调试助手</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📶</text></svg>">
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
     <script>
         const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
     <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js">
     </script>
-    <style>
-        :root {
-            --bg-body: #f1f4f9;
-            --bg-container: #f1f4f9;
-            --bg-panel: #fafcff;
-            --bg-panel-accent: #f8faff;
-            --bg-input: #ffffff;
-            --bg-input-readonly: #f1f5f9;
-            --bg-code: #ffffff;
-            --bg-option-grid: #f8fafc;
-            --bg-tag: #e2e8f0;
-            --bg-badge: #e0e7ff;
-            --text-primary: #0f172a;
-            --text-secondary: #1e293b;
-            --text-muted: #64748b;
-            --text-light: #94a3b8;
-            --text-code: #000000;
-            --text-badge: #4338ca;
-            --border-light: #e9edf4;
-            --border-input: #d1d9e6;
-            --border-focus: #818cf8;
-            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.06);
-            --btn-primary: #1e293b;
-            --btn-primary-hover: #0f172a;
-            --btn-outline-border: #d1d9e6;
-            --btn-outline-hover-bg: #f1f4f9;
-            --status-ok-bg: #d1fae5;
-            --status-ok-text: #0b7e4b;
-            --status-error-bg: #fee2e2;
-            --status-error-text: #b91c1c;
-            --scrollbar-track: #f1f4f9;
-            --scrollbar-thumb: #cbd5e1;
-            --accent-blue: #818cf8;
-            --accent-blue-hover: #6366f1;
-            --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
-            --mqtt-received-bg: #dbeafe;
-            --mqtt-sent-bg: #d1fae5;
-            --mqtt-error-bg: #fee2e2;
-        }
-        [data-theme="dark"] {
-            --bg-body: #1e1e1e;
-            --bg-container: #2c2c2c;
-            --bg-panel: #2c2c2c;
-            --bg-panel-accent: #2c2c2c;
-            --bg-input: #1e1e1e;
-            --bg-input-readonly: #1e1e1e;
-            --bg-code: #1a1a1a;
-            --bg-option-grid: #262626;
-            --bg-tag: #3d3d3d;
-            --bg-badge: #1e2a4a;
-            --text-primary: #e6e6e6;
-            --text-secondary: #cccccc;
-            --text-muted: #888888;
-            --text-light: #666666;
-            --text-code: #e6e6e6;
-            --text-badge: #7a9eff;
-            --border-light: #3d3d3d;
-            --border-input: #3d3d3d;
-            --border-focus: #7a9eff;
-            --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.4);
-            --btn-primary: #3d3d3d;
-            --btn-primary-hover: #4a4a4a;
-            --btn-outline-border: #4a4a4a;
-            --btn-outline-hover-bg: #333333;
-            --status-ok-bg: #0a3d2a;
-            --status-ok-text: #5ae0a0;
-            --status-error-bg: #4a1a1a;
-            --status-error-text: #f08080;
-            --scrollbar-track: #262626;
-            --scrollbar-thumb: #4a4a4a;
-            --accent-blue: #7a9eff;
-            --accent-blue-hover: #5a7fff;
-            --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
-            --mqtt-received-bg: #172554;
-            --mqtt-sent-bg: #0a3d2a;
-            --mqtt-error-bg: #4a1a1a;
-        }
-        * {
-            box-sizing: border-box;
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-        }
-        body {
-            background: var(--bg-body);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: background 0.25s, color 0.25s;
-            color: var(--text-primary);
-        }
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--scrollbar-track);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 4px;
-        }
-
-        .container {
-            max-width: 1400px;
-            width: 100%;
-            background: var(--bg-container);
-            padding: 28px 32px 36px;
-            transition: background 0.25s;
-        }
-
-        .navbar {
-            width: 100%;
-            background: var(--bg-container);
-            border-bottom: 1px solid var(--border-light);
-            padding: 0 24px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            transition: background 0.25s, border-color 0.25s;
-        }
-        .navbar-inner {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 60px;
-        }
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.2rem;
-            letter-spacing: -0.02em;
-            background: var(--hero-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .navbar-brand .brand-icon {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: hidden;
-            background: var(--hero-gradient);
-        }
-        .navbar-brand .brand-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-            display: block;
-        }
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .theme-toggle {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--bg-panel);
-            padding: 6px 16px 6px 20px;
-            border-radius: 40px;
-            border: 1px solid var(--border-light);
-            cursor: pointer;
-            transition: background 0.25s, border-color 0.25s;
-            user-select: none;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-        .theme-toggle:hover {
-            border-color: var(--border-focus);
-        }
-        .theme-toggle .toggle-track {
-            width: 44px;
-            height: 24px;
-            background: var(--border-input);
-            border-radius: 40px;
-            position: relative;
-            transition: background 0.3s;
-            flex-shrink: 0;
-        }
-        .theme-toggle .toggle-thumb {
-            width: 18px;
-            height: 18px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            transition: transform 0.3s, background 0.3s;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-        }
-        [data-theme="dark"] .theme-toggle .toggle-track {
-            background: var(--accent-blue);
-        }
-        [data-theme="dark"] .theme-toggle .toggle-thumb {
-            transform: translateX(20px);
-            background: #e6e6e6;
-        }
-        .theme-toggle .theme-icon {
-            font-size: 1.1rem;
-            line-height: 1;
-        }
-
-        .page-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin: 0 0 6px 0;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-            letter-spacing: -0.02em;
-        }
-        .subhead {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 24px;
-            border-left: 3px solid var(--accent-blue);
-            padding-left: 16px;
-            background: var(--bg-panel);
-            border-radius: 0 10px 10px 0;
-            line-height: 1.6;
-            transition: background 0.25s, color 0.25s;
-        }
-
-        .grid-2col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px;
-        }
-        @media (max-width: 900px) {
-            .grid-2col {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .panel {
-            background: var(--bg-panel);
-            border-radius: 18px;
-            padding: 18px 20px 22px;
-            border: 1px solid transparent;
-            transition: background 0.25s, border-color 0.25s, box-shadow 0.25s;
-        }
-        .panel:hover {
-            border-color: var(--accent-blue);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-        .panel-accent {
-            background: var(--bg-panel-accent);
-        }
-        .panel-title {
-            font-weight: 600;
-            color: var(--text-secondary);
-            margin-top: 0;
-            margin-bottom: 14px;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-            transition: color 0.25s;
-        }
-        .panel-title small {
-            font-weight: 400;
-            font-size: 0.65rem;
-            color: var(--text-light);
-        }
-
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .input-row {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 6px;
-        }
-        .input-row label {
-            font-weight: 500;
-            color: var(--text-secondary);
-            min-width: 70px;
-            font-size: 0.78rem;
-            transition: color 0.25s;
-        }
-        .input-row input,
-        .input-row select {
-            flex: 1;
-            min-width: 60px;
-            padding: 6px 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border-input);
-            background: var(--bg-input);
-            color: var(--text-primary);
-            font-size: 0.8rem;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s;
-            outline: none;
-        }
-        .input-row input:focus,
-        .input-row select:focus {
-            border-color: var(--border-focus);
-            box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
-        }
-        .input-row input[readonly] {
-            background: var(--bg-input-readonly);
-            color: var(--text-secondary);
-        }
-        .input-row .hint-text {
-            font-size: 0.62rem;
-            color: var(--text-light);
-            font-style: italic;
-        }
-        .unit {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            min-width: 20px;
-        }
-        .tag {
-            background: var(--bg-tag);
-            padding: 2px 10px;
-            border-radius: 40px;
-            font-size: 0.6rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            transition: background 0.25s, color 0.25s;
-        }
-        .range-badge {
-            background: var(--bg-badge);
-            color: var(--text-badge);
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.62rem;
-            font-weight: 600;
-        }
-        .flex-between {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-        }
-        .btn {
-            background: var(--btn-primary);
-            color: white;
-            border: none;
-            padding: 6px 16px;
-            border-radius: 40px;
-            font-weight: 500;
-            font-size: 0.75rem;
-            cursor: pointer;
-            transition: 0.12s, background 0.25s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
-        }
-        .btn:hover {
-            background: var(--btn-primary-hover);
-            transform: scale(0.97);
-        }
-        .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .btn-outline {
-            background: transparent;
-            color: var(--text-secondary);
-            border: 1px solid var(--btn-outline-border);
-        }
-        .btn-outline:hover {
-            background: var(--btn-outline-hover-bg);
-            border-color: var(--border-focus);
-        }
-        .btn-sm {
-            padding: 3px 12px;
-            font-size: 0.65rem;
-        }
-        .status-ok {
-            color: var(--status-ok-text);
-            background: var(--status-ok-bg);
-            padding: 2px 12px;
-            border-radius: 40px;
-            font-size: 0.65rem;
-        }
-        .status-error {
-            color: var(--status-error-text);
-            background: var(--status-error-bg);
-            padding: 2px 12px;
-            border-radius: 40px;
-            font-size: 0.65rem;
-        }
-        .status-info {
-            color: var(--text-muted);
-            font-size: 0.65rem;
-        }
-
-        .code-output {
-            background: var(--bg-code);
-            color: var(--text-code);
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.7rem;
-            max-height: 400px;
-            min-height: 120px;
-            overflow: auto;
-            white-space: pre-wrap;
-            word-break: break-all;
-            margin-top: 4px;
-            line-height: 1.6;
-            transition: background 0.25s, color 0.25s;
-        }
-        .log-entry {
-            border-bottom: 1px solid var(--border-light);
-            padding: 4px 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px 10px;
-            align-items: baseline;
-        }
-        .log-entry .log-time {
-            color: var(--text-muted);
-            font-size: 0.6rem;
-            min-width: 70px;
-            flex-shrink: 0;
-        }
-        .log-entry .log-topic {
-            font-weight: 600;
-            color: var(--accent-blue);
-            font-size: 0.7rem;
-            flex-shrink: 0;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .log-entry .log-qos {
-            font-size: 0.6rem;
-            color: var(--text-light);
-            flex-shrink: 0;
-        }
-        .log-entry .log-payload {
-            font-family: 'SF Mono', 'Fira Code', monospace;
-            font-size: 0.7rem;
-            color: var(--text-code);
-            white-space: pre-wrap;
-            word-break: break-all;
-            flex: 1;
-            min-width: 60px;
-            max-height: 120px;
-            overflow-y: auto;
-        }
-        .log-entry .log-type {
-            font-weight: 600;
-            font-size: 0.6rem;
-            padding: 1px 6px;
-            border-radius: 10px;
-            flex-shrink: 0;
-        }
-        .log-entry .log-type.received {
-            background: var(--mqtt-received-bg);
-            color: var(--accent-blue);
-        }
-        .log-entry .log-type.sent {
-            background: var(--mqtt-sent-bg);
-            color: var(--status-ok-text);
-        }
-        .log-entry .log-type.error {
-            background: var(--mqtt-error-bg);
-            color: var(--status-error-text);
-        }
-        .log-entry .log-type.info {
-            background: var(--bg-tag);
-            color: var(--text-muted);
-        }
-
-        .sub-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-        }
-        .sub-tag {
-            background: var(--bg-tag);
-            padding: 2px 10px 2px 12px;
-            border-radius: 20px;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            border: 1px solid var(--border-light);
-        }
-        .sub-tag .sub-remove {
-            cursor: pointer;
-            color: var(--text-light);
-            font-size: 0.7rem;
-            line-height: 1;
-            padding: 0 2px;
-        }
-        .sub-tag .sub-remove:hover {
-            color: var(--status-error-text);
-        }
-
-        .footer-note {
-            margin-top: 24px;
-            color: var(--text-light);
-            font-size: 0.7rem;
-            text-align: center;
-            border-top: 1px solid var(--border-light);
-            padding-top: 16px;
-        }
-
-        .stat-badge {
-            font-size: 0.6rem;
-            padding: 2px 10px;
-            border-radius: 40px;
-            background: var(--bg-tag);
-            color: var(--text-muted);
-        }
-        .stat-badge .num {
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 16px 12px 24px;
-            }
-            .page-title {
-                font-size: 1.4rem;
-            }
-            .input-row label {
-                min-width: 50px;
-            }
-            .log-entry .log-topic {
-                max-width: 120px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/MqttTool.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="navbar-inner">
             <a class="navbar-brand" href="../index.html">
                 <div class="brand-icon">
-                    <img src=".././Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
                 </div>
                 Yu_ToolBox
             </a>
             <div class="navbar-right">
-                <div class="theme-toggle" id="themeToggle" title="切换主题">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
                     <span class="theme-icon" id="themeIcon">☀️</span>
                     <div class="toggle-track"><div class="toggle-thumb"></div></div>
                 </div>
@@ -592,80 +39,80 @@
     </nav>
 
     <div class="container">
-        <div class="page-title">📶 MQTT 调试助手</div>
-        <div class="subhead">🔹 基于 MQTT over WebSocket · 支持订阅/发布 · 主题通配符 · 实时消息流</div>
+        <div class="page-title" data-i18n="mqtt.page.title">📶 MQTT 调试助手</div>
+        <div class="subhead" data-i18n="mqtt.subhead">🔹 基于 MQTT over WebSocket · 支持订阅/发布 · 主题通配符 · 实时消息流</div>
 
         <div class="grid-2col" style="margin-bottom:18px;">
             <div class="panel panel-accent">
-                <div class="panel-title">① 连接配置</div>
+                <div class="panel-title" data-i18n="mqtt.p1.title">① 连接配置</div>
                 <div class="input-group">
                     <div class="input-row">
-                        <label>协议</label>
+                        <label data-i18n="mqtt.label.protocol">协议</label>
                         <select id="mqttProtocol">
                             <option value="ws">ws (WebSocket)</option>
                             <option value="wss" selected>wss (WebSocket Secure)</option>
                         </select>
-                        <span class="hint-text">建议使用 wss</span>
+                        <span class="hint-text" data-i18n="mqtt.hint.wss">建议使用 wss</span>
                     </div>
                     <div class="input-row">
                         <label>Broker</label>
                         <input type="text" id="mqttHost" value="broker.emqx.io" placeholder="broker.emqx.io" style="flex:1.5;">
-                        <label style="min-width:40px;">端口</label>
+                        <label style="min-width:40px;" data-i18n="mqtt.label.port">端口</label>
                         <input type="number" id="mqttPort" value="8084" min="1" max="65535" style="flex:0.5;">
                     </div>
                     <div class="input-row">
                         <label>Client ID</label>
                         <input type="text" id="mqttClientId" value="web_client_xxxx" placeholder="clientId">
-                        <button class="btn btn-outline btn-sm" id="genClientIdBtn">随机生成</button>
+                        <button class="btn btn-outline btn-sm" id="genClientIdBtn" data-i18n="mqtt.gen.clientid">随机生成</button>
                     </div>
                     <div class="input-row">
-                        <label>用户名</label>
-                        <input type="text" id="mqttUsername" placeholder="(可选)" style="flex:1;">
-                        <label style="min-width:50px;">密码</label>
-                        <input type="password" id="mqttPassword" placeholder="(可选)" style="flex:1;">
+                        <label data-i18n="mqtt.label.username">用户名</label>
+                        <input type="text" id="mqttUsername" placeholder="(可选)" data-i18n-placeholder="mqtt.ph.optional" style="flex:1;">
+                        <label style="min-width:50px;" data-i18n="mqtt.label.password">密码</label>
+                        <input type="password" id="mqttPassword" placeholder="(可选)" data-i18n-placeholder="mqtt.ph.optional" style="flex:1;">
                     </div>
                     <div class="input-row">
                         <label>Keepalive</label>
                         <input type="number" id="mqttKeepalive" value="60" min="1" max="300" style="flex:0.4;">
-                        <span class="unit">秒</span>
-                        <span class="hint-text">心跳间隔</span>
+                        <span class="unit" data-i18n="mqtt.unit.sec">秒</span>
+                        <span class="hint-text" data-i18n="mqtt.hint.keepalive">心跳间隔</span>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-outline" id="connectBtn">🔗 连接</button>
-                        <button class="btn btn-outline" id="disconnectBtn" disabled>⛔ 断开</button>
-                        <button class="btn btn-outline btn-sm" id="reconnectBtn" disabled>🔄 重连</button>
+                        <button class="btn btn-outline" id="connectBtn" data-i18n="mqtt.connect">🔗 连接</button>
+                        <button class="btn btn-outline" id="disconnectBtn" disabled data-i18n="mqtt.disconnect">⛔ 断开</button>
+                        <button class="btn btn-outline btn-sm" id="reconnectBtn" disabled data-i18n="mqtt.reconnect">🔄 重连</button>
                     </div>
-                    <div id="connStatus" style="font-size:0.65rem;color:var(--text-muted);">● 未连接</div>
+                    <div id="connStatus" style="font-size:0.65rem;color:var(--text-muted);" data-i18n="mqtt.status.not.connected">● 未连接</div>
                 </div>
             </div>
 
             <div class="panel panel-accent">
-                <div class="panel-title">② 订阅管理</div>
+                <div class="panel-title" data-i18n="mqtt.p2.title">② 订阅管理</div>
                 <div class="input-group">
                     <div class="input-row">
-                        <label>主题</label>
-                        <input type="text" id="subTopic" placeholder="如 test/+ 或 #" style="flex:1.5;">
+                        <label data-i18n="mqtt.label.topic">主题</label>
+                        <input type="text" id="subTopic" placeholder="如 test/+ 或 #" data-i18n-placeholder="mqtt.ph.subtopic" style="flex:1.5;">
                         <label style="min-width:40px;">QoS</label>
                         <select id="subQos" style="flex:0.4;">
                             <option value="0">0</option>
                             <option value="1" selected>1</option>
                             <option value="2">2</option>
                         </select>
-                        <button class="btn btn-outline" id="subBtn">订阅</button>
-                        <button class="btn btn-outline" id="unsubBtn">取消</button>
+                        <button class="btn btn-outline" id="subBtn" data-i18n="mqtt.subscribe">订阅</button>
+                        <button class="btn btn-outline" id="unsubBtn" data-i18n="mqtt.unsubscribe">取消</button>
                     </div>
                     <div class="sub-list" id="subList"></div>
-                    <div class="hint-text" style="font-size:0.6rem;">当前订阅的主题列表，点击 ✕ 可取消</div>
+                    <div class="hint-text" style="font-size:0.6rem;" data-i18n="mqtt.hint.sublist">当前订阅的主题列表，点击 ✕ 可取消</div>
                 </div>
             </div>
         </div>
 
         <div class="grid-2col" style="margin-bottom:18px;">
             <div class="panel panel-accent">
-                <div class="panel-title">③ 发布消息</div>
+                <div class="panel-title" data-i18n="mqtt.p3.title">③ 发布消息</div>
                 <div class="input-group">
                     <div class="input-row">
-                        <label>主题</label>
+                        <label data-i18n="mqtt.label.topic">主题</label>
                         <input type="text" id="pubTopic" placeholder="test/topic" style="flex:1.5;">
                         <label style="min-width:40px;">QoS</label>
                         <select id="pubQos" style="flex:0.4;">
@@ -673,531 +120,45 @@
                             <option value="1" selected>1</option>
                             <option value="2">2</option>
                         </select>
-                        <label style="min-width:50px;">保留</label>
+                        <label style="min-width:50px;" data-i18n="mqtt.label.retain">保留</label>
                         <input type="checkbox" id="pubRetain" style="width:20px;flex:0;">
                     </div>
                     <div class="input-row">
                         <label>Payload</label>
-                        <textarea id="pubPayload" rows="3" placeholder="消息内容（支持文本或 JSON）" style="flex:2;min-height:60px;"></textarea>
+                        <textarea id="pubPayload" rows="3" placeholder="消息内容（支持文本或 JSON）" data-i18n-placeholder="mqtt.ph.payload" style="flex:2;min-height:60px;"></textarea>
                     </div>
                     <div class="btn-group">
-                        <button class="btn btn-outline" id="pubBtn">📤 发布</button>
-                        <button class="btn btn-outline" id="clearPubBtn">清空</button>
+                        <button class="btn btn-outline" id="pubBtn" data-i18n="mqtt.publish">📤 发布</button>
+                        <button class="btn btn-outline" id="clearPubBtn" data-i18n="mqtt.clear">清空</button>
                     </div>
                 </div>
             </div>
 
             <div class="panel panel-accent">
-                <div class="panel-title">④ 消息日志
+                <div class="panel-title"><span data-i18n="mqtt.p4.title">④ 消息日志</span>
                     <span class="tag" id="logCount">0 条</span>
                     <span class="stat-badge">📥 <span class="num" id="rxCount">0</span></span>
                     <span class="stat-badge">📤 <span class="num" id="txCount">0</span></span>
                 </div>
-                <div class="code-output" id="logDisplay"><span style="color:var(--text-light);">(等待消息...)</span></div>
+                <div class="code-output" id="logDisplay"><span style="color:var(--text-light);" data-i18n="mqtt.log.waiting">(等待消息...)</span></div>
                 <div class="btn-group" style="margin-top:6px;">
-                    <button class="btn btn-outline btn-sm" id="clearLogBtn">清空日志</button>
-                    <button class="btn btn-outline btn-sm" id="exportLogBtn">导出日志</button>
+                    <button class="btn btn-outline btn-sm" id="clearLogBtn" data-i18n="mqtt.clear.log">清空日志</button>
+                    <button class="btn btn-outline btn-sm" id="exportLogBtn" data-i18n="mqtt.export.log">导出日志</button>
                     <label style="font-size:0.65rem;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
-                        <input type="checkbox" id="autoScrollLog" checked> 自动滚动
+                        <input type="checkbox" id="autoScrollLog" checked> <span data-i18n="mqtt.autoscroll">自动滚动</span>
                     </label>
                 </div>
             </div>
         </div>
 
         <div class="footer-note">
-            📶 MQTT 调试助手 · WebSocket MQTT · 支持通配符订阅 · 实时消息流<br>
+            <span data-i18n="mqtt.footer">📶 MQTT 调试助手 · WebSocket MQTT · 支持通配符订阅 · 实时消息流</span><br>
             © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
         </div>
     </div>
 
-    <script>
-        (function() {
-            'use strict';
-
-            // ============================================================
-            //  主题切换
-            // ============================================================
-            const themeToggle = document.getElementById('themeToggle');
-            const themeIcon = document.getElementById('themeIcon');
-
-            function setTheme(t) {
-                document.documentElement.setAttribute('data-theme', t);
-                themeIcon.textContent = t === 'dark' ? '🌙' : '☀️';
-                localStorage.setItem('toolbox-theme', t);
-            }
-            setTheme(localStorage.getItem('toolbox-theme') || 'light');
-            themeToggle.addEventListener('click', () => {
-                const cur = document.documentElement.getAttribute('data-theme');
-                setTheme(cur === 'dark' ? 'light' : 'dark');
-            });
-
-            // ============================================================
-            //  DOM 引用
-            // ============================================================
-            const connectBtn = document.getElementById('connectBtn');
-            const disconnectBtn = document.getElementById('disconnectBtn');
-            const reconnectBtn = document.getElementById('reconnectBtn');
-            const connStatus = document.getElementById('connStatus');
-            const mqttHost = document.getElementById('mqttHost');
-            const mqttPort = document.getElementById('mqttPort');
-            const mqttProtocol = document.getElementById('mqttProtocol');
-            const mqttClientId = document.getElementById('mqttClientId');
-            const mqttUsername = document.getElementById('mqttUsername');
-            const mqttPassword = document.getElementById('mqttPassword');
-            const mqttKeepalive = document.getElementById('mqttKeepalive');
-            const genClientIdBtn = document.getElementById('genClientIdBtn');
-
-            const subTopic = document.getElementById('subTopic');
-            const subQos = document.getElementById('subQos');
-            const subBtn = document.getElementById('subBtn');
-            const unsubBtn = document.getElementById('unsubBtn');
-            const subList = document.getElementById('subList');
-
-            const pubTopic = document.getElementById('pubTopic');
-            const pubQos = document.getElementById('pubQos');
-            const pubRetain = document.getElementById('pubRetain');
-            const pubPayload = document.getElementById('pubPayload');
-            const pubBtn = document.getElementById('pubBtn');
-            const clearPubBtn = document.getElementById('clearPubBtn');
-
-            const logDisplay = document.getElementById('logDisplay');
-            const logCount = document.getElementById('logCount');
-            const rxCount = document.getElementById('rxCount');
-            const txCount = document.getElementById('txCount');
-            const clearLogBtn = document.getElementById('clearLogBtn');
-            const exportLogBtn = document.getElementById('exportLogBtn');
-            const autoScrollLog = document.getElementById('autoScrollLog');
-
-            // ============================================================
-            //  状态变量
-            // ============================================================
-            let client = null;
-            let isConnected = false;
-            let subscriptions = [];
-            let logs = [];
-            let rxCounter = 0;
-            let txCounter = 0;
-            const MAX_LOG = 500;
-            let reconnectTimer = null;
-            let reconnectAttempts = 0;
-            const MAX_RECONNECT_ATTEMPTS = 5;
-
-            // ============================================================
-            //  Client ID 生成
-            // ============================================================
-            function generateClientId() {
-                return 'web_' + Math.random().toString(16).substring(2, 10) + '_' + Date.now().toString(36);
-            }
-            genClientIdBtn.addEventListener('click', () => {
-                mqttClientId.value = generateClientId();
-            });
-            mqttClientId.value = generateClientId();
-
-            // ============================================================
-            //  连接状态 UI
-            // ============================================================
-            function updateConnUI(connected) {
-                isConnected = connected;
-                connectBtn.disabled = connected;
-                disconnectBtn.disabled = !connected;
-                reconnectBtn.disabled = !connected;
-                subBtn.disabled = !connected;
-                unsubBtn.disabled = !connected;
-                pubBtn.disabled = !connected;
-                connStatus.innerHTML = connected ?
-                    '<span class="status-ok">● 已连接</span>' :
-                    '● 未连接';
-                if (!connected) {
-                    reconnectAttempts = 0;
-                    if (reconnectTimer) {
-                        clearTimeout(reconnectTimer);
-                        reconnectTimer = null;
-                    }
-                }
-            }
-
-            // ============================================================
-            //  日志系统（安全渲染，防止特殊字符破坏 DOM）
-            // ============================================================
-            function addLog(type, topic, content, qos) {
-                const now = new Date();
-                const timeStr = now.toTimeString().slice(0, 8) + '.' + String(now.getMilliseconds()).padStart(3, '0');
-
-                // 处理 payload 显示（安全转义）
-                let displayContent = content;
-                if (typeof content === 'string') {
-                    // 如果内容过长，截断显示
-                    if (content.length > 2000) {
-                        displayContent = content.substring(0, 2000) + '... (截断)';
-                    }
-                }
-
-                const entry = {
-                    type: type,
-                    topic: topic || '',
-                    content: displayContent,
-                    qos: qos !== undefined ? qos : '',
-                    time: timeStr
-                };
-                logs.push(entry);
-                if (logs.length > MAX_LOG) logs.shift();
-
-                // 更新计数器
-                if (type === 'received') rxCounter++;
-                if (type === 'sent') txCounter++;
-                rxCount.textContent = rxCounter;
-                txCount.textContent = txCounter;
-
-                renderLogs();
-                logCount.textContent = logs.length + ' 条';
-            }
-
-            function renderLogs() {
-                if (logs.length === 0) {
-                    logDisplay.innerHTML = '<span style="color:var(--text-light);">(暂无消息)</span>';
-                    return;
-                }
-
-                // 使用文档片段批量构建，提升性能
-                const fragment = document.createDocumentFragment();
-                for (const entry of logs) {
-                    const div = document.createElement('div');
-                    div.className = 'log-entry';
-
-                    // 时间
-                    const timeSpan = document.createElement('span');
-                    timeSpan.className = 'log-time';
-                    timeSpan.textContent = entry.time;
-                    div.appendChild(timeSpan);
-
-                    // 类型标签
-                    const typeSpan = document.createElement('span');
-                    typeSpan.className = 'log-type ' + entry.type;
-                    const labels = { received: 'RECV', sent: 'SEND', error: 'ERR', info: 'INFO' };
-                    typeSpan.textContent = labels[entry.type] || entry.type.toUpperCase();
-                    div.appendChild(typeSpan);
-
-                    // 主题
-                    const topicSpan = document.createElement('span');
-                    topicSpan.className = 'log-topic';
-                    topicSpan.textContent = entry.topic || '(系统)';
-                    div.appendChild(topicSpan);
-
-                    // QoS
-                    if (entry.qos !== '' && entry.qos !== undefined) {
-                        const qosSpan = document.createElement('span');
-                        qosSpan.className = 'log-qos';
-                        qosSpan.textContent = 'QoS' + entry.qos;
-                        div.appendChild(qosSpan);
-                    }
-
-                    // 内容（安全文本节点）
-                    const payloadSpan = document.createElement('span');
-                    payloadSpan.className = 'log-payload';
-                    payloadSpan.textContent = entry.content || '(空)';
-                    div.appendChild(payloadSpan);
-
-                    fragment.appendChild(div);
-                }
-
-                logDisplay.innerHTML = '';
-                logDisplay.appendChild(fragment);
-
-                if (autoScrollLog.checked) {
-                    logDisplay.scrollTop = logDisplay.scrollHeight;
-                }
-            }
-
-            function clearLogs() {
-                logs = [];
-                rxCounter = 0;
-                txCounter = 0;
-                rxCount.textContent = '0';
-                txCount.textContent = '0';
-                renderLogs();
-                logCount.textContent = '0 条';
-            }
-
-            function exportLogs() {
-                if (logs.length === 0) { alert('没有日志可导出'); return; }
-                let text = '时间,类型,主题,QoS,内容\n';
-                for (const entry of logs) {
-                    const type = entry.type.toUpperCase();
-                    const qos = entry.qos !== '' ? entry.qos : '';
-                    const content = String(entry.content).replace(/,/g, ';').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
-                    text += `${entry.time},${type},${entry.topic},${qos},${content}\n`;
-                }
-                const blob = new Blob(['\uFEFF' + text], { type: 'text/csv;charset=utf-8' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = `mqtt_log_${Date.now()}.csv`;
-                a.click();
-            }
-
-            // ============================================================
-            //  订阅管理
-            // ============================================================
-            function doSubscribe(topic, qos) {
-                if (!client || !isConnected) {
-                    addLog('error', '订阅', '未连接到 Broker');
-                    return;
-                }
-                client.subscribe(topic, { qos: qos }, function(err, granted) {
-                    if (err) {
-                        addLog('error', '订阅', `订阅 ${topic} 失败: ${err.message}`);
-                    } else {
-                        addLog('info', '订阅', `订阅 ${topic} (QoS ${qos}) 成功`);
-                        const exists = subscriptions.find(s => s.topic === topic && s.qos === qos);
-                        if (!exists) {
-                            subscriptions.push({ topic, qos });
-                            renderSubList();
-                        }
-                    }
-                });
-            }
-
-            function doUnsubscribe(topic) {
-                if (!client || !isConnected) {
-                    addLog('error', '取消订阅', '未连接到 Broker');
-                    return;
-                }
-                client.unsubscribe(topic, function(err) {
-                    if (err) {
-                        addLog('error', '取消订阅', `取消订阅 ${topic} 失败: ${err.message}`);
-                    } else {
-                        addLog('info', '取消订阅', `取消订阅 ${topic} 成功`);
-                        subscriptions = subscriptions.filter(s => s.topic !== topic);
-                        renderSubList();
-                    }
-                });
-            }
-
-            function renderSubList() {
-                subList.innerHTML = '';
-                if (subscriptions.length === 0) {
-                    const span = document.createElement('span');
-                    span.className = 'hint-text';
-                    span.textContent = '暂无订阅';
-                    subList.appendChild(span);
-                    return;
-                }
-                for (const sub of subscriptions) {
-                    const tag = document.createElement('span');
-                    tag.className = 'sub-tag';
-                    const text = document.createTextNode(`${sub.topic}  QoS${sub.qos}  `);
-                    tag.appendChild(text);
-                    const remove = document.createElement('span');
-                    remove.className = 'sub-remove';
-                    remove.textContent = '✕';
-                    remove.dataset.topic = sub.topic;
-                    remove.addEventListener('click', function(e) {
-                        const t = this.dataset.topic;
-                        doUnsubscribe(t);
-                    });
-                    tag.appendChild(remove);
-                    subList.appendChild(tag);
-                }
-            }
-
-            // ============================================================
-            //  发布消息
-            // ============================================================
-            function publishMessage() {
-                if (!client || !isConnected) {
-                    addLog('error', '发布', '未连接到 Broker');
-                    return;
-                }
-                const topic = pubTopic.value.trim();
-                if (!topic) { addLog('error', '发布', '请输入发布主题'); return; }
-                const qos = parseInt(pubQos.value);
-                const retain = pubRetain.checked;
-                let payload = pubPayload.value;
-                if (payload === '') payload = '';
-
-                client.publish(topic, payload, { qos, retain }, function(err) {
-                    if (err) {
-                        addLog('error', '发布', `发布到 ${topic} 失败: ${err.message}`);
-                    } else {
-                        addLog('sent', topic, payload || '(空)', qos);
-                    }
-                });
-            }
-
-            // ============================================================
-            //  MQTT 连接 / 断开 / 重连
-            // ============================================================
-            function connectMqtt() {
-                if (isConnected) {
-                    addLog('info', '系统', '已经连接，如需重连请先断开');
-                    return;
-                }
-
-                const protocol = mqttProtocol.value;
-                const host = mqttHost.value.trim() || 'broker.emqx.io';
-                const port = parseInt(mqttPort.value) || 8084;
-                const clientId = mqttClientId.value.trim() || generateClientId();
-                const username = mqttUsername.value.trim() || undefined;
-                const password = mqttPassword.value.trim() || undefined;
-                const keepalive = parseInt(mqttKeepalive.value) || 60;
-
-                const brokerUrl = `${protocol}://${host}:${port}/mqtt`;
-
-                const options = {
-                    clientId: clientId,
-                    keepalive: keepalive,
-                    reconnectPeriod: 0,
-                    connectTimeout: 30 * 1000,
-                    clean: true,
-                };
-                if (username) options.username = username;
-                if (password) options.password = password;
-
-                try {
-                    // 如果已有 client，先清理
-                    if (client) {
-                        try { client.end(true); } catch (e) {}
-                        client = null;
-                    }
-
-                    client = mqtt.connect(brokerUrl, options);
-
-                    client.on('connect', function(connack) {
-                        updateConnUI(true);
-                        addLog('info', '系统', '连接成功 (ClientID: ' + clientId + ')');
-                        // 重新订阅之前的主题
-                        for (const sub of subscriptions) {
-                            doSubscribe(sub.topic, sub.qos);
-                        }
-                        reconnectAttempts = 0;
-                    });
-
-                    client.on('error', function(err) {
-                        addLog('error', '系统', '连接错误: ' + err.message);
-                        if (!isConnected) {
-                            connStatus.innerHTML = '<span class="status-error">⚠️ 连接失败: ' + err.message + '</span>';
-                        }
-                    });
-
-                    client.on('close', function() {
-                        if (isConnected) {
-                            updateConnUI(false);
-                            addLog('error', '系统', '连接断开');
-                        }
-                    });
-
-                    client.on('message', function(topic, payload, packet) {
-                        const qos = packet.qos || 0;
-                        let payloadStr;
-                        try {
-                            // 尝试 UTF-8 解码
-                            payloadStr = payload.toString('utf8');
-                            // 如果包含不可打印字符（除了换行/回车/制表），显示为 HEX
-                            if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(payloadStr)) {
-                                const hex = payload.toString('hex');
-                                payloadStr = hex.match(/.{2}/g).join(' ') + ' (HEX)';
-                            }
-                            // 如果内容过长，保留完整（在 addLog 中截断显示）
-                        } catch (e) {
-                            payloadStr = payload.toString('hex').match(/.{2}/g).join(' ') + ' (HEX)';
-                        }
-                        addLog('received', topic, payloadStr, qos);
-                    });
-
-                } catch (e) {
-                    connStatus.innerHTML = '<span class="status-error">⚠️ 连接异常: ' + e.message + '</span>';
-                    addLog('error', '系统', '连接异常: ' + e.message);
-                }
-            }
-
-            function disconnectMqtt() {
-                if (reconnectTimer) {
-                    clearTimeout(reconnectTimer);
-                    reconnectTimer = null;
-                }
-                reconnectAttempts = 0;
-                if (client) {
-                    client.end(true, function() {
-                        // 回调
-                    });
-                    client = null;
-                }
-                updateConnUI(false);
-                addLog('info', '系统', '已主动断开连接');
-            }
-
-            function reconnectMqtt() {
-                if (!isConnected) {
-                    connectMqtt();
-                    return;
-                }
-                // 如果已连接，先断开再重连
-                disconnectMqtt();
-                // 延迟重新连接
-                setTimeout(() => {
-                    connectMqtt();
-                }, 500);
-            }
-
-            // ============================================================
-            //  事件绑定
-            // ============================================================
-            connectBtn.addEventListener('click', connectMqtt);
-            disconnectBtn.addEventListener('click', disconnectMqtt);
-            reconnectBtn.addEventListener('click', reconnectMqtt);
-
-            subBtn.addEventListener('click', function() {
-                const topic = subTopic.value.trim();
-                if (!topic) { addLog('error', '订阅', '请输入订阅主题'); return; }
-                const qos = parseInt(subQos.value);
-                doSubscribe(topic, qos);
-            });
-
-            unsubBtn.addEventListener('click', function() {
-                const topic = subTopic.value.trim();
-                if (!topic) { addLog('error', '取消订阅', '请输入要取消订阅的主题'); return; }
-                doUnsubscribe(topic);
-            });
-
-            subTopic.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') subBtn.click();
-            });
-
-            pubBtn.addEventListener('click', publishMessage);
-            pubPayload.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                    e.preventDefault();
-                    pubBtn.click();
-                }
-            });
-            pubTopic.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') pubBtn.click();
-            });
-
-            clearPubBtn.addEventListener('click', function() {
-                pubPayload.value = '';
-            });
-
-            clearLogBtn.addEventListener('click', clearLogs);
-            exportLogBtn.addEventListener('click', exportLogs);
-
-            window.addEventListener('beforeunload', function() {
-                if (client) {
-                    try { client.end(true); } catch (e) {}
-                }
-            });
-
-            // ============================================================
-            //  初始化
-            // ============================================================
-            updateConnUI(false);
-            renderSubList();
-            renderLogs();
-            logCount.textContent = '0 条';
-            rxCount.textContent = '0';
-            txCount.textContent = '0';
-
-            console.log('📶 MQTT 调试助手已加载。请先连接 Broker。');
-        })();
-    </script>
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/MqttTool.js"></script>
 </body>
 </html>

@@ -1,0 +1,339 @@
+/* ============================================================
+   HttpTool 页面特有样式
+   包含：HTTP 方法色彩标签变量、请求头键值对列表、
+         响应状态码徽章、#httpBody 专属编辑区、
+         URL 解析显示、历史记录表格、快捷指令、
+         Body 格式选择器、响应工具栏
+   依赖 common.css 提供的基础变量和组件样式
+   ============================================================ */
+
+/* ===== 页面特有 CSS 变量（HTTP 方法色彩标签） ===== */
+:root {
+    --http-get: #34d399;
+    --http-post: #60a5fa;
+    --http-put: #fbbf24;
+    --http-delete: #f87171;
+    --http-patch: #a78bfa;
+}
+
+[data-theme="dark"] {
+    --http-get: #0a7a4a;
+    --http-post: #1a5a9a;
+    --http-put: #9a7a0a;
+    --http-delete: #9a2a2a;
+    --http-patch: #5a3a9a;
+}
+
+/* ===== #httpBody 专属编辑区 ===== */
+#httpBody {
+    background: var(--bg-code);
+    color: var(--text-code);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 8px 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    min-height: 100px;
+    max-height: 380px;
+    resize: vertical;
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+#httpBody:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
+}
+
+/* ===== 状态信息文本 ===== */
+.status-info {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+
+/* ===== 代码输出区覆盖（更高更宽敞的显示区，带边框） ===== */
+.code-output {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    max-height: 380px;
+    min-height: 80px;
+    height: 35vh;
+    margin-top: 4px;
+    border: 1px solid var(--border-light);
+}
+.code-output .empty-hint {
+    color: var(--text-light);
+    font-style: italic;
+}
+
+/* ===== TCP 原始帧文本框（继承 .code-output，覆盖尺寸） ===== */
+.tcp-raw-output {
+    font-size: 0.85rem;
+    max-height: 200px;
+    min-height: 60px;
+    height: auto;
+}
+
+/* ===== URL 解析显示区域 ===== */
+.url-parse-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 6px 12px;
+    background: var(--bg-option-grid);
+    border-radius: 10px;
+    font-size: 0.7rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+    margin-top: 6px;
+}
+.url-parse-display span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.url-parse-display .parse-label {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+.url-parse-display .parse-value {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* ===== 请求头键值对列表 ===== */
+.header-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 4px 0;
+}
+.header-row input {
+    flex: 1;
+    min-width: 80px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.72rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    outline: none;
+    transition: 0.15s;
+}
+.header-row input:focus {
+    border-color: var(--border-focus);
+}
+.header-row .header-del {
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 0.7rem;
+    padding: 0 4px;
+    flex-shrink: 0;
+}
+.header-row .header-del:hover {
+    color: var(--status-error-text);
+}
+.header-row .header-key {
+    flex: 0.8;
+}
+.header-row .header-val {
+    flex: 1.2;
+}
+
+/* ===== 响应头显示 ===== */
+.resp-headers {
+    font-size: 0.80rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-muted);
+    line-height: 1.5;
+    max-height: 120px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    padding: 4px 8px;
+    background: var(--bg-input-readonly);
+    border-radius: 8px;
+    border: 1px solid var(--border-light);
+    width: 100%;
+}
+
+/* ===== 历史记录表格 ===== */
+.history-table-wrap {
+    max-height: 260px;
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-top: 4px;
+}
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.history-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-tag);
+    color: var(--text-secondary);
+    padding: 5px 8px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.62rem;
+    z-index: 2;
+}
+.history-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+    vertical-align: middle;
+}
+.history-table tr:hover td {
+    background: var(--bg-panel-accent);
+}
+
+/* ===== HTTP 方法标签（响应状态码徽章/方法色彩标签） ===== */
+.history-table .method-tag {
+    font-weight: 700;
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    display: inline-block;
+    min-width: 40px;
+    text-align: center;
+}
+.method-tag.GET {
+    background: var(--http-get);
+    color: #000;
+}
+.method-tag.POST {
+    background: var(--http-post);
+    color: #fff;
+}
+.method-tag.PUT {
+    background: var(--http-put);
+    color: #000;
+}
+.method-tag.DELETE {
+    background: var(--http-delete);
+    color: #fff;
+}
+.method-tag.PATCH {
+    background: var(--http-patch);
+    color: #fff;
+}
+.method-tag.HEAD {
+    background: var(--bg-tag);
+    color: var(--text-muted);
+}
+.method-tag.OPTIONS {
+    background: var(--bg-tag);
+    color: var(--text-muted);
+}
+
+/* ===== 快捷指令项 ===== */
+.cmd-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-panel);
+    border-radius: 20px;
+    padding: 2px 6px 2px 10px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s;
+    cursor: pointer;
+}
+.cmd-item:hover {
+    border-color: var(--accent-blue);
+}
+.cmd-item .cmd-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cmd-item .cmd-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.cmd-item .cmd-btn:hover {
+    color: var(--accent-blue);
+}
+.cmd-item .cmd-del {
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 0.65rem;
+    padding: 0 4px;
+}
+.cmd-item .cmd-del:hover {
+    color: var(--status-error-text);
+}
+
+/* ===== 耗时徽章 ===== */
+.badge-ms {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    background: var(--bg-tag);
+    padding: 1px 8px;
+    border-radius: 12px;
+}
+
+/* ===== Body 格式选择器 ===== */
+.body-format-selector {
+    display: flex;
+    gap: 2px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-input);
+    background: var(--bg-option-grid);
+}
+.body-format-selector .fmt-btn {
+    padding: 3px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+}
+.body-format-selector .fmt-btn.active {
+    background: var(--accent-blue);
+    color: white;
+}
+.body-format-selector .fmt-btn:hover:not(.active) {
+    background: var(--bg-tag);
+}
+
+/* ===== 响应体工具栏 ===== */
+.resp-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    margin-top: 2px;
+}
+.resp-toolbar .btn {
+    font-size: 0.65rem;
+    padding: 2px 10px;
+}
+.resp-toolbar .hint-text {
+    font-size: 0.6rem;
+    margin-left: 4px;
+}
+
+/* ===== 响应式：移动端标签窄化 ===== */
+@media (max-width: 600px) {
+    .input-row label {
+        min-width: 50px;
+    }
+}

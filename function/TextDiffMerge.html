@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>文本对比与合并工具 · Diff & Merge</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/TextDiffMerge.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title" data-i18n="tdm.page.title">📝 文本对比与合并工具</div>
+        <div class="subhead" data-i18n="tdm.subhead">🔹 实时对比 · 字符级对比 · 纯前端离线运行 · 文本不上传云端</div>
+
+        <!-- 工具栏 -->
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button class="btn btn-primary-grad" id="sampleBtn" data-i18n="tdm.sample">📄 示例</button>
+                <button class="btn btn-outline btn-sm" id="swapBtn" data-i18n="tdm.swap">🔄 交换</button>
+                <button class="btn btn-outline btn-sm" id="clearBtn" data-i18n="tdm.clear">🗑 清空</button>
+                <button class="btn btn-outline btn-sm" id="collapseAllBtn" title="一键收起 / 展开两侧输入框" data-i18n="tdm.collapse.input" data-i18n-title="tdm.collapse.input.title">📐 折叠输入</button>
+            </div>
+            <div class="toolbar-group">
+                <span class="toolbar-label" data-i18n="tdm.merge.base">合并基准</span>
+                <div class="seg" id="baseSeg">
+                    <button data-base="left" class="active" data-i18n="tdm.base.left">以左为底</button>
+                    <button data-base="right" data-i18n="tdm.base.right">以右为底</button>
+                </div>
+                <button class="btn btn-outline btn-sm" id="acceptAllLeft" data-i18n="tdm.accept.all.left">« 全用左</button>
+                <button class="btn btn-outline btn-sm" id="acceptAllRight" data-i18n="tdm.accept.all.right">全用右 »</button>
+                <button class="btn btn-outline btn-sm" id="resetMerge" data-i18n="tdm.reset.merge">↺ 重置合并</button>
+            </div>
+            <div class="toolbar-group">
+                <label class="chk"><input type="checkbox" id="optIgnoreWs"> <span data-i18n="tdm.opt.ignore.ws">忽略空白</span></label>
+                <label class="chk"><input type="checkbox" id="optTrimWs"> <span data-i18n="tdm.opt.trim.ws">去行尾空白</span></label>
+                <label class="chk"><input type="checkbox" id="optIgnoreCase"> <span data-i18n="tdm.opt.ignore.case">忽略大小写</span></label>
+                <label class="chk"><input type="checkbox" id="optWrap"> <span data-i18n="tdm.opt.wrap">自动换行</span></label>
+                <label class="chk"><input type="checkbox" id="optWordDiff" checked> <span data-i18n="tdm.opt.word.diff">字符级高亮</span></label>
+            </div>
+            <div class="toolbar-group" style="gap: 12px;">
+                <span class="toolbar-label" data-i18n="tdm.nav">导航</span>
+                <button class="btn btn-outline btn-icon" id="prevHunk" title="Alt+←">▲</button>
+                <span class="nav-counter" id="hunkCounter">0 / 0</span>
+                <button class="btn btn-outline btn-icon" id="nextHunk" title="Alt+→">▼</button>
+                <!-- 统一的总 minimap 进度条（放导航按钮后面） -->
+                <div class="toolbar-minimap" id="overview" title="点击彩色块跳转到对应改动 · 点击空白处按比例定位" data-i18n-title="tdm.overview.title">
+                    <div class="viewport" id="overviewViewport"></div>
+                </div>
+            </div>
+            <div class="toolbar-group">
+                <span class="stat-pill stat-eq" id="statEq" data-i18n="tdm.stat.eq.zero">相等 0</span>
+                <span class="stat-pill stat-add" id="statAdd" data-i18n="tdm.stat.add.zero">新增 0</span>
+                <span class="stat-pill stat-del" id="statDel" data-i18n="tdm.stat.del.zero">删除 0</span>
+                <span class="stat-pill stat-mod" id="statMod" data-i18n="tdm.stat.mod.zero">修改 0</span>
+            </div>
+        </div>
+
+        <!-- 实时对比区：高亮直接显示在输入位置 -->
+        <div class="editor-wrap" id="editorWrap">
+            <!-- 左 (Original) -->
+            <div class="editor-card">
+                <div class="card-head">
+                    <div class="head-title" data-i18n="tdm.left.title">原始文本 · Left</div>
+                    <div class="head-actions">
+                        <button class="collapse-btn" data-target="left"><span class="arrow">▾</span> <span data-i18n="tdm.collapse">收起</span></button>
+                        <span class="line-count-badge" id="leftLineCount" data-i18n="tdm.linecount.zero">0 行</span>
+                        <span class="file-badge" id="leftFileBadge" style="display:none"></span>
+                        <div class="file-input-wrapper">
+                            <button class="btn btn-outline btn-sm" data-i18n="tdm.open">📁 打开</button>
+                            <input type="file" id="leftFile" accept=".txt,.md,.js,.ts,.json,.html,.css,.py,.c,.cpp,.java,.go,.rs,.log,.csv,.ini,.yml,.yaml,.xml">
+                        </div>
+                        <button class="btn btn-outline btn-sm" id="leftClear" data-i18n="tdm.clear">清空</button>
+                    </div>
+                </div>
+                <div class="live-editor" id="liveLeft">
+                    <pre class="le-pre" id="leftPre"><span class="le-line eq"><br></span></pre>
+                    <textarea class="le-ta" id="leftEditor" spellcheck="false" placeholder="粘贴或输入原始文本… 支持拖拽文件到此处." data-i18n-placeholder="tdm.left.placeholder"></textarea>
+                </div>
+            </div>
+
+            <!-- 右 (Modified) -->
+            <div class="editor-card">
+                <div class="card-head">
+                    <div class="head-title" data-i18n="tdm.right.title">修改文本 · Right</div>
+                    <div class="head-actions">
+                        <button class="collapse-btn" data-target="right"><span class="arrow">▾</span> <span data-i18n="tdm.collapse">收起</span></button>
+                        <span class="line-count-badge" id="rightLineCount" data-i18n="tdm.linecount.zero">0 行</span>
+                        <span class="file-badge" id="rightFileBadge" style="display:none"></span>
+                        <div class="file-input-wrapper">
+                            <button class="btn btn-outline btn-sm" data-i18n="tdm.open">📁 打开</button>
+                            <input type="file" id="rightFile" accept=".txt,.md,.js,.ts,.json,.html,.css,.py,.c,.cpp,.java,.go,.rs,.log,.csv,.ini,.yml,.yaml,.xml">
+                        </div>
+                        <button class="btn btn-outline btn-sm" id="rightClear" data-i18n="tdm.clear">清空</button>
+                    </div>
+                </div>
+                <div class="live-editor" id="liveRight">
+                    <pre class="le-pre" id="rightPre"><span class="le-line eq"><br></span></pre>
+                    <textarea class="le-ta" id="rightEditor" spellcheck="false" placeholder="粘贴或输入修改后的文本… 支持拖拽文件到此处." data-i18n-placeholder="tdm.right.placeholder"></textarea>
+                </div>
+            </div>
+            <!-- 编辑区中间采用按钮轨道（替代独立合并区） -->
+            <div class="editor-merge-rail" id="editorMergeRail"></div>
+        </div>
+
+        <!-- 实时差异面板（已合并到编辑区，此处保留占位隐藏） -->
+        <div class="diff-stage hidden" id="diffStage" style="display:none;">
+            <div class="diff-head">
+                <div class="head-title"><span data-i18n="tdm.merge.area.title">🧩 合并区 · 改动块导航与处理</span> <span style="font-weight:400;color:var(--text-muted);font-size:0.7rem" data-i18n="tdm.merge.area.hint">— 高亮已同步显示在上方的编辑区</span></div>
+            </div>
+            <div class="diff-body split" id="diffBody">
+                <div class="diff-col" id="diffLeft"></div>
+                <div class="diff-col scroll-host" id="diffRight"></div>
+                <div class="merge-rail" id="mergeRail"></div>
+            </div>
+        </div>
+
+        <!-- 合并结果（始终显示，空态有占位） -->
+        <div class="merged-panel" id="mergedPanel">
+            <div class="card-head">
+                <div class="head-title"><span data-i18n="tdm.merged.title">✅ 合并结果</span> <span style="font-weight:400;color:var(--text-muted);font-size:0.7rem" data-i18n="tdm.merged.hint">— 点击中间 « / » 决定每个改动块保留哪一侧</span></div>
+                <div class="head-actions">
+                    <div class="merge-lang-wrap">
+                        <span class="toolbar-label" data-i18n="tdm.syntax">语法</span>
+                        <select id="mergeLangSel" class="merge-lang-sel" title="仅对合并结果应用语法高亮（不影响左右输入区）" data-i18n-title="tdm.syntax.title">
+                            <option value="none" data-i18n="tdm.syntax.none">无</option>
+                            <option value="c">C / C++ / C#</option>
+                            <option value="java">Java</option>
+                            <option value="python">Python</option>
+                            <option value="js">JavaScript / TypeScript</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="json">JSON</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="matlab">Matlab</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-outline btn-sm" id="copyMerged" data-i18n="tdm.copy">📋 复制</button>
+                    <button class="btn btn-outline btn-sm" id="downloadMerged" data-i18n="tdm.download">⬇ 下载</button>
+                </div>
+            </div>
+            <div class="merged-output" id="mergedOutput">
+                <div class="merged-gutter" id="mergedGutter"></div>
+                <div class="merged-content" id="mergedContent" style="color:var(--text-muted)" data-i18n="tdm.merged.placeholder">在两侧输入文本，合并结果会实时出现在这里…</div>
+            </div>
+            <div class="merged-resizer" id="mergedResizer" title="拖拽调整合并结果高度 · 双击复位" data-i18n-title="tdm.resizer.title"></div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="tdm.footer">📝 文本对比与合并工具 · 纯前端离线运行，文本不会上传 · LCS 行级差异 + 字符级内联高亮</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/TextDiffMerge.js"></script>
+</body>
+</html>

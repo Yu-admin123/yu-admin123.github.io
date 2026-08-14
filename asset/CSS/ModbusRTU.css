@@ -1,0 +1,274 @@
+/* ============================================================
+   ModbusRTU 页面特有样式
+   包含：通信日志条目、模式切换器、寄存器表、响应表、
+         快捷指令项、主/从站可见性、CRC 内联、数据格式
+         切换组、自动轮询指示灯
+   ============================================================ */
+
+/* ===== 通信日志条目（TX/RX/ERR 方向标识） ===== */
+.rx-entry {
+    border-bottom: 1px solid var(--border-light);
+    padding: 3px 0;
+}
+.rx-entry .time {
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    margin-right: 8px;
+}
+.rx-entry .dir-tx {
+    color: #f59e0b;
+    font-size: 0.62rem;
+    font-weight: 600;
+    margin-right: 6px;
+}
+.rx-entry .dir-rx {
+    color: #34d399;
+    font-size: 0.62rem;
+    font-weight: 600;
+    margin-right: 6px;
+}
+.rx-entry .dir-err {
+    color: #f87171;
+    font-size: 0.62rem;
+    font-weight: 600;
+    margin-right: 6px;
+}
+.rx-entry .hex-part {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+.rx-entry .text-part {
+    color: var(--text-code);
+    font-weight: 500;
+}
+
+/* ===== 模式切换器（主站 / 从站） ===== */
+.mode-switcher {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-input);
+    background: var(--bg-option-grid);
+}
+.mode-switcher .mode-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: 0.2s;
+    background: transparent;
+    color: var(--text-muted);
+}
+.mode-switcher .mode-btn.active {
+    background: var(--accent-blue);
+    color: white;
+}
+.mode-switcher .mode-btn:hover:not(.active) {
+    background: var(--bg-tag);
+}
+
+/* ===== 寄存器表（从站） ===== */
+.reg-table-wrap {
+    max-height: 360px;
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-top: 4px;
+}
+.reg-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.reg-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-tag);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.68rem;
+    z-index: 2;
+}
+.reg-table td {
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
+.reg-table tr:hover td {
+    background: var(--bg-panel-accent);
+}
+.reg-table input {
+    width: 80px;
+    padding: 3px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.72rem;
+    outline: none;
+    text-align: right;
+}
+.reg-table input:focus {
+    border-color: var(--border-focus);
+}
+.reg-table .addr-cell {
+    color: var(--text-badge);
+    font-weight: 600;
+}
+
+/* ===== 响应表（主站响应解析 / 从站请求日志） ===== */
+.resp-table-wrap {
+    max-height: 360px;
+    overflow: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    margin-top: 4px;
+}
+.resp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.72rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.resp-table th {
+    position: sticky;
+    top: 0;
+    background: var(--bg-tag);
+    color: var(--text-secondary);
+    padding: 6px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.68rem;
+    z-index: 2;
+}
+.resp-table td {
+    padding: 4px 10px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
+.resp-table tr:hover td {
+    background: var(--bg-panel-accent);
+}
+
+/* ===== 快捷指令项 ===== */
+.cmd-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--bg-panel);
+    border-radius: 20px;
+    padding: 2px 6px 2px 10px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s;
+}
+.cmd-item .cmd-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.cmd-item .cmd-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    cursor: pointer;
+    padding: 2px 4px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.cmd-item .cmd-btn:hover {
+    color: var(--accent-blue);
+}
+.cmd-del {
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 0.65rem;
+    padding: 0 4px;
+}
+.cmd-del:hover {
+    color: var(--status-error-text);
+}
+
+/* ===== 主/从站可见性切换 ===== */
+.master-only {
+    display: block;
+}
+.slave-only {
+    display: none;
+}
+body.mode-slave .master-only {
+    display: none;
+}
+body.mode-slave .slave-only {
+    display: block;
+}
+
+/* ===== CRC 内联徽章 ===== */
+.crc-inline {
+    display: inline-block;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.72rem;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--bg-badge);
+    color: var(--text-badge);
+}
+
+/* ===== 数据格式切换组 ===== */
+.format-group {
+    display: flex;
+    gap: 2px;
+}
+.format-group .fmt-btn {
+    padding: 2px 8px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.format-group .fmt-btn.active {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+.format-group .fmt-btn:first-child {
+    border-radius: 6px 0 0 6px;
+}
+.format-group .fmt-btn:last-child {
+    border-radius: 0 6px 6px 0;
+}
+
+/* ===== 自动轮询指示灯 ===== */
+.auto-poll-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-light);
+    margin-right: 6px;
+    vertical-align: middle;
+}
+.auto-poll-indicator.active {
+    background: #34d399;
+    animation: blink 0.8s infinite;
+}
+@keyframes blink {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.3;
+    }
+}

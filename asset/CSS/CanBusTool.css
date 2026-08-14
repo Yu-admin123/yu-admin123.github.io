@@ -1,0 +1,169 @@
+/* ============================================================
+   CAN 总线助手 - 页面特有样式
+   通用样式（主题变量、导航栏、面板、按钮等）见 common.css
+   ============================================================ */
+
+/* ===== 结果框 ===== */
+.result-box {
+    background: var(--bg-option-grid);
+    border-radius: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s, border-color 0.25s;
+    margin-top: 6px;
+}
+.result-box .result-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+}
+.result-box .result-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+.result-box .result-sub {
+    font-size: 0.62rem;
+    color: var(--text-light);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ===== 详情网格 (键值对) ===== */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 16px;
+    font-size: 0.72rem;
+    padding: 6px 0;
+}
+.detail-grid .key {
+    color: var(--text-muted);
+}
+.detail-grid .val {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* ===== 信号表 ===== */
+.signal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+    margin-top: 6px;
+}
+.signal-table th {
+    background: var(--bg-option-grid);
+    color: var(--text-muted);
+    text-align: left;
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-light);
+    font-weight: 600;
+}
+.signal-table td {
+    padding: 4px 8px;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.signal-table .btn-sm {
+    padding: 2px 8px;
+    font-size: 0.65rem;
+}
+
+/* ===== 收发日志区 ===== */
+.log-area {
+    background: var(--bg-code);
+    color: var(--text-code);
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin-top: 6px;
+    line-height: 1.6;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s, color 0.25s;
+}
+
+/* ===== 位视图 - 全宽优化版 ===== */
+.bit-view {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 10px 14px;
+    background: var(--bg-option-grid);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 56px;
+}
+.bit-view .group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+}
+.bit-view .group .label {
+    font-size: 0.55rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 3px;
+    letter-spacing: 0.04em;
+    background: var(--bg-panel);
+    padding: 0 8px;
+    border-radius: 8px;
+}
+.bit-view .group .bits {
+    display: flex;
+    gap: 2px;
+}
+.bit-view .group .bits .bit {
+    padding: 3px 6px;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 24px;
+    text-align: center;
+    color: #fff;
+    transition: transform 0.15s;
+    cursor: default;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.bit-view .group .bits .bit:hover {
+    transform: scale(1.08);
+}
+.bit-view-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    margin-top: 8px;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    padding: 4px 2px;
+}
+.bit-view-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.bit-view-legend .legend-swatch {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid var(--border-light);
+}
+
+/* ===== 全宽面板微调 ===== */
+.panel-full {
+    width: 100%;
+}
+.panel-full .bit-view {
+    min-height: 64px;
+}

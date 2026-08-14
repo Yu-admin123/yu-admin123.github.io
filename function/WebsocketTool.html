@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>WebSocket 测试工具</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/WebsocketTool.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title" data-i18n="ws.page.title">🔌 WebSocket 测试工具</div>
+        <div class="subhead" data-i18n="ws.subhead">🔹 支持 ws / wss 协议 · 文本 / 十六进制收发 · 消息日志 · 自动重连</div>
+
+        <!-- ===== ① 连接配置 ===== -->
+        <div class="panel panel-accent" style="margin-bottom:18px;">
+            <div class="panel-title"><span data-i18n="ws.p1.title">① 连接配置</span> <small data-i18n="ws.p1.small">WebSocket URL</small></div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label>URL</label>
+                    <input type="text" id="wsUrl" value="wss://echo.websocket.org" placeholder="ws:// 或 wss://">
+                    <span class="unit" style="min-width:auto;">
+                        <span class="badge" id="connStatusBadge" data-i18n="ws.badge.not.connected">未连接</span>
+                    </span>
+                </div>
+                <div class="preset-urls">
+                    <span style="font-size:0.6rem;color:var(--text-muted);margin-right:4px;" data-i18n="ws.preset.label">快速选择：</span>
+                    <button class="preset-btn" data-url="wss://echo.websocket.org">wss://echo.websocket.org</button>
+                    <button class="preset-btn" data-url="wss://ws.postman-echo.com/raw">wss://ws.postman-echo.com/raw</button>
+                    <button class="preset-btn" data-url="ws://127.0.0.1:8080">ws://127.0.0.1:8080</button>
+                    <button class="preset-btn" data-url="wss://stream.binance.com:9443/ws">wss://stream.binance.com:9443/ws</button>
+                </div>
+                <div class="input-row">
+                    <label data-i18n="ws.protocol.label">协议头</label>
+                    <input type="text" id="wsProtocol" placeholder="可选，如: chat, echo" data-i18n-placeholder="ws.protocol.placeholder" style="flex:0.6;">
+                    <span class="hint-text" data-i18n="ws.protocol.hint">自定义子协议 (可选)</span>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" id="connectBtn" data-i18n="ws.connect">▶ 连接</button>
+                    <button class="btn btn-outline" id="disconnectBtn" disabled data-i18n="ws.disconnect">⏹ 断开</button>
+                    <button class="btn btn-outline" id="clearLogBtn" data-i18n="ws.clear.log">🗑 清空日志</button>
+                    <button class="btn btn-outline" id="exportLogBtn" data-i18n="ws.export.log">📋 导出日志</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ② 收发消息 ===== -->
+        <div class="grid-2col">
+            <!-- 发送区 -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="ws.p2.title">② 发送消息</span> <small data-i18n="ws.p2.small">文本 / HEX</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="ws.send.mode.label">发送模式</label>
+                        <select id="sendMode">
+                            <option value="text" data-i18n="ws.mode.text">📝 文本</option>
+                            <option value="hex" data-i18n="ws.mode.hex">🔢 十六进制</option>
+                            <option value="json" data-i18n="ws.mode.json">📋 JSON</option>
+                        </select>
+                        <span class="hint-text" id="sendHint" data-i18n="ws.hint.text">UTF-8 文本</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="ws.msg.label">消息</label>
+                        <textarea id="sendInput" placeholder="输入要发送的消息..." data-i18n-placeholder="ws.send.placeholder">Hello WebSocket!</textarea>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn" id="sendBtn" disabled data-i18n="ws.send">📤 发送</button>
+                        <button class="btn btn-outline btn-sm" id="pingBtn" disabled data-i18n="ws.ping">🏓 Ping</button>
+                        <button class="btn btn-outline btn-sm" id="clearSendBtn" data-i18n="ws.clear">清空</button>
+                    </div>
+                    <div class="flex-between" style="margin-top:4px;">
+                        <span class="hint-text" data-i18n="ws.send.hint">💡 按 Ctrl+Enter 快速发送</span>
+                        <span class="tag" id="msgCountTag" data-i18n="ws.msgcount.zero">已发送: 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 状态 & 统计 -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="ws.p3.title">③ 连接状态</span> <small data-i18n="ws.p3.small">实时信息</small></div>
+                <div class="input-group">
+                    <div class="status-indicator">
+                        <span class="status-dot off" id="statusDot"></span>
+                        <span id="statusText" data-i18n="ws.status.not.connected">未连接</span>
+                        <span style="margin-left:auto;font-size:0.65rem;color:var(--text-light);" id="connTimeLabel">—</span>
+                    </div>
+                    <div class="detail-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;font-size:0.72rem;padding:4px 0;">
+                        <span class="key">URL</span>
+                        <span class="val" id="infoUrl" style="font-size:0.65rem;word-break:break-all;">—</span>
+                        <span class="key" data-i18n="ws.info.protocol">协议</span>
+                        <span class="val" id="infoProtocol">—</span>
+                        <span class="key" data-i18n="ws.info.recv">已接收</span>
+                        <span class="val" id="infoRecv" data-i18n="ws.count.zero">0 条</span>
+                        <span class="key" data-i18n="ws.info.sent">已发送</span>
+                        <span class="val" id="infoSent" data-i18n="ws.count.zero">0 条</span>
+                        <span class="key" data-i18n="ws.info.ready">就绪状态</span>
+                        <span class="val" id="infoReadyState">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ④ 消息日志 ===== -->
+        <div class="panel" style="margin-top:18px;">
+            <div class="panel-title">
+                <span data-i18n="ws.p4.title">④ 消息日志</span>
+                <small data-i18n="ws.p4.small">时间 · 方向 · 数据</small>
+                <span style="margin-left:auto;font-size:0.6rem;color:var(--text-muted);" id="logCountLabel" data-i18n="ws.logcount.zero">共 0 条</span>
+            </div>
+            <div class="log-container" id="logContainer">
+                <div class="log-entry log-system">
+                    <span class="log-time" data-i18n="ws.log.system.tag">[系统]</span>
+                    <span class="log-direction">🔹</span>
+                    <span class="log-payload" data-i18n="ws.log.welcome">欢迎使用 WebSocket 测试工具，连接后消息将显示在此</span>
+                </div>
+            </div>
+            <div class="btn-group" style="margin-top:8px;">
+                <button class="btn btn-outline btn-sm" id="scrollLockBtn" data-i18n="ws.autoscroll">📌 自动滚动</button>
+                <button class="btn btn-outline btn-sm" id="exportLogBtn2" data-i18n="ws.export.log">📥 导出日志</button>
+            </div>
+        </div>
+
+        <!-- ===== 底部 ===== -->
+        <div class="footer-note">
+            <span data-i18n="ws.footer">🔌 WebSocket 测试工具 · 支持 ws/wss · 十六进制收发 · 消息日志</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/WebsocketTool.js"></script>
+</body>
+</html>

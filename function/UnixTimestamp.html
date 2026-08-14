@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Unix 时间戳转换工具</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/UnixTimestamp.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换 -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track">
+                        <div class="toggle-thumb"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title" data-i18n="unix.page.title">⏱️ Unix 时间戳转换工具</div>
+        <div class="subhead" data-i18n="unix.subhead">🔹 时间戳 ↔ 日期时间 双向转换 · 支持毫秒/微秒 · 多时区 · 实时时钟 · 一键网络同步</div>
+
+        <div class="grid-2col">
+            <!-- ===== 左侧：时间戳 → 日期 ===== -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="unix.p1.title">① 时间戳 → 日期时间</span> <small data-i18n="unix.p1.small">Unix 秒 / 毫秒 / 微秒</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="unix.label.ts">时间戳</label>
+                        <input type="text" id="timestampInput" placeholder="1700000000" value="1700000000">
+                        <select id="tsUnit" style="flex:0.5;">
+                            <option value="s" data-i18n="unix.unit.s">秒 (s)</option>
+                            <option value="ms" data-i18n="unix.unit.ms">毫秒 (ms)</option>
+                            <option value="us" data-i18n="unix.unit.us">微秒 (µs)</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="unix.label.tz">时区</label>
+                        <select id="tsTimezone" style="flex:0.8;">
+                            <option value="UTC">UTC</option>
+                            <option value="local" selected data-i18n="unix.tz.local">本地时间</option>
+                            <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
+                            <option value="America/New_York">America/New_York (UTC-5)</option>
+                            <option value="Europe/London">Europe/London (UTC+0)</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
+                            <option value="Australia/Sydney">Australia/Sydney (UTC+11)</option>
+                        </select>
+                        <span class="hint-text" id="tsOffsetHint">UTC+8</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="tsToDateBtn" data-i18n="unix.btn.convert">▶ 转换</button>
+                        <button class="btn btn-outline" id="tsSyncBtn" data-i18n="unix.btn.sysSync">🔄 系统同步</button>
+                        <button class="btn btn-outline" id="tsSyncNtpBtn" data-i18n="unix.btn.netSync">🌐 网络同步</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                    <div class="result-box">
+                        <div class="result-label" data-i18n="unix.result.label1">📅 转换结果</div>
+                        <div class="result-value" id="tsResultDate" style="font-size:1.2rem;">—</div>
+                        <div class="result-sub" id="tsResultSub">等待转换</div>
+                    </div>
+                    <div class="detail-grid" style="margin-top:8px;">
+                        <span class="key">ISO 8601</span>
+                        <span class="val" id="tsIso">—</span>
+                        <span class="key">RFC 1123</span>
+                        <span class="val" id="tsRfc">—</span>
+                        <span class="key" data-i18n="unix.key.weekday">星期</span>
+                        <span class="val" id="tsWeekday">—</span>
+                        <span class="key" data-i18n="unix.key.dayOfYear">年内第几天</span>
+                        <span class="val" id="tsDayOfYear">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 右侧：日期 → 时间戳 ===== -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="unix.p2.title">② 日期时间 → 时间戳</span> <small data-i18n="unix.p2.small">输入日期时间</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="unix.label.dt">日期时间</label>
+                        <input type="datetime-local" id="dtInput" step="1" style="flex:1.2;">
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="unix.label.tz">时区</label>
+                        <select id="dtTimezone" style="flex:0.8;">
+                            <option value="local" selected data-i18n="unix.tz.local">本地时间</option>
+                            <option value="UTC">UTC</option>
+                            <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
+                            <option value="America/New_York">America/New_York (UTC-5)</option>
+                            <option value="Europe/London">Europe/London (UTC+0)</option>
+                            <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
+                            <option value="Australia/Sydney">Australia/Sydney (UTC+11)</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="unix.label.outUnit">输出单位</label>
+                        <select id="dtUnit" style="flex:0.5;">
+                            <option value="s" data-i18n="unix.unit.s">秒 (s)</option>
+                            <option value="ms" data-i18n="unix.unit.ms">毫秒 (ms)</option>
+                            <option value="us" data-i18n="unix.unit.us">微秒 (µs)</option>
+                        </select>
+                        <button class="btn btn-outline" id="dtToTsBtn" data-i18n="unix.btn.convert">▶ 转换</button>
+                    </div>
+                    <div class="input-row" style="flex-wrap:wrap;">
+                        <label style="min-width:auto;" data-i18n="unix.label.preset">快速预设</label>
+                        <span class="format-preset" data-dt="now" data-i18n="unix.preset.now">现在</span>
+                        <span class="format-preset" data-dt="today" data-i18n="unix.preset.today">今天 00:00</span>
+                        <span class="format-preset" data-dt="yesterday" data-i18n="unix.preset.yesterday">昨天 00:00</span>
+                        <span class="format-preset" data-dt="tomorrow" data-i18n="unix.preset.tomorrow">明天 00:00</span>
+                        <span class="format-preset" data-dt="epoch">1970-01-01 00:00:00</span>
+                    </div>
+                </div>
+
+                <div style="margin-top:14px;">
+                    <div class="result-box">
+                        <div class="result-label" data-i18n="unix.result.label2">⏱️ 转换结果</div>
+                        <div class="result-value" id="dtResultTs" style="font-size:1.2rem;">—</div>
+                        <div class="result-sub" id="dtResultSub">等待转换</div>
+                    </div>
+                    <div class="detail-grid" style="margin-top:8px;">
+                        <span class="key" data-i18n="unix.key.ms">毫秒 (ms)</span>
+                        <span class="val" id="dtMs">—</span>
+                        <span class="key" data-i18n="unix.key.us">微秒 (µs)</span>
+                        <span class="val" id="dtUs">—</span>
+                        <span class="key" data-i18n="unix.key.hex">十六进制</span>
+                        <span class="val" id="dtHex">—</span>
+                        <span class="key" data-i18n="unix.key.inputTime">输入时间</span>
+                        <span class="val" id="dtInputDisplay">—</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ③ 实时时钟 & 时区参考 ===== -->
+        <div class="panel full-width">
+            <div class="panel-title"><span data-i18n="unix.p3.title">③ 实时时钟</span> <small data-i18n="unix.p3.small">当前系统时间</small></div>
+            <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;">
+                <div>
+                    <div class="live-clock" id="liveClock">--:--:--</div>
+                    <div style="font-size:0.7rem;color:var(--text-muted);">
+                        <span id="liveDate">----年--月--日</span>
+                        <span class="tag" id="liveWeekday">星期-</span>
+                        <span class="range-badge" id="liveTimezone">UTC+8</span>
+                    </div>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                    <div class="result-box" style="min-width:140px;flex:1;">
+                        <div class="result-label" data-i18n="unix.live.unixSec">Unix 秒</div>
+                        <div class="result-value" id="liveTsSec" style="font-size:1rem;">—</div>
+                    </div>
+                    <div class="result-box" style="min-width:140px;flex:1;">
+                        <div class="result-label" data-i18n="unix.live.unixMs">Unix 毫秒</div>
+                        <div class="result-value" id="liveTsMs" style="font-size:1rem;">—</div>
+                    </div>
+                    <div class="result-box" style="min-width:140px;flex:1;">
+                        <div class="result-label" data-i18n="unix.live.unixUs">Unix 微秒</div>
+                        <div class="result-value" id="liveTsUs" style="font-size:1rem;">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="btn-group" style="margin-top:10px;">
+                <button class="btn btn-outline btn-sm" id="copyLiveTsSec" data-i18n="unix.btn.copySec">📋 复制秒</button>
+                <button class="btn btn-outline btn-sm" id="copyLiveTsMs" data-i18n="unix.btn.copyMs">📋 复制毫秒</button>
+                <button class="btn btn-outline btn-sm" id="copyLiveTsUs" data-i18n="unix.btn.copyUs">📋 复制微秒</button>
+            </div>
+        </div>
+
+        <!-- ===== ④ 批量转换 ===== -->
+        <div class="panel full-width" style="margin-top:18px;">
+            <div class="panel-title"><span data-i18n="unix.p4.title">④ 批量转换</span> <small data-i18n="unix.p4.small">时间戳列表 → 日期时间</small></div>
+            <div class="input-group">
+                <div class="input-row">
+                    <label data-i18n="unix.label.tsList">时间戳列表</label>
+                    <textarea id="batchTsInput" placeholder="每行一个时间戳，例如：&#10;1700000000&#10;1700000060&#10;1700000120" data-i18n-placeholder="unix.tsList.placeholder" style="min-height:80px;"></textarea>
+                </div>
+                <div class="input-row">
+                    <label data-i18n="unix.label.unit">单位</label>
+                    <select id="batchUnit" style="flex:0.5;">
+                        <option value="s" data-i18n="unix.unit.s">秒 (s)</option>
+                        <option value="ms" data-i18n="unix.unit.ms">毫秒 (ms)</option>
+                        <option value="us" data-i18n="unix.unit.us">微秒 (µs)</option>
+                    </select>
+                    <label data-i18n="unix.label.tz">时区</label>
+                    <select id="batchTimezone" style="flex:0.7;">
+                        <option value="local" selected data-i18n="unix.tz.local">本地时间</option>
+                        <option value="UTC">UTC</option>
+                        <option value="Asia/Shanghai">Asia/Shanghai (UTC+8)</option>
+                        <option value="America/New_York">America/New_York (UTC-5)</option>
+                        <option value="Europe/London">Europe/London (UTC+0)</option>
+                        <option value="Asia/Tokyo">Asia/Tokyo (UTC+9)</option>
+                    </select>
+                    <button class="btn btn-outline" id="batchConvertBtn" data-i18n="unix.btn.batchConvert">▶ 批量转换</button>
+                    <button class="btn btn-outline btn-sm" id="batchCopyBtn" data-i18n="unix.btn.copyResult">📋 复制结果</button>
+                </div>
+                <div class="code-output" id="batchResult" style="max-height:200px;">输入时间戳列表，点击"批量转换"</div>
+            </div>
+        </div>
+
+        <!-- ===== ⑤ 常见时间戳参考 ===== -->
+        <div class="panel full-width" style="margin-top:18px;">
+            <div class="panel-title"><span data-i18n="unix.p5.title">⑤ 常见时间戳参考</span> <small data-i18n="unix.p5.small">点击填充到左侧</small></div>
+            <div class="btn-group" id="refContainer">
+                <button class="btn btn-outline btn-sm" data-ts="0">1970-01-01 00:00:00</button>
+                <button class="btn btn-outline btn-sm" data-ts="1672531200">2023-01-01 00:00:00</button>
+                <button class="btn btn-outline btn-sm" data-ts="1704067200">2024-01-01 00:00:00</button>
+                <button class="btn btn-outline btn-sm" data-ts="1735689600">2025-01-01 00:00:00</button>
+                <button class="btn btn-outline btn-sm" data-ts="1767225600">2026-01-01 00:00:00</button>
+                <button class="btn btn-outline btn-sm" data-ts="1893456000">2030-01-01 00:00:00</button>
+                <button class="btn btn-outline btn-sm" data-ts="2147483647" data-i18n="unix.ref.y2038">2038-01-19 03:14:07 (32-bit 溢出)</button>
+            </div>
+            <div class="hint-text" style="margin-top:8px;" data-i18n="unix.ref.hint">
+                💡 点击参考时间戳，自动填入左侧输入框并执行转换。
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="unix.footer">⏱️ Unix 时间戳转换工具 · 支持秒/毫秒/微秒 · 多时区 · 实时时钟 · 一键网络同步</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/UnixTimestamp.js"></script>
+</body>
+</html>

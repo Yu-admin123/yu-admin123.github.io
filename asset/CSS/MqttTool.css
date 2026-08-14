@@ -1,0 +1,146 @@
+/* ============================================================
+   MqttTool 页面特有样式
+   包含：消息日志变量、日志条目、主题订阅列表、
+         QoS 标签、连接状态指示、统计徽章
+   依赖 common.css 提供的基础变量和组件样式
+   ============================================================ */
+
+/* ===== 页面特有 CSS 变量（MQTT 消息日志配色） ===== */
+:root {
+    --mqtt-received-bg: #dbeafe;
+    --mqtt-sent-bg: #d1fae5;
+    --mqtt-error-bg: #fee2e2;
+}
+
+[data-theme="dark"] {
+    --mqtt-received-bg: #172554;
+    --mqtt-sent-bg: #0a3d2a;
+    --mqtt-error-bg: #4a1a1a;
+}
+
+/* ===== 消息日志区覆盖（更高更宽敞的显示区） ===== */
+.code-output {
+    padding: 8px 12px;
+    max-height: 400px;
+    min-height: 120px;
+    margin-top: 4px;
+}
+
+/* ===== 状态信息文本 ===== */
+.status-info {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+
+/* ===== 消息日志条目 ===== */
+.log-entry {
+    border-bottom: 1px solid var(--border-light);
+    padding: 4px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    align-items: baseline;
+}
+.log-entry .log-time {
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    min-width: 70px;
+    flex-shrink: 0;
+}
+.log-entry .log-topic {
+    font-weight: 600;
+    color: var(--accent-blue);
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.log-entry .log-qos {
+    font-size: 0.6rem;
+    color: var(--text-light);
+    flex-shrink: 0;
+}
+.log-entry .log-payload {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--text-code);
+    white-space: pre-wrap;
+    word-break: break-all;
+    flex: 1;
+    min-width: 60px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+.log-entry .log-type {
+    font-weight: 600;
+    font-size: 0.6rem;
+    padding: 1px 6px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+.log-entry .log-type.received {
+    background: var(--mqtt-received-bg);
+    color: var(--accent-blue);
+}
+.log-entry .log-type.sent {
+    background: var(--mqtt-sent-bg);
+    color: var(--status-ok-text);
+}
+.log-entry .log-type.error {
+    background: var(--mqtt-error-bg);
+    color: var(--status-error-text);
+}
+.log-entry .log-type.info {
+    background: var(--bg-tag);
+    color: var(--text-muted);
+}
+
+/* ===== 主题订阅列表 ===== */
+.sub-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+}
+.sub-tag {
+    background: var(--bg-tag);
+    padding: 2px 10px 2px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-light);
+}
+.sub-tag .sub-remove {
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 0.7rem;
+    line-height: 1;
+    padding: 0 2px;
+}
+.sub-tag .sub-remove:hover {
+    color: var(--status-error-text);
+}
+
+/* ===== 统计徽章 ===== */
+.stat-badge {
+    font-size: 0.6rem;
+    padding: 2px 10px;
+    border-radius: 40px;
+    background: var(--bg-tag);
+    color: var(--text-muted);
+}
+.stat-badge .num {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* ===== 响应式：移动端日志主题列窄化 ===== */
+@media (max-width: 600px) {
+    .log-entry .log-topic {
+        max-width: 120px;
+    }
+}
