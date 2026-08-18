@@ -4,11 +4,11 @@
 # Yu_ToolBox - 嵌入式开发者工具箱
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://yu-admin123.github.io)
-[![License](https://img.shields.io/badge/License-MPL--2.0-blue)](./LICENSE)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Yu-admin123/yu-admin123.github.io)
 
 ## 🌐 [中文](./README.md) ｜ [English](./README_en.md)  
-> **更新时间：2026-08-14**
+> **更新时间：2026-08-18**
 
 > 专为嵌入式开发者打造的在线工具集合，一站式解决开发中的高频需求。
 
@@ -42,6 +42,7 @@
 | 💻 软件 | 🎯 [PID 调节器](./function/PIDemulator.html) | 实时 PID 参数调节与仿真 |
 | 💻 软件 | 📝 [文本对比与合并](./function/TextDiffMerge.html) | 文本差异对比、行级高亮、支持合并导出 |
 | 💻 软件 | ⏱️ [Unix 时间戳转换](./function/UnixTimestamp.html) | Unix 时间戳与本地时间互转，支持毫秒 / 秒级 |
+| 💻 软件 | ⏲️ [时序秒表](./function/Timing_lab.html) | 高精度主秒表、脉宽测量分析、打点尖峰曲线、事件时间线 |
 | ⚡ 硬件 | 🔋 [电池功耗计算器](./function/PowerCalculator.html) | 根据电池容量估算设备工作时长 |
 | ⚡ 硬件 | ⚡ [ADC 转换](./function/ADCConverter.html) | ADC 值 ↔ 电压值 ↔ 百分比 互转，支持多分辨率 |
 | 🌐 其他 | 🌐 Yu_Tool 通讯助手 | 基于 QT 的桌面调试助手（见下方链接） |
@@ -58,11 +59,13 @@
 ## 🚀 功能特性
 
 - **分类导航** — 全部 / 调试 / 硬件 / 软件 / 其他 五大分类，支持单工具归属多个分类
+- **⭐ 收藏** — 每张卡片右上角星标收藏，分类栏「收藏」一键只看已收藏，本地持久化
 - **实时搜索** — 按工具名称、描述、分类关键词即时筛选
 - **主题切换** — Light / Dark 双主题，基于 CSS Variables，状态本地持久化
 - **响应设计** — 适配桌面、平板、手机等多端设备
 - **卡片动画** — 渐入动画、悬停浮起、NEW 徽标标识新工具
 - **一键加群** — 快速加入 QQ 技术交流群（453705020）
+- **吉祥物彩蛋** — 导航栏「眼睛+嘴巴」表情：瞳孔跟随、随机眨眼、睡觉/唤醒；对话框 10 秒轮换段子、连点眼睛触发 10 阶彩蛋、悬浮卡片/按钮显示专属台词
 
 ---
 
@@ -81,7 +84,7 @@
 │   │
 │   ├── CSS/                        # 样式表
 │   │   ├── common.css              # ★ 共用样式（主题变量、reset、导航栏、面板、统一按钮/输入框/滑块/选择框、代码输出、状态标签等）
-│   │   ├── index.css               # 主页特有样式（Hero、工具卡片网格、分类按钮、搜索框、GitHub按钮、页脚等）
+│   │   ├── index.css               # 主页特有样式（Hero、工具卡片网格、分类按钮、搜索框、GitHub按钮、收藏星标、页脚等）
 │   │   ├── ADCConverter.css        # ADC 转换页面特有样式
 │   │   ├── CRCCheck.css            # CRC 校验页面特有样式
 │   │   ├── CanBusTool.css          # CAN 总线助手页面特有样式
@@ -96,11 +99,12 @@
 │   │   ├── TextDiffMerge.css       # 文本对比与合并页面特有样式
 │   │   ├── UnixTimestamp.css       # Unix 时间戳转换页面特有样式
 │   │   ├── WebsocketTool.css       # WebSocket 测试工具页面特有样式
+│   │   ├── Timing_lab.css          # 时序秒表页面特有样式
 │   │   └── serialPortTool.css      # 在线串口工具页面特有样式
 │   │
 │   └── JavaScript/                 # javascript 脚本
 │       ├── theme.js                # ★ 共用主题切换逻辑（全局 setTheme + themechange 事件）
-│       ├── index.js                # 主页脚本（工具数据 + 分类/搜索渲染）
+│       ├── index.js                # 主页脚本（工具数据 + 分类/搜索渲染 + 收藏 + 吉祥物彩蛋）
 │       ├── ADCConverter.js         # ADC 转换页面业务逻辑
 │       ├── CRCCheck.js             # CRC 校验页面业务逻辑
 │       ├── CanBusTool.js           # CAN 总线助手页面业务逻辑
@@ -115,6 +119,7 @@
 │       ├── TextDiffMerge.js        # 文本对比与合并页面业务逻辑
 │       ├── UnixTimestamp.js        # Unix 时间戳转换页面业务逻辑
 │       ├── WebsocketTool.js        # WebSocket 测试工具页面业务逻辑
+│       ├── Timing_lab.js           # 时序秒表页面业务逻辑
 │       └── serialPortTool.js       # 在线串口工具页面业务逻辑（依赖 CodeMirror CDN）
 │
 └── function/                      # 各工具页面入口 HTML
@@ -132,7 +137,8 @@
    ├── TextDiffMerge.html          # 文本对比与合并
    ├── UnixTimestamp.html          # Unix 时间戳转换
    ├── PowerCalculator.html        # 电池功耗计算器
-   └── ADCConverter.html           # ADC 转换
+   ├── ADCConverter.html           # ADC 转换
+   └── Timing_lab.html             # 时序秒表
 
 ```
 
@@ -257,7 +263,10 @@ npx serve .
 
 ## 📄 许可证
 
-本项目采用 [Mozilla Public License 2.0](./LICENSE) 协议开源。
+本项目采用 [Apache License 2.0](./LICENSE) 协议开源。
+
+Copyright © 2026 **Yu-admin123**  
+如使用、二次开发或分发本项目，请保留版权声明与 [NOTICE](./NOTICE) 文件并注明出处（[GitHub](https://github.com/Yu-admin123/yu-admin123.github.io)）。
 
 ---
 

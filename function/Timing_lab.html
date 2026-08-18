@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>时序秒表</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 主题 + 语言预初始化（防闪烁，必须内联在 head） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/Timing_lab.css">
+</head>
+<body>
+    <!-- 导航栏（所有功能页统一） -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换（必须在主题切换之前） -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容容器 -->
+    <div class="container">
+        <h1 class="page-title" data-i18n="timing.page.title">⏲️ 时序秒表</h1>
+        <p class="subhead" data-i18n="timing.subhead">🔹 时序测量秒表 · 脉宽测量与打点分析 · 基于 performance.now 微秒级分辨率 · ⌨️ 手不离键盘快速操作</p>
+
+        <!-- ===== 第一行：主秒表 + 事件时间线 ===== -->
+        <div class="grid-2col">
+            <!-- ① 主秒表 -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="timing.p1.title">① 主秒表</span> <small data-i18n="timing.p1.small">performance.now · 微秒级分辨率</small></div>
+
+                <div class="stopwatch-display" id="mainDisplay">00:00:00.0000</div>
+
+                <div class="flex-between mt-8">
+                    <span class="status-info" id="mainStatus">○ 就绪</span>
+                    <span class="status-info" id="mainLapCount">🏁 0</span>
+                </div>
+
+                <div class="btn-group mt-8">
+                    <button class="btn btn-outline" id="mainToggleBtn" data-i18n="timing.main.start">▶ 启动</button>
+                    <button class="btn btn-outline" id="mainLapBtn" data-i18n="timing.main.lap">🏁 打点</button>
+                    <button class="btn btn-outline" id="mainResetBtn" data-i18n="timing.main.reset">⟳ 复位</button>
+                    <span class="edge-sep"></span>
+                    <button class="btn btn-outline" id="pwRiseBtn" data-i18n="timing.pw.rising">↑ 上升沿</button>
+                    <button class="btn btn-outline" id="pwFallBtn" data-i18n="timing.pw.falling">↓ 下降沿</button>
+                </div>
+
+                <div class="stats-grid" id="mainStats">
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.stats.avg">平均间隔</div><div class="stat-value" id="mainAvg">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.stats.min">最小间隔</div><div class="stat-value" id="mainMin">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.stats.max">最大间隔</div><div class="stat-value" id="mainMax">—</div></div>
+                </div>
+
+                <div class="hint-text mt-8" data-i18n="timing.hint.keys">⌨️ W 启动 · S 暂停 · 空格 启停 · E 打点 · R 复位(含脉宽) · A 上升沿 · D 下降沿</div>
+            </div>
+
+            <!-- ② 事件时间线 -->
+             <!--锁定高度340px -->
+            <div class="panel " style="height: 300px;">
+                <div class="panel-title">
+                    <span data-i18n="timing.p2.title">② 事件时间线</span>
+                    <small data-i18n="timing.p2.small">全部事件按时间顺序 · 显示与上次相差与累计时间</small>
+                    <button class="btn btn-outline" id="timelineClearBtn" data-i18n="timing.tl.clear">🧹 清空</button>
+                </div>
+                <div class="tl-header">
+                    <span class="tl-time" data-i18n="timing.tl.colTime">累计时间</span>
+                    <span class="tl-delta" data-i18n="timing.tl.colDelta">与上次相差</span>
+                    <span class="tl-text" data-i18n="timing.tl.colEvent">事件</span>
+                </div>
+                <div class="timeline-box" id="timelineBox" style="height: 205px;"></div>
+            </div>
+        </div>
+
+        <!-- ===== 第二行：脉宽测量（加宽，整行显示） ===== -->
+        <div style="margin-top:18px;">
+            <div class="panel">
+                <div class="panel-title"><span data-i18n="timing.p3.title">③ 脉宽测量</span> <small data-i18n="timing.p3.small">上升沿 / 下降沿 → 高电平持续时间</small></div>
+
+                <div class="pw-legend">
+                    <span class="legend-item"><span class="legend-line" style="background:var(--chart-line);"></span> <span data-i18n="timing.pw.legendWave">波形</span></span>
+                    <span class="legend-item"><span class="legend-spike" style="background:var(--chart-lap);"></span> <span data-i18n="timing.pw.legendLap">打点</span></span>
+                    <span class="zoom-hint" data-i18n="timing.pw.zoomHint">🖱️ 滚轮缩放 · 拖拽平移 · 双击复位视图</span>
+                    <button class="btn btn-outline" id="pwClearCurBtn" data-i18n="timing.pw.clearCursors">⨯ 清除光标</button>
+                </div>
+
+                <div class="pw-chart-wrapper" id="pwChartWrapper">
+                    <canvas id="pwCanvas"></canvas>
+                    <div class="pw-tooltip" id="pwTooltip"></div>
+                </div>
+
+                <div class="pw-measure" id="pwMeasure">💡 点击波形放置测量光标 T0/T1（自动捕捉边沿）· 右键或按钮清除</div>
+
+                <div class="stats-grid" id="pwStats">
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.pw.high">高电平(最后)</div><div class="stat-value" id="pwHigh">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.pw.highAvg">高电平(平均)</div><div class="stat-value" id="pwHighAvg">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.pw.period">周期</div><div class="stat-value" id="pwPeriod">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.pw.freq">频率</div><div class="stat-value" id="pwFreq">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.pw.duty">占空比</div><div class="stat-value" id="pwDuty">—</div></div>
+                    <div class="stat-card"><div class="stat-label" data-i18n="timing.pw.count">脉冲数</div><div class="stat-value" id="pwCount">0</div></div>
+                </div>
+
+                <div class="hint-text mt-8" data-i18n="timing.pw.hint">💡 边沿输入：A/↑ 上升沿 · D/↓ 下降沿（或主秒表面板按钮）· 打点以尖峰形式叠加显示 · 复位与主秒表共用</div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer-note">
+            <span data-i18n="timing.footer">⏲️ 时序秒表 · 脉宽测量与打点分析工具 · 面向嵌入式开发的时间测量与信号分析</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 脚本层：theme.js → i18n.js → 页面特有 -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/Timing_lab.js"></script>
+</body>
+</html>

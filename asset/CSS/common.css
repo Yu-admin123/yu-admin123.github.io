@@ -54,6 +54,7 @@
     --accent-red: #f87171;
 
     --hero-gradient: linear-gradient(135deg, #818cf8 0%, #6366f1 40%, #4f46e5 100%);
+    --nav-eye-blue: #6366f1;   /* 眼睛 hover 时深色部分变主题蓝 */
 }
 
 /* ===== 暗色主题 ===== */
@@ -105,6 +106,7 @@
     --accent-red: #f87171;
 
     --hero-gradient: linear-gradient(135deg, #7a9eff 0%, #5a7fff 40%, #4466ee 100%);
+    --nav-eye-blue: #7a9eff;   /* 深色主题下的主题蓝 */
 }
 
 /* ===== 全局重置 ===== */
@@ -201,6 +203,279 @@ body {
     border-radius: 10px;
     display: block;
 }
+
+/* ===== 导航栏：跟随鼠标的眼睛 ===== */
+.nav-eye {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 14px; /* 原 2px + 右移 12px */
+    opacity: 1;    /* 默认完全可见（原 hover 状态） */
+    cursor: default;
+    flex-shrink: 0;
+    transform: translateY(-3px);  /* 眼睛整体上移，给下方嘴巴留空间 */
+    --mouth-c: rgba(17, 17, 17, 0.85);  /* 嘴巴颜色（深色主题覆盖） */
+}
+[data-theme="dark"] .nav-eye {
+    --mouth-c: rgba(255, 255, 255, 0.85);
+}
+/* 悬浮：深色部分（瞳孔 / 睡觉矩形 / 嘴巴）变为主题蓝 */
+.nav-eye:hover .nav-eye-pupil {
+    background: var(--nav-eye-blue);
+}
+/* ===== 嘴巴：眼睛正下方，随状态变化（微笑 → 大笑 / 张嘴 / 放松） ===== */
+.nav-mouth {
+    position: absolute;
+    left: 50%;
+    top: calc(100% + 2px);
+    box-sizing: border-box;
+    width: 12px;
+    height: 7px;
+    border-bottom: 1.5px solid var(--mouth-c);
+    border-radius: 0 0 9px 9px;   /* 下弧线 = 微笑 */
+    transform: translateX(-50%);
+    transition: width 0.25s ease, height 0.25s ease, border-radius 0.25s ease,
+                border-color 0.2s ease, border-bottom-color 0.2s ease, opacity 0.25s;
+    pointer-events: none;
+}
+/* 悬浮：嘴巴张大 + 变主题蓝 */
+.nav-eye:hover .nav-mouth {
+    width: 14px;
+    height: 7px;
+    border-radius: 0 0 12px 12px;
+    border-bottom-color: var(--nav-eye-blue);
+}
+/* 睡觉：嘴角放松变小变平 */
+.nav-eye[data-mood="sleep"] .nav-mouth {
+    width: 7px;
+    height: 3px;
+    border-radius: 0 0 6px 6px;
+    opacity: 0.75;
+}
+.nav-eye[data-mood="sleep"]:hover .nav-mouth {
+    border-bottom-color: var(--nav-eye-blue);
+}
+/* 换句"说话"：嘴巴张成小圆并快速开合（只在对话框换句时触发，睡觉时 JS 不调用） */
+.nav-eye.talking .nav-mouth {
+    width: 6px;
+    height: 6px;
+    border: 1.5px solid var(--mouth-c);
+    border-radius: 50%;
+    background: transparent;
+    animation: mouth-chatter 0.7s ease;
+}
+.nav-eye.talking:hover .nav-mouth {
+    border-color: var(--nav-eye-blue);
+}
+@keyframes mouth-chatter {
+    0%, 100% { transform: translateX(-50%) scaleY(1); }
+    30%      { transform: translateX(-50%) scaleY(0.2); }
+    55%      { transform: translateX(-50%) scaleY(0.5); }
+    /* 80%      { transform: translateX(-50%) scaleY(0.35); } */
+}
+.nav-eye:hover[data-mood="sleep"] .nav-eye-ball {
+    background: var(--nav-eye-blue);
+    border-color: var(--nav-eye-blue);
+}
+[data-theme="dark"] .nav-eye:hover[data-mood="sleep"] .nav-eye-ball {
+    border-color: var(--nav-eye-blue);
+}
+/* 眼球：正圆，两主题统一白眼球 + 黑瞳孔 */
+.nav-eye-ball {
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    width: 24px;   /* 正圆（原椭圆 18×12），加大 */
+    height: 24px;
+    border-radius: 50%;
+    background: #ffffff;                 /* 外圈白色，两主题一致 */
+    border: 1.5px solid rgba(17, 17, 17, 0.9);  /* 浅色主题：黑边线更明显 */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+    transition: transform 0.35s ease, border-radius 0.35s ease, background 0.2s, border-color 0.2s;
+}
+[data-theme="dark"] .nav-eye-ball {
+    border-color: transparent;           /* 深色主题：白眼球在黑背景已清晰，去边线 */
+}
+.nav-eye-pupil {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 13px;   /* 瞳孔 */
+    height: 13px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background: #111111;                 /* 内圈黑色，两主题一致 */
+    will-change: transform;
+    transition: transform 0.1s linear, background 0.2s;
+}
+
+/* ===== 状态：睡觉（闭眼成两个黑色扁矩形，呼吸微动） ===== */
+.nav-eye[data-mood="sleep"] .nav-eye-ball {
+    background: #111;      /* 闭眼：黑色矩形 */
+    border-color: #111;    /* 浅色主题下与黑矩形融为一体 */
+    border-radius: 4px;    /* 小圆角 → 矩形感 */
+    animation: eye-sleep 2.6s ease-in-out infinite;
+}
+.nav-eye[data-mood="sleep"] .nav-eye-pupil {
+    visibility: hidden;    /* 闭眼时瞳孔隐藏 */
+}
+/* 深色主题下黑矩形贴近背景，加浅色描边保证可见 */
+[data-theme="dark"] .nav-eye[data-mood="sleep"] .nav-eye-ball {
+    border-color: rgba(255, 255, 255, 0.55);
+}
+@keyframes eye-sleep {
+    0%, 100% { transform: scaleY(0.22); }
+    50%      { transform: scaleY(0.32); }
+}
+
+/* ===== 状态：星星眼（悬浮 GitHub 时的期待表情）：整个眼球替换为金色星星 ===== */
+.nav-eye[data-mood="star"] .nav-eye-ball {
+    background: #ffb400;            /* 整个外圈变金色 */
+    border-color: transparent;      /* 去掉眼眶边线 */
+    box-shadow: none;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    filter: drop-shadow(0 0 3px rgba(255, 180, 0, 0.85));   /* 星光 */
+    border-radius: 2px;    /* 圆角*/
+
+
+}
+.nav-eye[data-mood="star"] .nav-eye-pupil {
+    visibility: hidden;             /* 星星眼隐藏瞳孔，也不跟随鼠标 */
+}
+/* 星星眼时嘴巴也咧成兴奋的笑 */
+.nav-eye[data-mood="star"] .nav-mouth {
+    width: 13px;
+    height: 6px;
+    border-radius: 0 0 11px 11px;
+}
+
+/* ===== 眨眼（独立于 idle：2~5 秒随机一次，双眼快速眨一下，睁开为主） ===== */
+.nav-eye.blinking .nav-eye-ball {
+    animation: eye-blink 0.6s ease; 
+}
+@keyframes eye-blink {
+    0%, 85%, 100% { transform: scaleY(1); }   /* 睁着为主 */
+    1%           { transform: scaleY(0.05); } /* 瞬间闭眼 */
+    97%           { transform: scaleY(0.05); }    /* 马上睁开 */
+}
+
+/* ===== 语言对话框：眼睛右侧，30 秒随机一句嵌入式段子，可收起 ===== */
+.nav-chat {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 2px;   /* 紧贴眼睛，箭头指向眼球 */
+    flex-shrink: 0;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.nav-chat-bubble {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 300px;
+    padding: 5px 12px;
+    border-radius: 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-light);
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    transition: border-color 0.2s;
+    isolation: isolate;   /* 把箭头限制在本层叠上下文内，使其能被气泡背景盖住 */
+}
+.nav-chat:hover .nav-chat-bubble {
+    border-color: var(--border-focus);
+}
+/* 左侧指向眼睛的菱形：图层放到气泡下面（z-index:-1），气泡白底+边框盖住根部，只露出尖端 */
+.nav-chat-bubble::before {
+    content: "";
+    position: absolute;
+    left: -3px;  
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    background: var(--bg-input);
+    border-left: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    transform: translateY(-50%) rotate(45deg);
+    z-index: -1;   /* 下沉到气泡图层之下 */
+}
+.nav-chat:hover .nav-chat-bubble::before {
+    border-left-color: var(--border-focus);
+    border-bottom-color: var(--border-focus);
+}
+.nav-chat-text {
+    /* 文本完整显示在气泡内，允许换行，不截断、不靠悬浮 */
+    max-width: 280px;
+    white-space: normal;
+    line-height: 1.5;
+    /* navbar-brand 使用 background-clip:text 实现渐变，子元素会继承 transparent 填充，这里重置 */
+    -webkit-text-fill-color: var(--text-secondary);
+}
+/* 换句时的上浮淡入动画 */
+.nav-chat-text.swap {
+    animation: chat-swap 0.35s ease;
+}
+@keyframes chat-swap {
+    0%   { opacity: 0; transform: translateY(5px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+/* 收起按钮 ✕ */
+.nav-chat-close {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, color 0.2s;
+    /* 重置 navbar-brand 的渐变文字透明填充 */
+    -webkit-text-fill-color: var(--text-muted);
+}
+.nav-chat-close:hover {
+    background: var(--bg-tag);
+    color: var(--text-primary);
+}
+/* 收起后的 💬 胶囊 */
+.nav-chat-tab {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 26px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 11px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-light);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    /* 重置 navbar-brand 的渐变文字透明填充 */
+    -webkit-text-fill-color: var(--text-secondary);
+}
+.nav-chat-tab:hover {
+    border-color: var(--border-focus);
+}
+.nav-chat.collapsed .nav-chat-bubble { display: none; }
+.nav-chat.collapsed .nav-chat-tab    { display: inline-flex; }
+/* 窄屏：对话框隐藏，避免挤压导航 */
+@media (max-width: 700px) {
+    .nav-chat { display: none; }
+}
+
 .navbar-right {
     display: flex;
     align-items: center;
@@ -483,7 +758,7 @@ body {
     min-width: 20px;
 }
 .hint-text {
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     color: var(--text-light);
     font-style: italic;
 }
@@ -491,7 +766,7 @@ body {
     background: var(--bg-tag);
     padding: 2px 10px;
     border-radius: 40px;
-    font-size: 0.6rem;
+    font-size: 0.72rem;
     font-weight: 600;
     color: var(--text-muted);
     transition: background 0.25s, color 0.25s;
@@ -502,7 +777,7 @@ body {
     color: var(--text-badge);
     padding: 2px 10px;
     border-radius: 12px;
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     font-weight: 600;
     transition: background 0.25s, color 0.25s;
 }

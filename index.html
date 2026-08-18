@@ -23,6 +23,23 @@
                     <img id="navLogo" src="./asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
                 </div>
                 Yu_ToolBox
+                <!-- 跟随鼠标的眼睛 -->
+                <span class="nav-eye" id="navEye" data-i18n-title="index.nav.eye">
+                    <span class="nav-eye-ball"><span class="nav-eye-pupil"></span></span>
+                    <span class="nav-eye-ball"><span class="nav-eye-pupil"></span></span>
+                    <span class="nav-mouth" aria-hidden="true"></span>
+                </span>
+                <!-- 语言对话框：30 秒随机一句，点击换句，✕ 收起 -->
+                <span class="nav-chat" id="navChat" role="button" tabindex="0"
+                      title="点击换一句 · ✕ 收起" data-i18n-title="index.nav.chat">
+                    <span class="nav-chat-bubble">
+                        <span class="nav-chat-text" id="navChatText">今日宜用 C，忌用汇编</span>
+                        <button type="button" class="nav-chat-close" id="navChatClose"
+                                title="收起对话框" data-i18n-title="index.nav.chatClose">✕</button>
+                    </span>
+                    <span class="nav-chat-tab" id="navChatTab"
+                          title="展开对话框" data-i18n-title="index.nav.chatOpen">💬</span>
+                </span>
             </a>
             <div class="navbar-right">
                 <!-- 分类按钮组 -->
@@ -32,6 +49,7 @@
                     <button class="category-btn" data-category="hardware" data-i18n="index.cat.hardware">硬件</button>
                     <button class="category-btn" data-category="software" data-i18n="index.cat.software">软件</button>
                     <button class="category-btn" data-category="other" data-i18n="index.cat.other">其他</button>
+                    <button class="category-btn" data-category="fav" data-i18n="index.cat.fav">收藏</button>
                 </div>
 
                 <!-- 搜索框 -->
@@ -66,16 +84,74 @@
         </div>
     </nav>
 
-    <!-- ===== Hero 区域 ===== -->
+    <!-- ===== Hero 区域（三栏：小组件 | 居中标题 | 对称占位） ===== -->
     <section class="hero">
-        <h1><span class="gradient-text">Yu</span> <span class="gradient-text">_ToolBox</span></h1>
-        <p data-i18n="index.hero.desc">专为嵌入式开发者打造的在线工具集合。一站式解决开发中的高频需求。</p>
-        <a class="btn-join-group" href="https://qm.qq.com/cgi-bin/qm/qr?k=__pVkxOENE6E-Rll9Uq7HLs7Sur6er4X&jump_from=webapi&authKey=Gl3MgNARFJux2krmlTEBydeUmr/AjgskqqqovGnVCh5ytrtiRopdBpmkU1Y9hYQZ" target="_blank" rel="noopener noreferrer">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-            </svg>
-            <span data-i18n="index.hero.join">加入交流群：453705020</span>
-        </a>
+        <!-- 左侧小组件：时钟 · 下班进度 · 提醒（融入布局，窄屏自动隐藏） -->
+        <div class="hero-widget" id="heroWidget">
+            <!-- 第一行：时间 + 下班进度 -->
+            <div class="hw-top-row">
+                <div class="hw-clock-col">
+                    <span class="hw-clock" id="hwClock">00:00:00</span>
+                    <span class="hw-date" id="hwDate"></span>
+                </div>
+                <div class="hw-section">
+                    <div class="hw-label-row">
+                        <span class="hw-label" data-i18n="index.hw.offProgress">下班进度</span>
+                        <button class="hw-settings-btn" id="hwSettingsBtn" title="设置">⚙</button>
+                    </div>
+                    <div class="hw-progress-wrap">
+                        <div class="hw-progress-bar">
+                            <div class="hw-progress-fill" id="hwProgressFill" style="width:0%"></div>
+                        </div>
+                        <span class="hw-progress-text" id="hwProgressText">0%</span>
+                    </div>
+                    <div class="hw-countdown" id="hwCountdown">--</div>
+                </div>
+            </div>
+            <!-- 提醒 -->
+            <div class="hw-reminders">
+                <div class="hw-reminder-item water" id="hwWaterItem" title="点击消除提醒">
+                    <span class="hw-reminder-icon">💧</span>
+                    <span class="hw-reminder-label" data-i18n="index.hw.waterReminder">喝水</span>
+                    <div class="hw-reminder-mini-bar"><div class="hw-reminder-mini-fill" id="hwWaterFill" style="width:0%"></div></div>
+                    <span class="hw-reminder-timer" id="hwWaterTimer">--:--</span>
+                </div>
+                <div class="hw-reminder-item sit" id="hwSitItem" title="点击消除提醒">
+                    <span class="hw-reminder-icon">🪑</span>
+                    <span class="hw-reminder-label" data-i18n="index.hw.sitReminder">久坐</span>
+                    <div class="hw-reminder-mini-bar"><div class="hw-reminder-mini-fill" id="hwSitFill" style="width:0%"></div></div>
+                    <span class="hw-reminder-timer" id="hwSitTimer">--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 中间：主标题 -->
+        <div class="hero-center">
+            <h1><span class="gradient-text">Yu</span> <span class="gradient-text">_ToolBox</span></h1>
+            <p data-i18n="index.hero.desc">专为嵌入式开发者打造的在线工具集合。一站式解决开发中的高频需求。</p>
+            <a class="btn-join-group" href="https://qm.qq.com/cgi-bin/qm/qr?k=__pVkxOENE6E-Rll9Uq7HLs7Sur6er4X&jump_from=webapi&authKey=Gl3MgNARFJux2krmlTEBydeUmr/AjgskqqqovGnVCh5ytrtiRopdBpmkU1Y9hYQZ" target="_blank" rel="noopener noreferrer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                </svg>
+                <span data-i18n="index.hero.join">加入交流群：453705020</span>
+            </a>
+        </div>
+
+        <!-- 右侧：今日待办清单（与左侧小组件对称，窄屏自动隐藏） -->
+        <div class="hero-todo" id="heroTodo">
+            <div class="hw-label-row todo-head-row">
+                <span class="hw-label" data-i18n="index.todo.title">今日待办</span>
+                <input type="text" class="todo-input" id="todoInput" maxlength="60" autocomplete="off"
+                       placeholder="输入待办，回车添加" data-i18n-placeholder="index.todo.inputPlaceholder">
+                <button class="hw-settings-btn" id="todoClearBtn" title="清除已完成" data-i18n-title="index.todo.clearDone">🗑</button>
+            </div>
+            <ul class="todo-list" id="todoList"></ul>
+            <div class="todo-empty" id="todoEmpty" data-i18n="index.todo.empty">暂无待办，输入后回车添加 ✍️</div>
+            <div class="todo-footer">
+                <span class="todo-progress-bar"><span class="todo-progress-fill" id="todoProgressFill" style="width:0%"></span></span>
+                <span class="todo-stats" id="todoStats">0/0</span>
+            </div>
+        </div>
     </section>
 
     <!-- ===== 主内容 ===== -->
@@ -92,6 +168,48 @@
             &copy;<script>document.write(new Date().getFullYear())</script>&nbsp;&nbsp;Yu_ToolBox
         </p>
     </footer>
+
+    <!-- 设置弹窗 -->
+    <div class="hw-modal-overlay" id="hwModalOverlay">
+        <div class="hw-modal">
+            <h3 class="hw-modal-title">⚙ <span data-i18n="index.hw.settings">设置</span></h3>
+            <div class="hw-modal-field">
+                <label data-i18n="index.hw.workStart">上班时间</label>
+                <input type="time" id="hwInWorkStart" value="09:00">
+            </div>
+            <div class="hw-modal-field">
+                <label data-i18n="index.hw.workEnd">下班时间</label>
+                <input type="time" id="hwInWorkEnd" value="18:00">
+            </div>
+            <div class="hw-modal-field">
+                <label>💧 <span data-i18n="index.hw.waterInterval">喝水间隔</span></label>
+                <div>
+                    <input type="number" id="hwInWater" value="30" min="1" max="999">
+                    <span class="hw-unit" data-i18n="index.hw.minutes">分钟</span>
+                </div>
+            </div>
+            <div class="hw-modal-field">
+                <label>🪑 <span data-i18n="index.hw.sitInterval">久坐间隔</span></label>
+                <div>
+                    <input type="number" id="hwInSit" value="60" min="1" max="999">
+                    <span class="hw-unit" data-i18n="index.hw.minutes">分钟</span>
+                </div>
+            </div>
+            <div class="hw-modal-field">
+                <label>🔔 <span data-i18n="index.hw.notifications">桌面通知</span></label>
+                <div class="hw-toggle" id="hwNotifToggle"></div>
+            </div>
+            <div class="hw-notif-status" id="hwNotifStatus"></div>
+<!--            <div class="hw-storage-status" id="hwStorageStatus"></div> -->
+            <div class="hw-modal-actions">
+                <button class="hw-modal-btn hw-modal-btn-reset" id="hwModalReset" title="重置喝水/久坐倒计时">🔄 <span data-i18n="index.hw.resetTimers">重置计时</span></button>
+                <button class="hw-modal-btn hw-modal-btn-cancel" id="hwModalCancel" data-i18n="index.hw.cancel">取消</button>
+                <button class="hw-modal-btn hw-modal-btn-save" id="hwModalSave" data-i18n="index.hw.save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 待办添加：改为标题行内嵌输入框，回车即添加，无需弹窗 -->
 
     <script src="./asset/JavaScript/theme.js"></script>
     <script src="./asset/JavaScript/i18n.js"></script>

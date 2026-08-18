@@ -4,11 +4,11 @@
 # Yu_ToolBox - Embedded Developer's Toolbox
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://yu-admin123.github.io)
-[![License](https://img.shields.io/badge/License-MPL--2.0-blue)](./LICENSE)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Yu-admin123/yu-admin123.github.io)
 
 ## 🌐 [中文](./README.md) ｜ [English](./README_en.md)  
-> **Last updated: 2026-08-14**
+> **Last updated: 2026-08-18**
 
 > A curated online toolset built for embedded developers. One-stop solution for high-frequency needs during development.
 
@@ -43,6 +43,7 @@ All tools are pure front-end implementations: **zero dependencies, zero back-end
 | 💻 Software | 🎯 [PID Controller](./function/PIDemulator.html) | Real-time PID tuning and simulation |
 | 💻 Software | 📝 [Text Diff & Merge](./function/TextDiffMerge.html) | Text diff comparison, line-level highlighting, merge & export |
 | 💻 Software | ⏱️ [Unix Timestamp Converter](./function/UnixTimestamp.html) | Unix timestamp ↔ local time, supports ms / s |
+| 💻 Software | ⏲️ [Timing Lab](./function/Timing_lab.html) | High-precision stopwatch, pulse-width analysis, lap spike curves, event timeline |
 | ⚡ Hardware | 🔋 [Power Calculator](./function/PowerCalculator.html) | Estimate device runtime from battery capacity |
 | ⚡ Hardware | ⚡ [ADC Converter](./function/ADCConverter.html) | ADC value ↔ voltage ↔ percentage, multi-resolution |
 | 🌐 Other | 🌐 Yu_Tool Desktop Assistant | QT-based desktop debugging tool (see link below) |
@@ -60,11 +61,13 @@ All tools are pure front-end implementations: **zero dependencies, zero back-end
 ## 🚀 Features
 
 - **Categorized Navigation** — All / Debug / Hardware / Software / Other; a single tool can belong to multiple categories
+- **⭐ Favorites** — Star any card to save it; the "Favorites" tab filters to saved tools, persisted locally
 - **Real-time Search** — Instant filtering by tool name, description, or category keywords
 - **Theme Switching** — Light / Dark dual themes via CSS Variables, state persisted in localStorage
 - **Responsive Design** — Adapts to desktop, tablet, and mobile
 - **Card Animations** — Fade-in animation, hover lift, NEW badge for new tools
 - **Join Group** — Quick link to join the QQ tech community (453705020)
+- **Mascot Easter Eggs** — The navbar "eyes + mouth" that follow your cursor, blink, fall asleep / wake; a chat bubble rotating quips every 10s, a 10-step easter-egg for repeatedly clicking the eyes, and one-liners when hovering cards / buttons
 
 ---
 
@@ -84,7 +87,7 @@ All tools are pure front-end implementations: **zero dependencies, zero back-end
 │   │
 │   ├── CSS/                        # Stylesheets
 │   │   ├── common.css              # ★ Shared styles (theme vars, reset, navbar, panels, unified buttons/inputs/sliders/selects, code output, status labels, etc.)
-│   │   ├── index.css               # Home page styles (Hero, tool card grid, category tabs, search box, GitHub button, footer, etc.)
+│   │   ├── index.css               # Home page styles (Hero, tool card grid, category tabs, search box, GitHub button, favorite star, footer, etc.)
 │   │   ├── ADCConverter.css        # ADC Converter page styles
 │   │   ├── CRCCheck.css            # CRC Calculator page styles
 │   │   ├── CanBusTool.css          # CAN Bus Helper page styles
@@ -99,11 +102,12 @@ All tools are pure front-end implementations: **zero dependencies, zero back-end
 │   │   ├── TextDiffMerge.css       # Text Diff & Merge page styles
 │   │   ├── UnixTimestamp.css       # Unix Timestamp Converter page styles
 │   │   ├── WebsocketTool.css       # WebSocket Tester page styles
+│   │   ├── Timing_lab.css          # Timing Lab page styles
 │   │   └── serialPortTool.css      # Serial Port Tool page styles
 │   │
 │   └── JavaScript/                 # JavaScript scripts
 │       ├── theme.js                # ★ Shared theme switching logic (global setTheme + themechange event)
-│       ├── index.js                # Home page script (tool data + category/search rendering)
+│       ├── index.js                # Home page script (tool data + category/search rendering + favorites + mascot easter eggs)
 │       ├── ADCConverter.js         # ADC Converter page logic
 │       ├── CRCCheck.js             # CRC Calculator page logic
 │       ├── CanBusTool.js           # CAN Bus Helper page logic
@@ -118,6 +122,7 @@ All tools are pure front-end implementations: **zero dependencies, zero back-end
 │       ├── TextDiffMerge.js        # Text Diff & Merge page logic
 │       ├── UnixTimestamp.js        # Unix Timestamp Converter page logic
 │       ├── WebsocketTool.js        # WebSocket Tester page logic
+│       ├── Timing_lab.js           # Timing Lab page logic
 │       └── serialPortTool.js       # Serial Port Tool page logic (depends on CodeMirror CDN)
 │
 └── function/                       # Tool page entry HTML files
@@ -135,7 +140,8 @@ All tools are pure front-end implementations: **zero dependencies, zero back-end
     ├── TextDiffMerge.html          # Text Diff & Merge
     ├── UnixTimestamp.html          # Unix Timestamp Converter
     ├── PowerCalculator.html        # Power Calculator
-    └── ADCConverter.html           # ADC Converter
+    ├── ADCConverter.html           # ADC Converter
+    └── Timing_lab.html             # Timing Lab
 ```
 
 ---
@@ -260,7 +266,10 @@ Then visit `http://localhost:8000`.
 
 ## 📄 License
 
-This project is open-sourced under the [Mozilla Public License 2.0](./LICENSE).
+This project is open-sourced under the [Apache License 2.0](./LICENSE).
+
+Copyright © 2026 **Yu-admin123**  
+If you reuse, modify or redistribute this project, please retain the copyright notice and the [NOTICE](./NOTICE) file, and credit the original source ([GitHub](https://github.com/Yu-admin123/yu-admin123.github.io)).
 
 ---
 
