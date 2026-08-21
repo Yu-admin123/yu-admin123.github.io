@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>在线流程图</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题 + 语言预初始化（必须在 head 内联，防止加载闪烁） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/MermaidDraw.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换（必须在主题切换之前） -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容容器 -->
+    <div class="container">
+        <h1 class="page-title" data-i18n="flowchart.page.title">📊 在线流程图</h1>
+        <p class="subhead" data-i18n="flowchart.subhead">🔹 基于 Mermaid · 支持在线/离线模式 · 嵌入式开发模板 · 左右分栏实时预览</p>
+
+        <!-- ===== 顶部工具栏 ===== -->
+        <div class="flowchart-toolbar">
+            <!-- 模板区：分类 + 模板 + 加载 -->
+            <div class="toolbar-section">
+                <span class="toolbar-label" data-i18n="flowchart.toolbar.template">模板</span>
+                <div class="toolbar-group">
+                    <span class="toolbar-label" data-i18n="flowchart.toolbar.cat">分类</span>
+                    <select id="templateCat" class="toolbar-select">
+                        <option value="embedded" data-i18n="flowchart.cat.embedded">嵌入式开发</option>
+                        <option value="mermaid" data-i18n="flowchart.cat.mermaid">Mermaid 模板</option>
+                    </select>
+                </div>
+                <div class="toolbar-group">
+                    <span class="toolbar-label" data-i18n="flowchart.toolbar.tpl">模板</span>
+                    <select id="templateSelect" class="toolbar-select">
+                    </select>
+                    <button class="btn btn-outline " id="loadTemplateBtn" data-i18n="flowchart.btn.load">📥 加载</button>
+                </div>
+            </div>
+
+            <!-- 右侧操作组：渲染模式 / 缩放 / 导出（整体靠右，内部可换行） -->
+            <div class="toolbar-right toolbar-push-right">
+            <!-- 渲染模式：在线 / 离线 -->
+            <div class="toolbar-section">
+                <span class="toolbar-label" data-i18n="flowchart.toolbar.mode">渲染模式</span>
+                <div class="toolbar-group">
+                    <button class="btn btn-outline  mode-btn active" id="modeOnline" data-i18n="flowchart.mode.online">🌐 在线</button>
+                    <button class="btn btn-outline  mode-btn" id="modeOffline" data-i18n="flowchart.mode.offline">📦 离线</button>
+                </div>
+            </div>
+
+            <!-- 缩放控制（滚轮缩放，点击百分比可重置为 100%） -->
+            <div class="toolbar-section">
+                <div class="toolbar-group">
+                    <span class="toolbar-label" data-i18n="flowchart.toolbar.zoom">缩放</span>
+                    <span class="zoom-badge zoom-badge-reset" id="zoomLevel" title="点击重置缩放" data-i18n-title="flowchart.title.zoomReset">100%</span>
+                </div>
+            </div>
+
+            <!-- 导出 / 复制 -->
+            <div class="toolbar-section">
+                <div class="toolbar-group">
+                    <button class="btn btn-outline " id="exportPngBtn" data-i18n="flowchart.btn.exportPng">🖼 导出 PNG</button>
+                    <button class="btn btn-outline " id="exportSvgBtn" data-i18n="flowchart.btn.exportSvg">📐 导出 SVG</button>
+                    <button class="btn btn-outline " id="copyBtn" data-i18n="flowchart.btn.copy">📋 复制代码</button>
+                </div>
+            </div>
+            </div><!-- /.toolbar-right -->
+
+            <!-- 快捷功能 -->
+            <div class="toolbar-section flowchart-quickbar">
+                <span class="toolbar-label" data-i18n="flowchart.quickbar.title">快捷功能</span>
+                <button class="btn btn-outline btn-sm" data-quick="flowchart" data-i18n="flowchart.quick.flowchart">流程图</button>
+                <button class="btn btn-outline btn-sm" data-quick="sequence" data-i18n="flowchart.quick.sequence">时序图</button>
+                <button class="btn btn-outline btn-sm" data-quick="state" data-i18n="flowchart.quick.state">状态图</button>
+                <button class="btn btn-outline btn-sm" data-quick="class" data-i18n="flowchart.quick.class">类图</button>
+                <button class="btn btn-outline btn-sm" data-quick="gantt" data-i18n="flowchart.quick.gantt">甘特图</button>
+                <button class="btn btn-outline btn-sm" data-quick="pie" data-i18n="flowchart.quick.pie">饼图</button>
+                <span class="quickbar-divider"></span>
+                <button class="btn btn-outline btn-sm" data-quick="clear" data-i18n="flowchart.quick.clear">🗑 清空</button>
+                <button class="btn btn-outline btn-sm" data-quick="format" data-i18n="flowchart.quick.format">🧹 格式化</button>
+                <button class="btn btn-outline btn-sm" data-quick="render" data-i18n="flowchart.quick.render">▶️ 渲染</button>
+            </div>
+        </div>
+
+        <!-- ===== 左右分栏 ===== -->
+        <div class="flowchart-main">
+            <!-- 左侧：代码编辑 -->
+            <div class="flowchart-panel flowchart-editor-panel">
+                <div class="panel-title">
+                    <span data-i18n="flowchart.panel.code">📝 代码编辑</span>
+                    <span class="flowchart-panel-actions">
+                        <button class="btn btn-outline btn-sm flowchart-fs-btn" id="fsEditorBtn" data-i18n-title="flowchart.fs.editor">⛶</button>
+                    </span>
+                </div>
+                <div class="flowchart-editor-wrap">
+                    <pre class="flowchart-gutter" id="codeGutter" aria-hidden="true"></pre>
+                    <textarea id="codeEditor" class="flowchart-editor" wrap="off" placeholder="flowchart LR&#10;    A[开始] --> B[结束]" data-i18n-placeholder="flowchart.editor.ph" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+                    <pre class="flowchart-highlight" id="codeHighlight" aria-hidden="true"><code id="codeHighlightCode"></code></pre>
+                </div>
+            </div>
+
+            <!-- 中间：可拖动调整宽度的分隔条 -->
+            <div class="flowchart-resizer" id="flowchartResizer" title="拖动调整编辑/预览宽度" data-i18n-title="flowchart.resizer.title"></div>
+
+            <!-- 右侧：渲染预览 -->
+            <div class="flowchart-panel flowchart-preview-panel">
+                <div class="panel-title">
+                    <span data-i18n="flowchart.panel.preview">📊 渲染预览</span>
+                    <span class="flowchart-panel-actions">
+                        <span class="status-badge" id="renderStatus" data-i18n="flowchart.status.ready">就绪</span>
+                        <button class="btn btn-outline btn-sm flowchart-fs-btn" id="fsPreviewBtn" data-i18n-title="flowchart.fs.preview">⛶</button>
+                    </span>
+                </div>
+                <div class="flowchart-preview-wrap" id="previewWrap">
+                    <div class="flowchart-preview-inner" id="previewInner">
+                        <div class="flowchart-empty-state" id="emptyState">
+                            <div class="empty-icon">📊</div>
+                            <span data-i18n="flowchart.status.empty">在左侧输入 Mermaid 代码，点击渲染</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer-note">
+            <span data-i18n="flowchart.footer">📊 在线流程图绘制 · 基于 Mermaid · 支持嵌入式开发模板与标准 Mermaid 图表</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 4. 脚本层：theme.js → i18n.js → 页面特有 -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/MermaidDraw.js"></script>
+</body>
+</html>

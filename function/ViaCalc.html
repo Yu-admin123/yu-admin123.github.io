@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>PCB 过孔电流计算器</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题 + 语言预初始化（必须内联，防闪烁） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/ViaCalc.css">
+</head>
+<body>
+    <!-- 导航栏（语言切换 → 主题切换） -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title" data-i18n="via.title">🕳️ PCB 过孔电流计算器</h1>
+        <p class="subhead" data-i18n="via.subhead">🔹 默认采用 IPC-2152 + 圆柱散热修正；通/盲/埋孔按散热环境自动降额。可切换回 IPC-2221 保守基线对比。正向求单孔最大载流，反向求并联过孔数量，并给出电阻、压降与功耗估算。</p>
+
+        <div class="via-stack">
+        <div class="via-top">
+            <!-- 左栏：① 计算模式 + ③ 计算结果 合并为一张卡片 -->
+            <div class="panel panel-accent via-left">
+                <div class="panel-title"><span data-i18n="via.p1.title">计算模式</span> <small data-i18n="via.p1.small">正向 / 反向求解</small></div>
+                <div class="mode-tabs" role="tablist">
+                    <button class="mode-tab active" data-mode="forward" data-i18n="via.mode.forward">正向：求单孔载流</button>
+                    <button class="mode-tab" data-mode="reverse" data-i18n="via.mode.reverse">反向：求过孔数量</button>
+                </div>
+
+                <div class="via-formula" id="modeFormula"></div>
+
+                <div class="via-preset-title" data-i18n="via.preset.title">常用电流预设</div>
+                <div class="via-preset" id="presetBar">
+                    <button class="via-preset-btn" type="button" data-amp="1">1 A</button>
+                    <button class="via-preset-btn" type="button" data-amp="2">2 A</button>
+                    <button class="via-preset-btn" type="button" data-amp="5">5 A</button>
+                    <button class="via-preset-btn" type="button" data-amp="10">10 A</button>
+                    <button class="via-preset-btn" type="button" data-amp="20">20 A</button>
+                </div>
+
+                <div class="via-sep"></div>
+
+                <div class="via-subtitle"><span data-i18n="via.p3.title">计算结果</span> <small data-i18n="via.p3.small">实时计算</small></div>
+                <div class="result-strip" id="resultStrip">
+                    <span class="result-chip"><strong data-i18n="via.result.viaI">单孔载流 I_via</strong> <span class="val" id="viaIResult">--</span> <small>A</small></span>
+                    <span class="result-chip"><strong data-i18n="via.result.n">需过孔数 N</strong> <span class="val" id="nResult">--</span> <small data-i18n="via.result.nUnit">个</small></span>
+                    <span class="result-chip"><strong data-i18n="via.result.viaR">单孔电阻 R_via</strong> <span class="val" id="viaRResult">--</span> <small>mΩ</small></span>
+                    <span class="result-chip"><strong data-i18n="via.result.totalR">并联总电阻 R</strong> <span class="val" id="totalRResult">--</span> <small>mΩ</small></span>
+                    <span class="result-chip"><strong data-i18n="via.result.vdrop">压降 ΔV</strong> <span class="val" id="vdropResult">--</span> <small>mV</small></span>
+                    <span class="result-chip"><strong data-i18n="via.result.power">功耗 P</strong> <span class="val" id="powerResult">--</span> <small>mW</small></span>
+                </div>
+                <div id="statusMsg" class="status-error" style="display:none; margin-top:10px;"></div>
+            </div>
+
+            <!-- 右栏：② 输入参数 -->
+            <div class="panel panel-accent via-right">
+                <div class="panel-title"><span data-i18n="via.p2.title">输入参数</span> <small data-i18n="via.p2.small">双标准 · IPC-2152 默认</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="via.label.std">计算标准</label>
+                        <select id="standard">
+                            <option value="ipc2152" selected data-i18n="via.std.2152">IPC-2152（推荐）</option>
+                            <option value="ipc2221" data-i18n="via.std.2221">IPC-2221（保守·内层降额）</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.unit">尺寸单位</label>
+                        <select id="unitSel">
+                            <option value="mm" selected data-i18n="via.unit.mm">mm（毫米）</option>
+                            <option value="mil" data-i18n="via.unit.mil">mil（密耳）</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.dt">温升 ΔT</label>
+                        <input type="number" id="tempRise" value="10" step="1" min="0" list="dtList">
+                        <span class="unit">°C</span>
+                        <datalist id="dtList">
+                            <option value="5">5 °C</option>
+                            <option value="10">10 °C</option>
+                            <option value="20">20 °C</option>
+                            <option value="30">30 °C</option>
+                            <option value="50">50 °C</option>
+                        </datalist>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.plane">邻近铜平面</label>
+                        <select id="plane">
+                            <option value="none" selected data-i18n="via.plane.none">无</option>
+                            <option value="yes" data-i18n="via.plane.yes">有（≈+40% 载流）</option>
+                        </select>
+                        <span class="hint-text" data-i18n="via.hint.plane">仅 2152 生效</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.viaType">过孔类型</label>
+                        <select id="viaType">
+                            <option value="through" selected data-i18n="via.type.through">通孔（贯穿整板）</option>
+                            <option value="blind" data-i18n="via.type.blind">盲孔（一端通表层）</option>
+                            <option value="buried" data-i18n="via.type.buried">埋孔（完全埋入板内）</option>
+                        </select>
+                        <span class="hint-text" data-i18n="via.hint.viaType">盲/埋孔散热差 · 仅 2152</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.d">钻孔直径 D</label>
+                        <input type="number" id="drillD" value="0.4" step="0.05" min="0">
+                        <span class="unit" id="drillDUnit">mm</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.plating">电镀铜厚</label>
+                        <select id="plating">
+                            <option value="17.5">0.5 oz（≈17.5 µm）</option>
+                            <option value="20">IPC-2 级（20 µm）</option>
+                            <option value="25">IPC-3 级（25 µm）</option>
+                            <option value="35" selected>1 oz（35 µm）</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="via.label.board">板厚 L</label>
+                        <input type="number" id="boardL" value="1.6" step="0.1" min="0">
+                        <span class="unit" id="boardLUnit">mm</span>
+                    </div>
+                    <div class="input-row" id="currentRow" style="display:none;">
+                        <label data-i18n="via.label.current">目标电流 I</label>
+                        <input type="number" id="targetCurrent" value="5" step="0.5" min="0">
+                        <span class="unit">A</span>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /via-top -->
+
+        <!-- ④ 单孔载流能力曲线 -->
+        <div class="panel panel-accent">
+            <div class="panel-title"><span data-i18n="via.p4.title">单孔载流能力曲线</span> <small data-i18n="via.p4.small">随钻孔直径 / 镀铜厚变化</small></div>
+            <div class="chart-wrapper" id="chartWrapper">
+                <canvas id="chartCanvas"></canvas>
+                <div class="chart-tooltip" id="chartTooltip"></div>
+                <div class="chart-legend" id="chartLegend"></div>
+            </div>
+        </div>
+
+        <!-- ⑤ 推荐过孔数量参考表 -->
+        <div class="panel panel-accent">
+            <div class="panel-title"><span data-i18n="via.p5.title">推荐过孔数量参考</span> <small data-i18n="via.p5.small">常见电流 · 随参数实时更新</small></div>
+            <div class="table-wrap" id="refTableWrap">
+                <table id="refTable">
+                    <thead>
+                        <tr id="refHeadRow">
+                            <th data-i18n="via.table.thI">电流 (A)</th>
+                            <th>Ø0.2</th>
+                            <th>Ø0.3</th>
+                            <th>Ø0.4</th>
+                            <th>Ø0.5</th>
+                            <th>Ø0.6</th>
+                            <th>Ø0.8</th>
+                            <th>Ø1.0</th>
+                        </tr>
+                    </thead>
+                    <tbody id="refBody"></tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="via.footer">🕳️ PCB 过孔电流计算器 · 正向求单孔载流 · 反向求过孔数量 · 默认 IPC-2152（可切 IPC-2221）· 电阻/压降/功耗估算</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 脚本层：theme.js → i18n.js → 页面.js -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/ViaCalc.js"></script>
+</body>
+</html>

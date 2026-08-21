@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Markdown 编辑器</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题 + 语言预初始化（必须在 head 内联，防止加载闪烁） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/MarkdownEditor.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换（必须在主题切换之前） -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容容器 -->
+    <div class="container">
+        <h1 class="page-title" data-i18n="markdown.page.title">📝 Markdown 编辑器</h1>
+        <p class="subhead" data-i18n="markdown.subhead">🔹 实时预览 · VSCode 风格代码高亮 · 在线/离线双模式渲染 · 左右分栏</p>
+
+        <!-- ===== 顶部工具栏 ===== -->
+        <div class="md-toolbar">
+            <!-- 第一行：渲染模式 + 导出/复制（靠左） -->
+            <div class="md-toolbar-row">
+                <!-- 渲染模式：在线 / 离线 -->
+                <div class="toolbar-section">
+                    <span class="toolbar-label" data-i18n="markdown.toolbar.mode">渲染模式</span>
+                    <div class="toolbar-group">
+                        <button class="btn btn-outline mode-btn active" id="modeOnline" data-i18n="markdown.mode.online">🌐 在线</button>
+                        <button class="btn btn-outline mode-btn" id="modeOffline" data-i18n="markdown.mode.offline">📦 离线</button>
+                    </div>
+                </div>
+
+                <!-- 导出 / 复制 -->
+                <div class="toolbar-section">
+                    <div class="toolbar-group">
+                        <button class="btn btn-outline" id="copyMdBtn" data-i18n="markdown.btn.copyMd">📋 复制 MD</button>
+                        <button class="btn btn-outline" id="copyHtmlBtn" data-i18n="markdown.btn.copyHtml">📄 复制 HTML</button>
+                        <button class="btn btn-outline" id="exportMdBtn" data-i18n="markdown.btn.exportMd">💾 导出 .md</button>
+                        <button class="btn btn-outline" id="exportHtmlBtn" data-i18n="markdown.btn.exportHtml">📦 导出 HTML</button>
+                        <button class="btn btn-outline" id="sampleBtn" data-i18n="markdown.btn.sample">✨ 示例</button>
+                        <button class="btn btn-outline" id="clearBtn" data-i18n="markdown.btn.clear">🗑 清空</button>
+                    </div>
+                </div>
+
+                <!-- 右侧：PDF / 目录 / 实时字数（靠右填补空白） -->
+                <div class="toolbar-section md-toolbar-row-right">
+                    <div class="toolbar-group">
+                        <button class="btn btn-outline" id="exportPdfBtn" data-i18n="markdown.btn.exportPdf">📑 导出 PDF</button>
+                        <button class="btn btn-outline" id="tocBtn" data-i18n="markdown.btn.toc">📑 目录</button>
+                    </div>
+                    <span class="md-count" id="wordCount" title="字符 / 词 / 行" data-i18n-title="markdown.title.count">0 字符 · 0 词 · 0 行</span>
+                </div>
+            </div>
+
+            <!-- 第二行：快捷插入 -->
+            <div class="md-quickbar">
+                <span class="toolbar-label" data-i18n="markdown.toolbar.insert">插入</span>
+                <button class="btn btn-outline btn-sm" data-quick="h1" data-i18n="markdown.q.h1">H1</button>
+                <button class="btn btn-outline btn-sm" data-quick="h2" data-i18n="markdown.q.h2">H2</button>
+                <button class="btn btn-outline btn-sm" data-quick="bold" data-i18n="markdown.q.bold">B</button>
+                <button class="btn btn-outline btn-sm" data-quick="italic" data-i18n="markdown.q.italic">I</button>
+                <button class="btn btn-outline btn-sm" data-quick="code" data-i18n="markdown.q.code">`&lt;&gt;`</button>
+                <button class="btn btn-outline btn-sm" data-quick="codeblock" data-i18n="markdown.q.codeblock">代码块</button>
+                <button class="btn btn-outline btn-sm" data-quick="link" data-i18n="markdown.q.link">🔗 链接</button>
+                <button class="btn btn-outline btn-sm" data-quick="image" data-i18n="markdown.q.image">🖼 图片</button>
+                <button class="btn btn-outline btn-sm" data-quick="list" data-i18n="markdown.q.list">列表</button>
+                <button class="btn btn-outline btn-sm" data-quick="quote" data-i18n="markdown.q.quote">❝ 引用</button>
+                <button class="btn btn-outline btn-sm" data-quick="table" data-i18n="markdown.q.table">表格</button>
+                <button class="btn btn-outline btn-sm" data-quick="hr" data-i18n="markdown.q.hr">— 分隔</button>
+                <button class="btn btn-outline btn-sm" data-quick="h3" data-i18n="markdown.q.h3">H3</button>
+                <button class="btn btn-outline btn-sm" data-quick="task" data-i18n="markdown.q.task">☑ 任务</button>
+                <button class="btn btn-outline btn-sm" data-quick="strike" data-i18n="markdown.q.strike">删除线</button>
+                <button class="btn btn-outline btn-sm" data-quick="mark" data-i18n="markdown.q.mark">高亮</button>
+                <button class="btn btn-outline btn-sm" data-quick="footnote" data-i18n="markdown.q.footnote">脚注</button>
+                <button class="btn btn-outline btn-sm" data-quick="details" data-i18n="markdown.q.details">折叠</button>
+                <button class="btn btn-outline btn-sm" data-quick="sup" data-i18n="markdown.q.sup">上标</button>
+                <button class="btn btn-outline btn-sm" data-quick="date" data-i18n="markdown.q.date">📅 日期</button>
+            </div>
+        </div>
+
+        <!-- ===== 左右分栏 ===== -->
+        <div class="md-main">
+            <!-- 左侧：Markdown 编辑 -->
+            <div class="md-panel md-editor-panel">
+                <div class="panel-title">
+                    <span data-i18n="markdown.panel.editor">📝 Markdown 编辑</span>
+                    <span class="md-panel-actions">
+                        <span class="status-badge ready" id="renderStatus" data-i18n="markdown.status.ready">就绪</span>
+                        <button class="btn btn-outline btn-sm md-fs-btn" id="fsEditorBtn" data-i18n-title="markdown.fs.editor">⛶</button>
+                    </span>
+                </div>
+                <div class="md-editor-wrap">
+                    <pre class="md-gutter" id="codeGutter" aria-hidden="true"></pre>
+                    <textarea id="codeEditor" class="md-editor" wrap="off"
+                        placeholder="# 标题&#10;输入 **Markdown** 文本，右侧实时预览"
+                        data-i18n-placeholder="markdown.editor.ph"
+                        spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+                    <pre class="md-highlight" id="codeHighlight" aria-hidden="true"><code id="codeHighlightCode"></code></pre>
+                </div>
+            </div>
+
+            <!-- 中间：可拖动调整宽度的分隔条 -->
+            <div class="md-resizer" id="mdResizer" title="拖动调整编辑/预览宽度" data-i18n-title="markdown.resizer.title"></div>
+
+            <!-- 右侧：实时预览 -->
+            <div class="md-panel md-preview-panel">
+                <div class="panel-title">
+                    <span data-i18n="markdown.panel.preview">👁 实时预览</span>
+                    <span class="md-panel-actions">
+                        <button class="btn btn-outline btn-sm md-fs-btn" id="fsPreviewBtn" data-i18n-title="markdown.fs.preview">⛶</button>
+                    </span>
+                </div>
+                <div class="md-preview-wrap" id="previewWrap">
+                    <div class="md-preview" id="preview"></div>
+                    <div class="md-empty-state" id="emptyState">
+                        <div class="empty-icon">📝</div>
+                        <span data-i18n="markdown.status.empty">在左侧输入 Markdown，右侧将实时渲染预览</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer-note">
+            <span data-i18n="markdown.footer">📝 Markdown 编辑器 · 实时预览 · VSCode 风格代码高亮 · 在线(CDN)/离线(本地)双模式</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 4. 脚本层：theme.js → i18n.js → 页面特有 -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/MarkdownEditor.js"></script>
+</body>
+</html>

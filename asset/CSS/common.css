@@ -689,9 +689,10 @@ body {
     flex: 2;
 }
 .input-row select {
-    flex: 0.7;
-    min-width: 100px;
+    flex: 1;
+    min-width: 60px;
     cursor: pointer;
+    text-overflow: ellipsis;
 }
 .input-row input[readonly] {
     background: var(--bg-input-readonly);
@@ -825,7 +826,7 @@ body {
 }
 .btn-sm {
     padding: 3px 12px;
-    font-size: 0.65rem;
+    font-size: 0.75rem;
 }
 
 /* ===== 代码输出区 ===== */

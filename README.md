@@ -1,263 +1,203 @@
-
----
-
-# Yu_ToolBox - 嵌入式开发者工具箱
+# Yu_ToolBox — 嵌入式开发者工具箱
 
 [![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-brightgreen)](https://yu-admin123.github.io)
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Yu-admin123/yu-admin123.github.io)
 
-## 🌐 [中文](./README.md) ｜ [English](./README_en.md)  
-> **更新时间：2026-08-18**
+> 更新于 2026-08-21 · [English](./README_en.md)
 
-> 专为嵌入式开发者打造的在线工具集合，一站式解决开发中的高频需求。
+做嵌入式开发，总有那么些反复要用的小工具：算个 CRC、换个进制、查 NTC 温度、估 PCB 走线能过多少电流……每次都要临时找、临时装，挺烦的。
 
-**在线访问**：[https://yu-admin123.github.io](https://yu-admin123.github.io)  
-**备用访问**：[https://kit-ymjk.upma.site](https://kit-ymjk.upma.site/)
+Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、零后端，打开即用，断网也能跑**——所有计算都在本地浏览器里完成，数据不出你的电脑。
 
----
-
-## 📖 项目简介
-
-**Yu_ToolBox** 是一个基于纯静态资源构建的嵌入式开发工具导航站。项目旨在打造一个多功能的嵌入式瑞士军刀, 将嵌入式开发中常用的高频工具集成在统一的界面中，帮助开发者快速定位并使用所需工具，提升开发效率。
-
-所有工具均为纯前端实现，**零依赖、零后端、离线可用**，打开即用。
+🔗 在线访问：[yu-admin123.github.io](https://yu-admin123.github.io) ｜ 备用：[kit-ymjk.upma.site](https://kit-ymjk.upma.site/)
 
 ---
 
-## 🧰 工具列表
+## 🧰 工具一览
 
-| 分类 | 工具 | 说明 |
-|------|------|------|
-| 🔧 调试 | 🔗 [在线串口工具](./function/serialPortTool.html) | 可自定义波特率、实时数据曲线、脚本自动回复 |
-| 🔧 调试 | 📡 [Modbus RTU 助手](./function/ModbusRTU.html) | 支持 Modbus RTU 主站 / 从站操作 |
-| 🔧 调试 | 📶 [MQTT 助手](./function/MqttTool.html) | 基于 MQTT over WebSocket，支持订阅 / 发布 |
-| 🔧 调试 | 🌐 [HTTP 助手](./function/HttpTool.html) | 支持 HTTP 请求 / 响应调试 |
-| 🔧 调试 | 🔌 [WebSocket 测试工具](./function/WebsocketTool.html) | 支持 ws/wss 协议，文本/十六进制收发，自动重连 |
-| 🔧 调试 | 🔗 [CAN 总线助手](./function/CanBusTool.html) | 支持 J1939 拆解、DBC 解析、信号解码、反向计算 |
-| 💻 软件 | 🎨 [图片取模 / 渲染工具](./function/ImageToData.html) | 支持多种颜色格式互转、取模与数组渲染，含 Floyd 抖动算法 |
-| 💻 软件 | 🔢 [CRC 校验计算器](./function/CRCCheck.html) | 支持 CRC-8/16/32/64 多种算法 |
-| 💻 软件 | 🔁 [进制转换](./function/RadixConverter.html) | 进制实时互转、位操作、浮点数转换 |
-| 💻 软件 | 📈 [数据曲线可视化](./function/SignalPlotter.html) | 信号绘图、FFT 变换与数字滤波分析 |
-| 💻 软件 | 🎯 [PID 调节器](./function/PIDemulator.html) | 实时 PID 参数调节与仿真 |
-| 💻 软件 | 📝 [文本对比与合并](./function/TextDiffMerge.html) | 文本差异对比、行级高亮、支持合并导出 |
-| 💻 软件 | ⏱️ [Unix 时间戳转换](./function/UnixTimestamp.html) | Unix 时间戳与本地时间互转，支持毫秒 / 秒级 |
-| 💻 软件 | ⏲️ [时序秒表](./function/Timing_lab.html) | 高精度主秒表、脉宽测量分析、打点尖峰曲线、事件时间线 |
-| ⚡ 硬件 | 🔋 [电池功耗计算器](./function/PowerCalculator.html) | 根据电池容量估算设备工作时长 |
-| ⚡ 硬件 | ⚡ [ADC 转换](./function/ADCConverter.html) | ADC 值 ↔ 电压值 ↔ 百分比 互转，支持多分辨率 |
-| 🌐 其他 | 🌐 Yu_Tool 通讯助手 | 基于 QT 的桌面调试助手（见下方链接） |
+23 个工具，覆盖调试、软件、硬件等场景：
 
-### 📥 其他调试工具下载导航
-| 工具 | 说明 |
-|------|------|
-| 🌐 [Yu_Tool 通讯助手](https://gitee.com/Yu_29211/yu_-tool) | 基于QT的桌面调试助手，支持 Modbus / MQTT / 串口 / TCP  |
+| 工具 | 一句话说明 |
+|------|-----------|
+| 🔗 [在线串口工具](./function/serialPortTool.html) | 自定义波特率、实时数据曲线、脚本自动回复 |
+| 📡 [Modbus RTU 助手](./function/ModbusRTU.html) | 主站 / 从站双模式 |
+| 📶 [MQTT 助手](./function/MqttTool.html) | MQTT over WebSocket，订阅 / 发布 |
+| 🌐 [HTTP 助手](./function/HttpTool.html) | 请求 / 响应调试 |
+| 🔌 [WebSocket 测试工具](./function/WebsocketTool.html) | ws/wss，文本 / 十六进制收发，自动重连 |
+| 📡 [蓝牙调试器](./function/BLE_Debugger.html) | 扫描 / 连接 / 读写 / 通知，服务树 + Hex Dump |
+| 🔗 [CAN 总线助手](./function/CanBusTool.html) | J1939 拆解、DBC 解析、信号解码、反向计算 |
+| 🎨 [图片取模 / 渲染](./function/ImageToData.html) | 颜色格式互转、取模、数组渲染，含 Floyd 抖动 |
+| 🔢 [CRC 校验计算器](./function/CRCCheck.html) | CRC-8/16/32/64 |
+| 🔁 [进制转换](./function/RadixConverter.html) | 实时互转、位操作、浮点数 |
+| 📈 [数据曲线可视化](./function/SignalPlotter.html) | 绘图、FFT、数字滤波 |
+| 🎯 [PID 调节器](./function/PIDemulator.html) | 参数实时调节 + 仿真 |
+| 📝 [文本对比与合并](./function/TextDiffMerge.html) | 差异对比、行级高亮、合并导出 |
+| ⏱️ [Unix 时间戳转换](./function/UnixTimestamp.html) | 时间戳 ↔ 本地时间 |
+| ⏲️ [时序秒表](./function/Timing_lab.html) | 高精度秒表、脉宽测量、打点尖峰曲线 |
+| 📊 [在线流程图](./function/MermaidDraw.html) | 基于 Mermaid，在线 / 离线双模式，嵌入式模板 |
+| 📝 [Markdown 编辑器](./function/MarkdownEditor.html) | 实时预览、VSCode 风格高亮、在线 / 离线双模式 |
+| 🔋 [电池功耗计算器](./function/PowerCalculator.html) | 按电池容量估算设备续航 |
+| ⚡ [ADC 转换](./function/ADCConverter.html) | ADC 值 ↔ 电压 ↔ 百分比，多分辨率 |
+| 🔥 [NTC 电阻计算器](./function/NtcCounter.html) | B 值 / 三点标定，电阻 ↔ 温度互算 |
+| 🧮 [电阻分压计算器](./function/ResDivider.html) | 正反向求解，E24 推荐 |
+| 🖥️ [PCB 走线宽度计算器](./function/PcbTrace.html) | IPC-2152 模型，线宽 / 电流互算 |
+| 🕳️ [PCB 过孔电流计算器](./function/ViaCalc.html) | 单孔载流 / 过孔数量互算 |
 
-> 更多工具持续开发中……
+另有桌面版 [Yu_Tool 通讯助手](https://gitee.com/Yu_29211/yu_-tool)（基于 Qt，串口 / Modbus / MQTT / TCP）。
 
----
-
-## 🚀 功能特性
-
-- **分类导航** — 全部 / 调试 / 硬件 / 软件 / 其他 五大分类，支持单工具归属多个分类
-- **⭐ 收藏** — 每张卡片右上角星标收藏，分类栏「收藏」一键只看已收藏，本地持久化
-- **实时搜索** — 按工具名称、描述、分类关键词即时筛选
-- **主题切换** — Light / Dark 双主题，基于 CSS Variables，状态本地持久化
-- **响应设计** — 适配桌面、平板、手机等多端设备
-- **卡片动画** — 渐入动画、悬停浮起、NEW 徽标标识新工具
-- **一键加群** — 快速加入 QQ 技术交流群（453705020）
-- **吉祥物彩蛋** — 导航栏「眼睛+嘴巴」表情：瞳孔跟随、随机眨眼、睡觉/唤醒；对话框 10 秒轮换段子、连点眼睛触发 10 阶彩蛋、悬浮卡片/按钮显示专属台词
+> 更多工具持续添加中。
 
 ---
 
-## 📁 项目结构
+## ✨ 一些细节
+
+- **分类 + 搜索**：调试 / 硬件 / 软件 / 文档 / 其他五个分类，一个工具可以同时挂多个分类；记不清名字就搜关键词，名称、描述、分类都能命中
+- **中英文界面**：右上角一键切换，连图表轴标签、提示语都会跟着换
+- **浅色 / 深色主题**：随你喜欢，选择会被记住，跨页面不丢
+- **收藏夹**：常用工具打星，分类栏「收藏」一键筛选，本地保存
+- **多端适配**：手机、平板、电脑都排版正常
+- **吉祥物彩蛋**：导航栏的眼睛会追着鼠标看、随机眨眼、长时间不动就睡觉；连点十下会触发一个 10 阶段的小彩蛋
+- **一键加群**：右上角直达 QQ 交流群（453705020）
+
+---
+
+## 🛠️ 项目结构
+
+纯静态项目，没有构建步骤。工具都遵循「三件套」约定：每个工具由**同名**的 HTML + CSS + JS 组成，分别放在 `function/`、`asset/CSS/`、`asset/JavaScript/` 下，三处文件名必须一致。
 
 ```
-.
-├── index.html                      # 工具箱主页（导航与工具卡片）
-├── README.md                       # 项目说明文档
-├── LICENSE                         # 开源协议
+Yu_ToolBox/
+├── index.html                    # 主页：导航 / 分类 / 搜索 / 收藏 / 吉祥物彩蛋 / 广告位
+├── README.md / README_en.md      # 项目说明（中 / 英）
+├── AIRobotoReadmi.md             # AI 交接文档：架构、规范、模板、禁忌
+├── descr.md                      # 开发者指南：给 AI 传哪些文件、怎么描述需求
+├── LICENSE / NOTICE              # 开源协议与版权声明
 │
-├── asset/                          # 静态资源目录
-│   ├── Logo/                       # 图片资源
-│   │   ├── Yu_Tools.png            # 工具箱 Logo
-│   │   └── Yu.jfif                 # 备用 Logo
+├── asset/                        # 静态资源
+│   ├── Logo/
+│   │   ├── Yu_Tools.png          # 工具箱 Logo（favicon + 导航栏品牌图）
+│   │   └── Yu.jfif               # 备用 Logo
 │   │
-│   ├── CSS/                        # 样式表
-│   │   ├── common.css              # ★ 共用样式（主题变量、reset、导航栏、面板、统一按钮/输入框/滑块/选择框、代码输出、状态标签等）
-│   │   ├── index.css               # 主页特有样式（Hero、工具卡片网格、分类按钮、搜索框、GitHub按钮、收藏星标、页脚等）
-│   │   ├── ADCConverter.css        # ADC 转换页面特有样式
-│   │   ├── CRCCheck.css            # CRC 校验页面特有样式
-│   │   ├── CanBusTool.css          # CAN 总线助手页面特有样式
-│   │   ├── HttpTool.css            # HTTP 助手页面特有样式
-│   │   ├── ImageToData.css         # 图片取模/渲染页面特有样式
-│   │   ├── ModbusRTU.css           # Modbus RTU 助手页面特有样式
-│   │   ├── MqttTool.css            # MQTT 助手页面特有样式
-│   │   ├── PIDemulator.css         # PID 调节器页面特有样式
-│   │   ├── PowerCalculator.css     # 电池功耗计算器页面特有样式
-│   │   ├── RadixConverter.css      # 进制转换页面特有样式
-│   │   ├── SignalPlotter.css       # 数据曲线可视化页面特有样式
-│   │   ├── TextDiffMerge.css       # 文本对比与合并页面特有样式
-│   │   ├── UnixTimestamp.css       # Unix 时间戳转换页面特有样式
-│   │   ├── WebsocketTool.css       # WebSocket 测试工具页面特有样式
-│   │   ├── Timing_lab.css          # 时序秒表页面特有样式
-│   │   └── serialPortTool.css      # 在线串口工具页面特有样式
+│   ├── CSS/
+│   │   ├── common.css            # ★ 共用样式，所有页面第一个引入：主题变量、
+│   │   │                         #   reset、滚动条、导航栏、面板、统一按钮/输入框/
+│   │   │                         #   滑块/复选、代码输出、状态标签、响应式断点
+│   │   ├── index.css             # 主页特有样式：Hero、工具卡片网格、分类按钮、搜索框、收藏星标、吉祥物、广告位
+│   │   ├── serialPortTool.css    # 在线串口工具
+│   │   ├── ModbusRTU.css         # Modbus RTU 助手
+│   │   ├── MqttTool.css          # MQTT 助手
+│   │   ├── HttpTool.css          # HTTP 助手
+│   │   ├── WebsocketTool.css     # WebSocket 测试工具
+│   │   ├── BLE_Debugger.css      # 蓝牙调试器
+│   │   ├── CanBusTool.css        # CAN 总线助手
+│   │   ├── ImageToData.css       # 图片取模 / 渲染
+│   │   ├── CRCCheck.css          # CRC 校验计算器
+│   │   ├── RadixConverter.css    # 进制转换
+│   │   ├── SignalPlotter.css     # 数据曲线可视化
+│   │   ├── PIDemulator.css       # PID 调节器
+│   │   ├── TextDiffMerge.css     # 文本对比与合并
+│   │   ├── UnixTimestamp.css     # Unix 时间戳转换
+│   │   ├── Timing_lab.css        # 时序秒表
+│   │   ├── MermaidDraw.css       # 在线流程图
+│   │   ├── MarkdownEditor.css    # Markdown 编辑器
+│   │   ├── PowerCalculator.css   # 电池功耗计算器
+│   │   ├── ADCConverter.css      # ADC 转换
+│   │   ├── NtcCounter.css        # NTC 电阻计算器
+│   │   ├── ResDivider.css        # 电阻分压计算器
+│   │   ├── PcbTrace.css          # PCB 走线宽度计算器
+│   │   └── ViaCalc.css           # PCB 过孔电流计算器
 │   │
-│   └── JavaScript/                 # javascript 脚本
-│       ├── theme.js                # ★ 共用主题切换逻辑（全局 setTheme + themechange 事件）
-│       ├── index.js                # 主页脚本（工具数据 + 分类/搜索渲染 + 收藏 + 吉祥物彩蛋）
-│       ├── ADCConverter.js         # ADC 转换页面业务逻辑
-│       ├── CRCCheck.js             # CRC 校验页面业务逻辑
-│       ├── CanBusTool.js           # CAN 总线助手页面业务逻辑
-│       ├── HttpTool.js             # HTTP 助手页面业务逻辑
-│       ├── ImageToData.js          # 图片取模/渲染页面业务逻辑
-│       ├── ModbusRTU.js            # Modbus RTU 助手页面业务逻辑
-│       ├── MqttTool.js             # MQTT 助手页面业务逻辑（依赖 mqtt.js CDN）
-│       ├── PIDemulator.js          # PID 调节器页面业务逻辑
-│       ├── PowerCalculator.js      # 电池功耗计算器页面业务逻辑
-│       ├── RadixConverter.js       # 进制转换页面业务逻辑
-│       ├── SignalPlotter.js        # 数据曲线可视化页面业务逻辑
-│       ├── TextDiffMerge.js        # 文本对比与合并页面业务逻辑
-│       ├── UnixTimestamp.js        # Unix 时间戳转换页面业务逻辑
-│       ├── WebsocketTool.js        # WebSocket 测试工具页面业务逻辑
-│       ├── Timing_lab.js           # 时序秒表页面业务逻辑
-│       └── serialPortTool.js       # 在线串口工具页面业务逻辑（依赖 CodeMirror CDN）
+│   ├── JavaScript/
+│   │   ├── theme.js              # ★ 共用主题：setTheme + themechange 事件 + 图标同步
+│   │   ├── i18n.js               # ★ 共用语言：I18N 字典 + languagechange 事件 + data-i18n 应用
+│   │   ├── index.js              # 主页脚本：toolsData 注册表 + 分类/搜索/收藏 + 吉祥物彩蛋
+│   │   └── <工具名>.js ×23       # 各工具业务逻辑，与上方 CSS 同名一一对应
+│   │
+│   └── lib/                      # 本地第三方库（离线模式兜底）
+│       ├── mermaid.min.js        # mermaid v11（在线流程图离线渲染）
+│       ├── marked.min.js         # marked v12（Markdown 编辑器离线渲染）
+│       └── highlight.min.js      # highlight.js v11（Markdown 编辑器离线代码高亮）
 │
-└── function/                      # 各工具页面入口 HTML
-   ├── serialPortTool.html         # 在线串口工具
-   ├── ModbusRTU.html              # Modbus RTU 助手
-   ├── MqttTool.html               # MQTT 助手
-   ├── HttpTool.html               # HTTP 助手
-   ├── WebsocketTool.html          # WebSocket 测试工具
-   ├── CanBusTool.html             # CAN 总线助手
-   ├── ImageToData.html            # 图片取模 / 渲染工具
-   ├── CRCCheck.html               # CRC 校验计算器
-   ├── RadixConverter.html         # 进制转换
-   ├── SignalPlotter.html          # 数据曲线可视化
-   ├── PIDemulator.html            # PID 调节器
-   ├── TextDiffMerge.html          # 文本对比与合并
-   ├── UnixTimestamp.html          # Unix 时间戳转换
-   ├── PowerCalculator.html        # 电池功耗计算器
-   ├── ADCConverter.html           # ADC 转换
-   └── Timing_lab.html             # 时序秒表
-
+└── function/                     # 工具页入口 HTML，与 asset 下同名 CSS/JS 组成三件套
+    ├── serialPortTool.html       # 在线串口工具
+    ├── ModbusRTU.html            # Modbus RTU 助手
+    ├── MqttTool.html             # MQTT 助手
+    ├── HttpTool.html             # HTTP 助手
+    ├── WebsocketTool.html        # WebSocket 测试工具
+    ├── BLE_Debugger.html         # 蓝牙调试器
+    ├── CanBusTool.html           # CAN 总线助手
+    ├── ImageToData.html          # 图片取模 / 渲染
+    ├── CRCCheck.html             # CRC 校验计算器
+    ├── RadixConverter.html       # 进制转换
+    ├── SignalPlotter.html        # 数据曲线可视化
+    ├── PIDemulator.html          # PID 调节器
+    ├── TextDiffMerge.html        # 文本对比与合并
+    ├── UnixTimestamp.html        # Unix 时间戳转换
+    ├── Timing_lab.html           # 时序秒表
+    ├── MermaidDraw.html          # 在线流程图
+    ├── MarkdownEditor.html       # Markdown 编辑器
+    ├── PowerCalculator.html      # 电池功耗计算器
+    ├── ADCConverter.html         # ADC 转换
+    ├── NtcCounter.html           # NTC 电阻计算器
+    ├── ResDivider.html           # 电阻分压计算器
+    ├── PcbTrace.html             # PCB 走线宽度计算器
+    └── ViaCalc.html              # PCB 过孔电流计算器
 ```
 
----
+几个约定，想改代码前先知道：
 
-## 🧩 CSS/JS 架构说明
-
-
-### 共用样式 — `asset/CSS/common.css`
-
-所有页面（含主页）都先引入 `common.css`，它提供以下共用能力：
-
-| 模块 | 内容 |
-|------|------|
-| **主题变量** | `:root` + `[data-theme="dark"]` 两套 CSS 变量（背景、文字、边框、按钮、状态、强调色等），页面可直接使用 |
-| **全局 reset** | `*` 盒模型 / 字体族、`body` 基础结构、`::-webkit-scrollbar` 统一滚动条 |
-| **导航栏** | `.navbar`、`.navbar-inner`、`.navbar-brand`、`.navbar-right`（功能页从这里返回主页） |
-| **主题切换按钮** | `.theme-toggle` + `.toggle-track` + `.toggle-thumb` + `.theme-icon` + 暗色变体 |
-| **容器 / 标题** | `.container`、`.page-title`、`.subhead` |
-| **面板** | `.panel`、`.panel-accent`、`.panel-title`，统一卡片 hover 高亮边框 |
-| **网格** | `.grid-2col`、`.grid-3col` + 900px 响应式断点 |
-| **表单** | `.input-group`、`.input-row`、`.input-row label` |
-| **★ 统一控件** | `.input-row input/select/textarea`（圆角10px、聚焦蓝阴影）、`input[type="range"]`（统一4px轨道+16px圆形滑块）、`checkbox/radio`（统一accent-color）、`.btn`（圆角40px、hover缩放0.97）、`.btn-outline`、`.btn-sm`、`.btn-group` |
-| **辅助标签** | `.unit`、`.hint-text`、`.tag`、`.range-badge`、`.status-ok/error/warn` |
-| **代码输出** | `.code-output`（等宽字体、滚动条） |
-| **工具类** | `.footer-note`、`.flex-between`、`.mt-8`、`.file-input-wrapper`、`@keyframes fadeInUp` |
-| **响应式** | 600px / 480px 断点下的导航栏和主题切换按钮适配 |
-
-### 页面特有样式 — `asset/CSS/<页面名>.css`
-
-每个页面在 `common.css` **之后**引入自己的 `.css`，只写页面专用样式：
-
-- 页面专用 CSS 变量（如图表颜色、Diff 高亮、HTTP 方法色等）
-- 页面专用组件（工具卡片、电池预设卡片、位操作网格、模态框、CodeMirror 主题、Diff 视图等）
-- 对 common.css 中少量样式的覆盖（如 `.code-output` 的最大高度）
-
-### 共用脚本 — `asset/JavaScript/theme.js`
-
-```
-全局函数：setTheme(theme)
-  ├─ 设置 documentElement 的 data-theme 属性
-  ├─ 更新 #themeIcon 文本（☀️ / 🌙）
-  ├─ localStorage 持久化
-  └─ 派发 themechange 事件（页面可监听重绘图表）
-
-DOMContentLoaded 时：
-  ├─ 绑定 #themeToggle 点击切换
-  └─ 根据当前 data-theme 同步图标（解决跨页面跳转图标不继承）
-```
-
-### 页面特有脚本 — `asset/JavaScript/<页面名>.js`
-
-- 页面专用业务逻辑（算法计算、事件绑定、Canvas 图表、DBC 解析、Diff 算法等）
-- 若需随主题重绘，监听 `themechange` 事件（ADCConverter、PIDemulator、SignalPlotter、serialPortTool、TextDiffMerge 已使用）
-
-### HTML 入口结构（所有功能页统一）
-
-```html
-<head>
-    <!-- 1. 主题预初始化内联脚本（防止加载闪烁，必须在 head 内联，不可分离） -->
-    <script>
-        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    </script>
-
-    <!-- 2. 外部库（如需要，仅 serialPortTool 和 MqttTool 有） -->
-    <link rel="stylesheet" href="...cdn...codemirror.min.css">
-    <script src="...cdn...codemirror.min.js"></script>
-
-    <!-- 3. 样式层：先 common → 再页面特有 -->
-    <link rel="stylesheet" href="../asset/CSS/common.css">
-    <link rel="stylesheet" href="../asset/CSS/XXXXXX.css">
-</head>
-<body>
-    ...页面内容...
-
-    <!-- 4. 脚本层：先 theme.js → 再页面特有 -->
-    <script src="../asset/JavaScript/theme.js"></script>
-    <script src="../asset/JavaScript/XXXXXX.js"></script>
-</body>
-```
-
-> `index.html` 引用路径为 `./asset/...`（与 asset 同级），`function/*.html` 为 `../asset/...`（进入 asset 需向上一级）。
+- **三件套**：每个工具 = `function/名.html` + `asset/CSS/名.css` + `asset/JavaScript/名.js`，CSS/JS 一律外置，不写回 HTML
+- **主题系统**：CSS 变量 + `[data-theme="dark"]` 两套值；图表类页面监听 `themechange` 事件重绘
+- **语言系统**：HTML 用 `data-i18n` 标记，动态文本走 `window.I18N.t()`，翻译字典放在页面 JS 顶部
+- **持久化**：主题、语言、收藏、编辑器分栏比例都存在 localStorage
 
 ### 外部依赖
 
-| 文件 | 依赖 | 用途 |
-|------|------|------|
-| `function/serialPortTool.html` | CodeMirror 5.65.16（cdnjs） | 脚本编辑器代码高亮 |
-| `function/MqttTool.html` | mqtt@4.3.7（unpkg） | MQTT over WebSocket 客户端 |
+| 页面 | 依赖库 | 用途 |
+|------|--------|------|
+| 在线串口工具 | CodeMirror（CDN） | 脚本编辑器代码高亮 |
+| MQTT 助手 | mqtt.js（CDN） | MQTT over WebSocket 客户端 |
+| 在线流程图 | mermaid@11（CDN + 本地 lib 兜底） | 流程图渲染，断网也能用 |
+| Markdown 编辑器 | marked + highlight.js（CDN + 本地 lib 兜底） | 实时预览 + 代码高亮 |
 
-其余 14 个页面为纯原生 JS，零外部依赖。
+其余 19 个页面纯原生 JS，零外部依赖。
 
 ---
 
-## 💻 本地运行
+## 🚀 本地运行
 
-纯静态页面，直接双击 `index.html` 即可在浏览器中打开。如需以 HTTP 协议访问（推荐）：
+纯静态页面，双击 `index.html` 就能用。串口 / 蓝牙功能需要 HTTPS 环境（`localhost` 也可以），所以更推荐起个本地服务器：
 
 ```bash
-# 方式一：Python
-cd 项目根目录
+# Python
 python -m http.server 8000
 
-# 方式二：Node.js
+# 或 Node
 npx serve .
 ```
 
-访问 `http://localhost:8000` 即可。
+然后浏览器打开 `http://localhost:8000`。
+
+---
+
+## 🙋 参与贡献
+
+**提需求 / 报 Bug**：工具哪不好用、缺什么功能，提个 issue 或者进 QQ 群（453705020）直接说。
+
+**自己加工具**：照着一个现有工具抄三件套就能加，无需构建。
+
+**部署**：项目本身就是 GitHub Pages 托管的，改完 push 上去就生效。
 
 ---
 
 ## 🔗 相关链接
 
-- **GitHub 仓 库** ：[Yu-admin123/yu-admin123.github.io](https://github.com/Yu-admin123/yu-admin123.github.io)
-- **Github Pages**：[https://yu-admin123.github.io](https://yu-admin123.github.io)
-- **国内访问链接** ：[https://kit-ymjk.upma.site](https://kit-ymjk.upma.site/)
-- **Yu_Tool 通讯助手（Gitee）**：[Yu_29211/yu_-tool](https://gitee.com/Yu_29211/yu_-tool)
-- **QQ 交流群**：453705020
+- GitHub 仓库：[Yu-admin123/yu-admin123.github.io](https://github.com/Yu-admin123/yu-admin123.github.io)
+- 在线访问：[https://yu-admin123.github.io](https://yu-admin123.github.io)
+- 国内备用：[https://kit-ymjk.upma.site](https://kit-ymjk.upma.site/)
+- 桌面版通讯助手：[Gitee](https://gitee.com/Yu_29211/yu_-tool)
+- QQ 交流群：453705020
 
 ---
 
@@ -267,6 +207,3 @@ npx serve .
 
 Copyright © 2026 **Yu-admin123**  
 如使用、二次开发或分发本项目，请保留版权声明与 [NOTICE](./NOTICE) 文件并注明出处（[GitHub](https://github.com/Yu-admin123/yu-admin123.github.io)）。
-
----
-

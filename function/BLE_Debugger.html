@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>蓝牙调试器</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题 + 语言预初始化（必须在 head 内联，防止加载闪烁，不可分离到外部） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/BLE_Debugger.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换（必须在主题切换之前） -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 3. 主内容容器 -->
+    <div class="container">
+        <h1 class="page-title" data-i18n="ble.page.title">📡 蓝牙调试器</h1>
+        <p class="subhead" data-i18n="ble.subhead">🔹 基于 Web Bluetooth API · 扫描/连接/读写/通知 · 树形服务浏览器 · Hex Dump</p>
+
+        <!-- 非 HTTPS 警告 -->
+        <div class="ble-warning" id="bleWarning" style="display:none;">
+            <span data-i18n="ble.warn.https">⚠️ Web Bluetooth 需要 HTTPS 或 localhost 环境，请使用本地 HTTP 服务器并在浏览器中打开。</span>
+        </div>
+
+        <!-- 第一行：扫描与连接 + 统计面板 -->
+        <div class="grid-2col">
+            <!-- 面板 ①：蓝牙扫描 -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="ble.p1.title">① 蓝牙扫描</span> <small data-i18n="ble.p1.small">扫描 & 连接</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <button class="btn btn-outline" id="scanBtn" data-i18n="ble.btn.scan">🔍 扫描设备</button>
+                        <button class="btn btn-outline" id="disconnectBtn" disabled data-i18n="ble.btn.disconnect">🔌 断开连接</button>
+                        <button class="btn btn-outline btn-sm" id="reconnectBtn" style="display:none;" data-i18n="ble.btn.reconnect">🔄 重新连接</button>
+                    </div>
+                    <div class="input-row">
+                        <span class="ble-status ready" id="bleStatus" data-i18n="ble.status.ready">就绪</span>
+                    </div>
+                </div>
+                <!-- 设备信息卡片（连接后显示） -->
+                <div class="ble-device-card" id="deviceCard" style="display:none;">
+                    <div class="ble-device-name" id="deviceName">—</div>
+                    <div class="ble-device-details">
+                        <span class="key" data-i18n="ble.label.deviceId">设备 ID</span>
+                        <span class="val" id="deviceId">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 面板 ②：连接统计 -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="ble.p2.title">② 连接统计</span> <small data-i18n="ble.p2.small">实时统计</small></div>
+                <div class="ble-stats-grid" id="statsGrid">
+                    <div class="ble-stat-card" style="grid-column:1/-1;"><div class="ble-stat-value" style="font-size:0.85rem;color:var(--text-muted);" data-i18n="ble.stat.disconnected">未连接</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 面板 ③：服务与特征值树形浏览器（全宽） -->
+        <div class="panel" style="margin-top:18px;">
+            <div class="panel-title"><span data-i18n="ble.p3.title">③ 服务与特征值浏览器</span> <small data-i18n="ble.p3.small">点击展开服务 · 点击特征值操作</small></div>
+            <div class="ble-tree" id="bleTree">
+                <div class="ble-tree-empty" data-i18n="ble.tree.empty">请先连接设备</div>
+            </div>
+        </div>
+
+        <!-- 第二行：特征值操作 + 数据日志 -->
+        <div class="grid-2col" style="margin-top:18px;">
+            <!-- 面板 ④：特征值操作 -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="ble.p4.title">④ 特征值操作</span> <small id="selectedCharLabel" data-i18n="ble.p4.small">未选择</small></div>
+                <div class="input-group">
+                    <!-- 特征值属性标签 -->
+                    <div class="ble-char-props" id="charProps"></div>
+                    <!-- 写入模式 -->
+                    <div class="input-row">
+                        <label data-i18n="ble.label.writeMode">写入模式</label>
+                        <select id="writeMode">
+                            <option value="hex" data-i18n="ble.mode.hex">HEX</option>
+                            <option value="text" data-i18n="ble.mode.text">Text</option>
+                        </select>
+                    </div>
+                    <!-- 写入值 -->
+                    <div class="input-row">
+                        <label data-i18n="ble.label.writeValue">写入值</label>
+                        <input type="text" id="writeValue" placeholder="00 11 22" data-i18n-placeholder="ble.ph.writeHex">
+                    </div>
+                    <!-- 操作按钮 -->
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="readBtn" disabled data-i18n="ble.btn.read">📖 读取</button>
+                        <button class="btn btn-outline" id="writeBtn" disabled data-i18n="ble.btn.write">✏️ 写入</button>
+                        <button class="btn btn-outline" id="notifyBtn" disabled data-i18n="ble.btn.startNotify">🔔 开始通知</button>
+                    </div>
+                    <!-- 重复发送 -->
+                    <div class="ble-repeat-row" id="repeatRow" style="display:none;">
+                        <label><input type="checkbox" id="repeatCheck"><span data-i18n="ble.repeat.label">重复发送</span></label>
+                        <span data-i18n="ble.repeat.interval">间隔</span>
+                        <input type="number" id="repeatInterval" value="1000" min="50" step="100">
+                        <span>ms</span>
+                        <button class="btn btn-outline btn-sm" id="stopRepeatBtn" style="display:none;" data-i18n="ble.btn.stopRepeat">⏹ 停止</button>
+                    </div>
+                    <!-- Hex Dump 查看器 -->
+                    <div class="ble-hex-dump" id="hexDump" style="display:none;">
+                        <div class="ble-hex-dump-title" data-i18n="ble.hex.title">读取结果</div>
+                        <div class="ble-hex-dump-header">
+                            <span class="hd-offset">Offset(h)</span>
+                            <span class="hd-hex">00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F</span>
+                            <span class="hd-ascii">Decoded text</span>
+                        </div>
+                        <div class="ble-hex-dump-content" id="hexDumpContent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 面板 ⑤：数据日志 -->
+            <div class="panel panel-accent">
+                <div class="flex-between">
+                    <div class="panel-title" style="margin-bottom:0;"><span data-i18n="ble.p5.title">⑤ 数据日志</span> <small data-i18n="ble.p5.small">实时数据</small></div>
+                    <div class="ble-log-filters" id="logFilters">
+                        <button class="btn btn-sm btn-outline ble-filter-active" data-filter="all" data-i18n="ble.log.filter.all">全部</button>
+                        <button class="btn btn-sm btn-outline" data-filter="read" data-i18n="ble.log.filter.read">读取</button>
+                        <button class="btn btn-sm btn-outline" data-filter="write" data-i18n="ble.log.filter.write">写入</button>
+                        <button class="btn btn-sm btn-outline" data-filter="notify" data-i18n="ble.log.filter.notify">通知</button>
+                        <button class="btn btn-sm btn-outline" data-filter="error" data-i18n="ble.log.filter.error">错误</button>
+                    </div>
+                </div>
+                <div class="ble-log-area" id="logArea">
+                    <div class="ble-log-empty" data-i18n="ble.log.empty">等待数据...</div>
+                </div>
+                <div class="ble-log-toolbar">
+                    <label class="ble-auto-scroll"><input type="checkbox" id="autoScroll" checked><span data-i18n="ble.log.autoScroll">自动滚动</span></label>
+                    <button class="btn btn-outline btn-sm" id="exportLogBtn" data-i18n="ble.btn.exportLog">📥 导出</button>
+                    <button class="btn btn-outline btn-sm" id="clearLogBtn" data-i18n="ble.btn.clearLog">🗑️ 清空</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer-note">
+            <span data-i18n="ble.footer">📡 蓝牙调试器 · 基于 Web Bluetooth API · 支持读写与通知 · 树形服务浏览器</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 4. 脚本层：theme.js → i18n.js → 页面特有 -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/BLE_Debugger.js"></script>
+</body>
+</html>

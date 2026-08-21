@@ -12,15 +12,19 @@ window.I18N_STRINGS = {
     'index.cat.debug':      { zh: '调试',   en: 'Debug' },
     'index.cat.hardware':   { zh: '硬件',   en: 'Hardware' },
     'index.cat.software':   { zh: '软件',   en: 'Software' },
+    'index.cat.doc':        { zh: '文档',   en: 'Docs' },
     'index.cat.other':      { zh: '其他',   en: 'Other' },
     'index.cat.fav':        { zh: '收藏', en: 'Favorites' },
+    'index.ad.badge':       { zh: '广告', en: 'Ad' },
+    'index.ad.close':       { zh: '关闭广告', en: 'Close ad' },
+    'index.ad.bannerText':  { zh: '这里的广告位正在招商，欢迎赞助这个免费工具箱 ✨', en: 'Ad spot open for sponsorship — support this free toolbox ✨' },
     'index.fav.empty':      { zh: '还没有收藏任何工具，点卡片右上角的 ⭐ 把它加进来吧', en: 'No favorites yet — click the ⭐ on a card to add it' },
     'index.fav.add':        { zh: '收藏', en: 'Add to favorites' },
     'index.fav.remove':     { zh: '取消收藏', en: 'Remove from favorites' },
     'index.search.placeholder': { zh: '搜索工具...', en: 'Search tools...' },
     'index.lang.title':     { zh: '切换语言 / Switch Language', en: 'Switch Language / 切换语言' },
     'index.theme.title':    { zh: '切换主题', en: 'Toggle theme' },
-    'index.nav.eye':        { zh: '我在看你 👀', en: 'Watching you 👀' },
+//    'index.nav.eye':        { zh: '我在看你 👀', en: 'Watching you 👀' },
     'index.hero.desc':      { zh: '专为嵌入式开发者打造的在线工具集合。一站式解决开发中的高频需求。', en: 'An online toolset built for embedded developers. One-stop solution for high-frequency needs.' },
     'index.hero.join':      { zh: '加入交流群：453705020', en: 'Join QQ Group: 453705020' },
     'index.footer.line1':   { zh: '嵌入式开发者工具箱', en: 'Embedded Developer Toolbox' },
@@ -39,7 +43,8 @@ window.I18N_STRINGS = {
     'index.hw.settings':       { zh: '设置', en: 'Settings' },
     'index.hw.workStart':      { zh: '上班时间', en: 'Start Time' },
     'index.hw.workEnd':        { zh: '下班时间', en: 'End Time' },
-    'index.hw.waterInterval':  { zh: '喝水间隔', en: 'Water Interval' },
+    'index.hw.waterMl':      { zh: '每次喝水', en: 'Per drink' },
+    'index.hw.waterGoal':    { zh: '每日目标', en: 'Daily goal' },
     'index.hw.sitInterval':    { zh: '久坐间隔', en: 'Sit Interval' },
     'index.hw.notifications':  { zh: '桌面通知', en: 'Notifications' },
     'index.hw.save':           { zh: '保存', en: 'Save' },
@@ -80,7 +85,7 @@ const toolsData = [{
 }, {
     id: 'serial-port',
     title: '串口调试助手', titleEn: 'Serial Port Tool',
-    desc: '可自定义波特率 · 实时数据曲线 · 脚本自动回复。', descEn: 'Customizable baud rate · real-time data curves · script auto-reply.',
+    desc: '可自定义波特率 · 实时数据曲线 · 脚本自动回复', descEn: 'Customizable baud rate · real-time data curves · script auto-reply.',
     icon: '🔗',
     iconClass: 'icon-blue',
     url: './function/serialPortTool.html',
@@ -91,7 +96,7 @@ const toolsData = [{
 },{
     id: 'Modbus-check',
     title: 'Modbus RTU助手', titleEn: 'Modbus RTU Helper',
-    desc: '支持ModbusRTU主站 从站操作。', descEn: 'Supports Modbus RTU master / slave operations.',
+    desc: '支持ModbusRTU主站 · 从站操作', descEn: 'Supports Modbus RTU master / slave operations.',
     icon: '📡',
     iconClass: 'icon-blue',
     url: './function/ModbusRTU.html',
@@ -124,7 +129,7 @@ const toolsData = [{
 }, {
     id: 'WebsocketTool',
     title: 'WebSocket 测试工具', titleEn: 'WebSocket Tester',
-    desc: '支持 ws / wss 协议 · 文本 / 十六进制收发 · 消息日志 · 自动重连。', descEn: 'ws / wss protocols · text / hex send-receive · message log · auto-reconnect.',
+    desc: '支持 ws / wss 协议 · 文本 / 十六进制收发 · 消息日志 · 自动重连', descEn: 'ws / wss protocols · text / hex send-receive · message log · auto-reconnect.',
     icon: '🔌',
     iconClass: 'icon-blue',
     url: './function/WebsocketTool.html',
@@ -133,9 +138,20 @@ const toolsData = [{
     categoryType: 'debug',
     isNew: false
 },{
+    id: 'BLE_Debugger',
+    title: '蓝牙调试器', titleEn: 'BLE Debugger',
+    desc: '基于 Web Bluetooth API · 扫描/连接/读写/通知', descEn: 'Web Bluetooth API · scan / connect / read / write / notify',
+    icon: '📡',
+    iconClass: 'icon-blue',
+    url: './function/BLE_Debugger.html',
+    tagAccent: [true, false, false],
+    category: '蓝牙/BLE/调试/无线', categoryEn: 'Bluetooth/BLE/Debug/Wireless',
+    categoryType: 'debug',
+    isNew: true
+}, {
     id: 'CanBusTool',
     title: 'CAN 总线助手', titleEn: 'CAN Bus Helper',
-    desc: '支持 J1939 拆解、DBC 解析、信号解码、反向计算。', descEn: 'J1939 disassembly, DBC parsing, signal decoding, reverse calculation.',
+    desc: '支持 J1939 拆解 · DBC 解析 · 信号解码 · 反向计算', descEn: 'J1939 disassembly, DBC parsing, signal decoding, reverse calculation.',
     icon: '🔗',
     iconClass: 'icon-blue',
     url: './function/CanBusTool.html',
@@ -146,7 +162,7 @@ const toolsData = [{
 },{
     id: 'ImageToData-tool',
     title: '图片取模 / 渲染工具', titleEn: 'Image to Data / Renderer',
-    desc: '支持多种颜色格式的互转、取模与数组渲染，含多种扫描方向与 Floyd 抖动。', descEn: 'Multi-format color conversion, data extraction & array rendering, multiple scan orders & Floyd dithering.',
+    desc: '支持多种颜色格式的互转 · 取模与数组渲染 ·含多种扫描方向与 Floyd 抖动', descEn: 'Multi-format color conversion, data extraction & array rendering, multiple scan orders & Floyd dithering.',
     icon: '🎨',
     iconClass: 'icon-blue',
     url: './function/ImageToData.html',
@@ -157,7 +173,7 @@ const toolsData = [{
 }, {
     id: 'power-calc',
     title: '电池功耗计算器', titleEn: 'Power Calculator',
-    desc: '选择电池估算设备工作时长（天/周/月）。', descEn: 'Estimate device runtime from battery capacity (days/weeks/months).',
+    desc: '选择电池估算设备工作时长（天/周/月）', descEn: 'Estimate device runtime from battery capacity (days/weeks/months).',
     icon: '🔋',
     iconClass: 'icon-blue',
     url: './function/PowerCalculator.html',
@@ -168,7 +184,7 @@ const toolsData = [{
 }, {
     id: 'CRC-check',
     title: 'CRC校验计算器', titleEn: 'CRC Calculator',
-    desc: '支持 CRC-8/16/32/64 多种算法。', descEn: 'Supports CRC-8/16/32/64 multiple algorithms.',
+    desc: '支持 CRC-8/16/32/64 多种算法', descEn: 'Supports CRC-8/16/32/64 multiple algorithms.',
     icon: '🔢',
     iconClass: 'icon-blue',
     url: './function/CRCCheck.html',
@@ -179,7 +195,7 @@ const toolsData = [{
 }, {
     id: 'RadixConverter',
     title: '进制转换', titleEn: 'Radix Converter',
-    desc: '进制实时互转 · 位操作 · 浮点数转换。', descEn: 'Real-time radix conversion · bitwise ops · floating-point conversion.',
+    desc: '进制实时互转 · 位操作 · 浮点数转换', descEn: 'Real-time radix conversion · bitwise ops · floating-point conversion.',
     icon: '🔁',
     iconClass: 'icon-blue',
     url: './function/RadixConverter.html',
@@ -201,7 +217,7 @@ const toolsData = [{
 }, {
     id: 'SignalPlotter',
     title: '数据曲线可视化', titleEn: 'Signal Plotter',
-    desc: '信号绘图、FFT 变换与数字滤波分析工具', descEn: 'Signal plotting, FFT transform & digital filter analysis.',
+    desc: '信号绘图 · FFT变换 · 数字滤波分析工具', descEn: 'Signal plotting, FFT transform & digital filter analysis.',
     icon: '📈',
     iconClass: 'icon-blue',
     url: './function/SignalPlotter.html',
@@ -221,37 +237,103 @@ const toolsData = [{
     categoryType: 'software',
     isNew: false
 }, {
-    id: 'TextDiffMerge',
-    title: '文本对比与合并', titleEn: 'Text Diff & Merge',
-    desc: '文本差异对比 · 行级高亮 · 支持合并导出。', descEn: 'Text diff comparison · line-level highlighting · merge & export.',
-    icon: '📝',
-    iconClass: 'icon-blue',
-    url: './function/TextDiffMerge.html',
-    tagAccent: [true, false, false],
-    category: '文本对比/Diff/Merge/开发', categoryEn: 'Text/Diff/Merge/Dev',
-    categoryType: 'software',
-    isNew: true
-}, {
     id: 'UnixTimestamp',
     title: 'Unix时间戳转换', titleEn: 'Unix Timestamp Converter',
-    desc: 'Unix时间戳 ↔ 本地时间互转 · 支持毫秒/秒级。', descEn: 'Unix timestamp ↔ local time conversion · supports ms / s.',
+    desc: 'Unix时间戳 ↔ 本地时间互转 · 支持毫秒/秒级', descEn: 'Unix timestamp ↔ local time conversion · supports ms / s.',
     icon: '⏱️',
     iconClass: 'icon-blue',
     url: './function/UnixTimestamp.html',
     tagAccent: [true, false, false],
     category: '时间戳转换/时间/开发', categoryEn: 'Timestamp/Time/Dev',
     categoryType: 'software',
-    isNew: true
+    isNew: false
 }, {
     id: 'TimingLab',
     title: '时序秒表', titleEn: 'Timing Lab',
-    desc: '高精度主秒表 · 脉宽测量分析 · 打点尖峰曲线 · 事件时间线。', descEn: 'High-precision stopwatch · pulse-width analysis · lap spike curves · event timeline.',
+    desc: '高精度主秒表 · 脉宽测量分析 · 打点尖峰曲线 · 事件时间线', descEn: 'High-precision stopwatch · pulse-width analysis · lap spike curves · event timeline.',
     icon: '⏲️',
-    iconClass: 'icon-cyan',
+    iconClass: 'icon-blue',
     url: './function/Timing_lab.html',
     tagAccent: [true, false, false],
     category: '时序/秒表/脉宽/测量/分析/调试/计时/时间/开发', categoryEn: 'Timing/Stopwatch/Pulse/Measure/Analysis/Debug/Time/Dev',
     categoryType: ['hardware', 'software'],
+    isNew: false
+}, {
+    id: 'NtcCounter',
+    title: 'NTC 电阻计算器', titleEn: 'NTC Thermistor Calculator',
+    desc: 'B值模式 / 三点标定模式 · 通过参数计算B值 · 电阻↔温度双向互算 · 分压 & ADC查表', descEn: 'B-value / 3-point calibration · compute B from params · R↔T bidirectional calc · V-divider & ADC lookup',
+    icon: '🔥',
+    iconClass: 'icon-blue',
+    url: './function/NtcCounter.html',
+    tagAccent: [true, false, false],
+    category: 'NTC/热敏电阻/温度/计算/硬件/B值/标定', categoryEn: 'NTC/Thermistor/Temp/Calc/Hardware/B-value/Calibration',
+    categoryType: ['hardware', 'software'],
+    isNew: false
+}, {
+    id: 'ResDivider',
+    title: '电阻分压计算器', titleEn: 'Resistive Divider Calculator',
+    desc: '常规电阻分压计算器 · 正向求Vout / 反向求R / E24标准电阻推荐', descEn: 'Resistive divider calc · forward Vout / reverse solve R / E24 standard value recommend.',
+    icon: '🧮',
+    iconClass: 'icon-blue',
+    url: './function/ResDivider.html',
+    tagAccent: [true, false, false],
+    category: '电阻分压/分压器/电压/计算/硬件', categoryEn: 'Voltage/Divider/Calc/Hardware',
+    categoryType: 'hardware',
+    isNew: false
+}, {
+    id: 'PcbTrace',
+    title: 'PCB 走线宽度计算器', titleEn: 'PCB Trace Width Calculator',
+    desc: 'IPC-2152 经验模型 · 正向求线宽 / 反向求电流 · 电阻·压降·功耗估算', descEn: 'IPC-2152 model · forward width / reverse current · R/ΔV/power estimate.',
+    icon: '🖥️',
+    iconClass: 'icon-blue',
+    url: './function/PcbTrace.html',
+    tagAccent: [true, false, false],
+    category: 'PCB/走线宽度/硬件/计算/载流', categoryEn: 'PCB/Trace/Hardware/Calc',
+    categoryType: 'hardware',
+    isNew: false
+}, {
+    id: 'ViaCalc',
+    title: 'PCB 过孔电流计算器', titleEn: 'PCB Via Current Calculator',
+    desc: 'IPC-2152 铜环等效走线 · 正向求单孔载流 / 反向求过孔数量 · 电阻·压降·功耗估算', descEn: 'IPC-2152 annular-via model · forward via current / reverse via count · R/ΔV/power estimate.',
+    icon: '🕳️',
+    iconClass: 'icon-blue',
+    url: './function/ViaCalc.html',
+    tagAccent: [true, false, false],
+    category: 'PCB/过孔/硬件/计算/载流', categoryEn: 'PCB/Via/Hardware/Calc',
+    categoryType: 'hardware',
+    isNew: true
+}, {
+    id: 'TextDiffMerge',
+    title: '文本对比与合并', titleEn: 'Text Diff & Merge',
+    desc: '文本差异对比 · 行级高亮 · 支持合并导出', descEn: 'Text diff comparison · line-level highlighting · merge & export.',
+    icon: '📝',
+    iconClass: 'icon-blue',
+    url: './function/TextDiffMerge.html',
+    tagAccent: [true, false, false],
+    category: '文本对比/Diff/Merge/开发', categoryEn: 'Text/Diff/Merge/Dev',
+    categoryType: ['software', 'doc'],
+    isNew: false
+}, {
+    id: 'MermaidDraw',
+    title: '在线流程图', titleEn: 'Flowchart Drawer',
+    desc: '基于 Mermaid · 在线/离线双模式 · 嵌入式开发模板 · 实时预览', descEn: 'Mermaid · online/offline dual mode · embedded templates · live preview.',
+    icon: '📊',
+    iconClass: 'icon-blue',
+    url: './function/MermaidDraw.html',
+    tagAccent: [true, false, false],
+    category: '流程图/Mermaid/图表/绘制/可视化', categoryEn: 'Flowchart/Mermaid/Diagram/Draw/Visualize',
+    categoryType: ['software', 'doc'],
+    isNew: true
+}, {
+    id: 'MarkdownEditor',
+    title: 'Markdown 编辑器', titleEn: 'Markdown Editor',
+    desc: '实时预览 · VSCode 风格代码高亮 · 在线/离线双模式渲染', descEn: 'Live preview · VSCode-style code highlight · online/offline rendering.',
+    icon: '📝',
+    iconClass: 'icon-blue',
+    url: './function/MarkdownEditor.html',
+    tagAccent: [true, false, false],
+    category: 'Markdown/编辑器/文档/预览/笔记', categoryEn: 'Markdown/Editor/Document/Preview/Note',
+    categoryType: ['software', 'doc'],
     isNew: true
 }, ];
 
@@ -441,21 +523,23 @@ renderTools();
     // ===== 配置 =====
     var STORAGE_KEY = 'hero-widget-settings';
     // 提醒时间独立存储 key（必须在使用 loadNextTs/saveNextTs 之前定义）
-    var NEXT_KEYS = { water: 'hero-widget-water-next', sit: 'hero-widget-sit-next' };
+    var NEXT_KEYS = { sit: 'hero-widget-sit-next' };
     var DEFAULT_SETTINGS = {
         workStart: '09:00',
         workEnd:   '18:00',
-        waterInterval: 30,   // 分钟
+        waterMl: 250,      // 每次喝水 ml
+        waterGoal: 2000,   // 每日目标 ml
         sitInterval:   60,   // 分钟
         notifications: true
     };
 
     // ===== 状态 =====
     var settings = loadSettings();
-    // 下次提醒时间戳持久化在 localStorage，刷新页面后倒计时延续，不重置
-    var waterNextTs = loadNextTs('water', settings.waterInterval);
-    var sitNextTs   = loadNextTs('sit', settings.sitInterval);
-    var waterTriggered = false;
+    // 喝水：改为统计「今日已喝累计 ml」，跨天自动清零（不再用次数/倒计时）
+    var WATER_KEY = 'hero-widget-water';
+    var waterToday = loadWaterToday();
+    // 久坐：仍为倒计时提醒，时间戳持久化延续
+    var sitNextTs  = loadNextTs('sit', settings.sitInterval);
     var sitTriggered   = false;
 
     // ===== i18n 辅助 =====
@@ -491,7 +575,8 @@ renderTools();
         el.modalReset  = document.getElementById('hwModalReset');
         el.inWorkStart = document.getElementById('hwInWorkStart');
         el.inWorkEnd   = document.getElementById('hwInWorkEnd');
-        el.inWater     = document.getElementById('hwInWater');
+        el.inWaterMl   = document.getElementById('hwInWaterMl');
+        el.inWaterGoal = document.getElementById('hwInWaterGoal');
         el.inSit       = document.getElementById('hwInSit');
         el.notifToggle = document.getElementById('hwNotifToggle');
         el.notifStatus = document.getElementById('hwNotifStatus');
@@ -582,6 +667,57 @@ renderTools();
         storageSet(NEXT_KEYS[type], String(ts));
     }
 
+    // ===== 喝水：今日累计 ml（跨天自动清零） =====
+    function todayKey() {
+        var d = new Date();
+        return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+    }
+    function loadWaterToday() {
+        var obj = null;
+        try {
+            var raw = storageGet(WATER_KEY);
+            if (raw) obj = JSON.parse(raw);
+        } catch (e) {}
+        var today = todayKey();
+        if (obj && obj.date === today && typeof obj.ml === 'number') {
+            return { date: today, ml: Math.max(0, obj.ml) };
+        }
+        return { date: today, ml: 0 };   // 新的一天从头算
+    }
+    function saveWaterToday() {
+        try { storageSet(WATER_KEY, JSON.stringify(waterToday)); } catch (e) {}
+    }
+    // 主页点一次「喝水」：累加 settings.waterMl
+    function recordWater() {
+        waterToday.ml += Math.max(0, settings.waterMl || 0);
+        saveWaterToday();
+        updateWater();
+        playBeep(880);
+        var reached = waterToday.ml >= Math.max(1, settings.waterGoal || 2000);
+        document.dispatchEvent(new CustomEvent('mascot-say', {
+            detail: reached
+                ? { zh: '今日喝水目标达成！你是个自律的嵌入式工程师 💧🎉', en: 'Daily water goal reached! A disciplined engineer 💧🎉' }
+                : { zh: '喝了一杯水，Hydration +1，继续敲代码 💧', en: 'One cup down, hydration +1, back to coding 💧' }
+        }));
+    }
+    // 刷新「今日已喝 ml / 每日目标」显示与进度条
+    function updateWater() {
+        if (!el.waterItem) return;
+        // 跨天自动清零：即使页面一直开着过夜也生效
+        var today = todayKey();
+        if (waterToday.date !== today) {
+            waterToday = { date: today, ml: 0 };
+            saveWaterToday();
+        }
+        var ml = waterToday.ml;
+        el.waterTimer.textContent = ml + ' ml';
+        var goal = Math.max(1, settings.waterGoal || 2000);
+        var pct = Math.min(100, (ml / goal) * 100);
+        el.waterFill.style.width = pct.toFixed(1) + '%';
+        if (ml >= goal) el.waterItem.classList.add('done');
+        else el.waterItem.classList.remove('done');
+    }
+
     // ===== 时间工具 =====
     function parseTime(str) {
         var parts = str.split(':');
@@ -655,25 +791,12 @@ renderTools();
         }
     }
 
-    // ===== 提醒逻辑 =====
+    // ===== 提醒逻辑（喝水按 ml 累计，久坐按倒计时） =====
     function updateReminders() {
         var now = Date.now();
 
-        // 喝水
-        if (!waterTriggered && now >= waterNextTs) {
-            waterTriggered = true;
-            triggerReminder('water');
-        }
-        if (waterTriggered) {
-            var wAlert = t('index.hw.waterAlert') || '该喝水了！';
-            el.waterTimer.textContent = wAlert;
-            el.waterFill.style.width = '100%';
-        } else {
-            var wRemain = Math.max(0, waterNextTs - now);
-            el.waterTimer.textContent = formatCountdown(wRemain);
-            var wPct = 100 - (wRemain / (settings.waterInterval * 60000)) * 100;
-            el.waterFill.style.width = Math.min(100, Math.max(0, wPct)) + '%';
-        }
+        // 喝水：刷新今日累计显示与进度
+        updateWater();
 
         // 久坐
         if (!sitTriggered && now >= sitNextTs) {
@@ -700,44 +823,26 @@ renderTools();
     }
 
     function triggerReminder(type) {
-        var title, body, itemEl;
-        if (type === 'water') {
-            title = (t('index.hw.waterAlert') || '该喝水了！') + ' 💧';
-            body  = isEn() ? 'Stay hydrated, click to dismiss' : '记得补充水分，点击消除提醒';
-            itemEl = el.waterItem;
-        } else {
-            title = (t('index.hw.sitAlert') || '该活动了！') + ' 🪑';
-            body  = isEn() ? 'Stand up and stretch, click to dismiss' : '站起来活动一下，点击消除提醒';
-            itemEl = el.sitItem;
-        }
-        if (itemEl) itemEl.classList.add('triggered');
-        // 推进下次提醒时间并持久化：即使不点消除就刷新页面，也不会补发骚扰，
-        // 而是直接进入下一轮倒计时
-        if (type === 'water') {
-            waterNextTs = Date.now() + settings.waterInterval * 60000;
-            saveNextTs('water', waterNextTs);
-        } else {
-            sitNextTs = Date.now() + settings.sitInterval * 60000;
-            saveNextTs('sit', sitNextTs);
-        }
+        // 现在是倒计时提醒，只有久坐会触发；喝水改为 ml 累计，不再触发通知
+        var title = (t('index.hw.sitAlert') || '该活动了！') + ' 🪑';
+        var body  = isEn() ? 'Stand up and stretch, click to dismiss' : '站起来活动一下，点击消除提醒';
+        el.sitItem.classList.add('triggered');
+        // 推进下次提醒时间并持久化
+        sitNextTs = Date.now() + settings.sitInterval * 60000;
+        saveNextTs('sit', sitNextTs);
         showNotification(title, body);
-        playBeep(type === 'water' ? 880 : 660);
+        playBeep(660);
     }
 
-    function dismissReminder(type) {
-        if (type === 'water') {
-            if (!waterTriggered) return;
-            waterTriggered = false;
-            waterNextTs = Date.now() + settings.waterInterval * 60000;
-            saveNextTs('water', waterNextTs);
-            el.waterItem.classList.remove('triggered');
-        } else {
-            if (!sitTriggered) return;
-            sitTriggered = false;
-            sitNextTs = Date.now() + settings.sitInterval * 60000;
-            saveNextTs('sit', sitNextTs);
-            el.sitItem.classList.remove('triggered');
-        }
+    function dismissReminder() {
+        if (!sitTriggered) return;
+        sitTriggered = false;
+        sitNextTs = Date.now() + settings.sitInterval * 60000;
+        saveNextTs('sit', sitNextTs);
+        el.sitItem.classList.remove('triggered');
+        document.dispatchEvent(new CustomEvent('mascot-say', {
+            detail: { zh: '起来活动一下，久坐伤身，我替你记着时间 🪑', en: 'Time to stretch — sitting too long hurts. I will keep the clock 🪑' }
+        }));
     }
 
     // ===== 通知 =====
@@ -872,7 +977,8 @@ renderTools();
     function openSettings() {
         el.inWorkStart.value = settings.workStart;
         el.inWorkEnd.value   = settings.workEnd;
-        el.inWater.value     = settings.waterInterval;
+        el.inWaterMl.value   = settings.waterMl;
+        el.inWaterGoal.value = settings.waterGoal;
         el.inSit.value       = settings.sitInterval;
         el.notifToggle.classList.toggle('on', settings.notifications);
         el.modalOverlay.classList.add('active');
@@ -887,37 +993,34 @@ renderTools();
     function applySettings() {
         settings.workStart = el.inWorkStart.value || '09:00';
         settings.workEnd   = el.inWorkEnd.value   || '18:00';
-        settings.waterInterval = Math.max(1, parseInt(el.inWater.value, 10) || 30);
-        settings.sitInterval   = Math.max(1, parseInt(el.inSit.value,   10) || 60);
+        settings.waterMl      = Math.max(1, parseInt(el.inWaterMl.value, 10) || 200);
+        settings.waterGoal    = Math.max(1, parseInt(el.inWaterGoal.value, 10) || 2000);
+        settings.sitInterval  = Math.max(1, parseInt(el.inSit.value,      10) || 60);
         settings.notifications = el.notifToggle.classList.contains('on');
 
-        // 如果提醒间隔变了，重置计时器（并持久化）
-        waterNextTs = Date.now() + settings.waterInterval * 60000;
-        sitNextTs   = Date.now() + settings.sitInterval   * 60000;
-        saveNextTs('water', waterNextTs);
+        // 间隔变化只影响久坐：重置其倒计时（时间戳持久化）
+        sitNextTs = Date.now() + settings.sitInterval * 60000;
         saveNextTs('sit', sitNextTs);
-        waterTriggered = false;
-        sitTriggered   = false;
-        el.waterItem.classList.remove('triggered');
+        sitTriggered = false;
         el.sitItem.classList.remove('triggered');
 
         if (settings.notifications) requestNotifPermission();
         saveSettings();
         closeSettings();
         updateProgress();
-        updateReminders();
+        updateReminders();   // 内含 updateWater，喝水目标/每次量变化即时刷新
     }
 
-    // 手动重置喝水/久坐计时：从当前时间重新开始倒计时并持久化。
-    // 刷新页面不会重置计时（时间戳存于 localStorage），只有这里主动重置才归零。
+    // 手动重置：喝水今日累计清零 + 久坐重新计时，均持久化。
     function resetTimers() {
-        waterTriggered = false;
-        sitTriggered   = false;
-        waterNextTs = Date.now() + settings.waterInterval * 60000;
-        sitNextTs   = Date.now() + settings.sitInterval   * 60000;
-        saveNextTs('water', waterNextTs);
+        // 喝水：今日累计清零
+        waterToday.ml = 0;
+        saveWaterToday();
+        updateWater();
+        // 久坐：从当前时间重新开始倒计时
+        sitTriggered = false;
+        sitNextTs = Date.now() + settings.sitInterval * 60000;
         saveNextTs('sit', sitNextTs);
-        el.waterItem.classList.remove('triggered');
         el.sitItem.classList.remove('triggered');
         updateReminders();
         playBeep(1046);
@@ -935,8 +1038,8 @@ renderTools();
         el.modalOverlay.addEventListener('click', function(e) {
             if (e.target === el.modalOverlay) closeSettings();
         });
-        el.waterItem.addEventListener('click', function() { dismissReminder('water'); });
-        el.sitItem.addEventListener('click',   function() { dismissReminder('sit');   });
+        el.waterItem.addEventListener('click', recordWater);
+        el.sitItem.addEventListener('click',   function() { dismissReminder(); });
         el.notifToggle.addEventListener('click', function() {
             var on = !el.notifToggle.classList.contains('on');
             el.notifToggle.classList.toggle('on');
@@ -1046,6 +1149,11 @@ renderTools();
             check.setAttribute('aria-label', item.done ? 'undo' : 'done');
             check.addEventListener('click', function () {
                 todos[i].done = !todos[i].done;
+                if (todos[i].done) {
+                    document.dispatchEvent(new CustomEvent('mascot-say', {
+                        detail: { zh: '搞定一项待办，离下班又近了一步 ✅', en: 'One todo done, one step closer to clock-out ✅' }
+                    }));
+                }
                 saveTodos();
                 render();
             });
@@ -1251,6 +1359,32 @@ renderTools();
     // 页面加载后若一直未动，也进入发呆；眨眼随机启动
     idleTimer = setTimeout(startIdle, IDLE_MS);
     scheduleBlink();
+})();
+
+// ============================================================
+//  顶部广告横幅：可点击 / 可关闭（关闭状态持久化到 localStorage）
+// ============================================================
+(function () {
+    'use strict';
+    var banner = document.getElementById('adBanner');
+    if (!banner) return;
+    var textEl = document.getElementById('adBannerText');
+    var closeBtn = document.getElementById('adBannerClose');
+
+    function refresh() {
+        if (textEl && window.I18N && typeof window.I18N.t === 'function') {
+            textEl.textContent = window.I18N.t('index.ad.bannerText');
+        }
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function () {
+            // 仅隐藏当前页面的广告——不写任何存储，刷新 / 重新打开页面都会再次显示
+            banner.style.display = 'none';
+        });
+    }
+    document.addEventListener('languagechange', refresh);
+    refresh();
 })();
 
 // ============================================================
@@ -1590,15 +1724,34 @@ renderTools();
         'PIDController': { zh: 'P 大 I 小 D 适中，调参如调酒 🍸', en: 'P big, I small, D just right — tuning is like making a cocktail 🍸' },
         'TextDiffMerge': { zh: 'diff 像找茬游戏，你永远是输家', en: 'Diff is like spot-the-difference, and you always lose' },
         'UnixTimestamp': { zh: '时间戳转成日期，恍如隔世', en: 'Timestamp to date, feels like a lifetime ago' },
-        'TimingLab': { zh: '高精度计时，测脉宽测到心跳同步 💓', en: 'Precision timing, measuring pulses till your heartbeat syncs 💓' }
+        'TimingLab': { zh: '高精度计时，测脉宽测到心跳同步 💓', en: 'Precision timing, measuring pulses till your heartbeat syncs 💓' },
+        'NtcCounter': { zh: 'NTC 阻值随温度变，你的代码可别跟着变 🧊', en: 'NTC resistance drifts with temp — don\'t let your code drift too 🧊' },
+        'ResDivider': { zh: 'Vout=Vin×R2/(R1+R2)—公式我会背，但还是让计算器来吧', en: 'Vout=Vin×R2/(R1+R2) I can recite it, but let the calculator pick R1/R2 for me' },
+        'PcbTrace': { zh: '线太细会烧板，太宽费板材 — 让我帮你拿捏 📐', en: 'Too thin burns the board, too wide wastes copper — let me size it 📐' },
+        'ViaCalc': { zh: '大电流过板别只打一个孔，并联过孔才是正解 🕳️', en: 'High current through the board? Parallel vias, not one lonely hole 🕳️' },
+        'BLE_Debugger': { zh: 'UUID 抄错一位，调试两小时 — 蓝牙让你深刻体会“位”的重要性 🔍', en: 'One wrong UUID digit, two hours of debugging — BLE really teaches you the value of bits 🔍' },
+        'MermaidDraw': { zh: 'Mermaid 在手，图表不愁 📊', en: 'with Mermaid, diagrams are a breeze 📊' },
+        'MarkdownEditor': { zh: '写文档也能很爽，VSCode 配色实时预览 ✍️', en: 'Docs made easy — VSCode colors with live preview ✍️' },
+
+        // 分类标签 / 语言 / 主题按钮悬浮
+        'cat-all':      { zh: '全部工具都在这，挑一个顺眼的用吧 ✨', en: 'All tools in one place — pick your favorite ✨' },
+        'cat-fav':      { zh: '收藏夹里有你的心头好，常备不懈 ⭐', en: 'Your favorites live here, always ready ⭐' },
+        'cat-debug':    { zh: '调试三件套：逻辑分析仪、示波器、还有我 😎', en: 'Debug trio: logic analyzer, scope, and me 😎' },
+        'cat-hardware': { zh: '硬件区的快乐：焊台、万用表、飞线一根 🔧', en: 'Hardware joy: soldering iron, multimeter, a flying wire 🔧' },
+        'cat-software': { zh: '软件区的代码，编译一次少一个 bug（大概）💻', en: 'Software code — one compile, one fewer bug (probably) 💻' },
+        'cat-doc':      { zh: '文档工具：对比、画图、写文档，一条龙 📚', en: 'Doc tools: diff, diagram, markdown — one-stop 📚' },
+        'cat-other':    { zh: '杂项工具，总有一款你用得上 🧰', en: 'Misc tools, one of them is bound to fit 🧰' },
+        'lang-toggle':  { zh: '想换语言？中文 / English 随你切，我都能唠 🌐', en: 'Switch language? Chinese / English, I chat in both 🌐' },
+'theme-toggle': { zh: '白天亮眼，夜晚护眼，主题随你切换 🌙', en: 'Bright by day, easy on the eyes by night — switch freely 🌙' },
+        'ad-banner':    { zh: '这个广告位悬浮着等你赞助，悄悄点一下也行 ✨', en: "This ad floats here waiting for a sponsor — a click helps too ✨" }
     };
     var hoverTimer = null;
-    function hoverIn(key) {
-        var msg = HOVER_MSGS[key];
+    function hoverIn(key, customMsg) {
+        var msg = customMsg || HOVER_MSGS[key];
         if (!msg) return;
         if (hoverTimer) { clearTimeout(hoverTimer); hoverTimer = null; }
         haltRotate();
-        displayText(isEn() ? msg.en : msg.zh);
+        displayText(typeof msg === 'string' ? msg : (isEn() ? (msg.en || msg.zh) : (msg.zh || msg.en)));
     }
     function scheduleNormalResume() {
         if (hoverTimer) clearTimeout(hoverTimer);
@@ -1639,6 +1792,52 @@ renderTools();
         githubBtnHover.addEventListener('mouseenter', function () { hoverIn('github-btn'); });
         githubBtnHover.addEventListener('mouseleave', function () { scheduleNormalResume(); });
     }
+
+    // 分类标签悬浮 → 对应分类的吉祥物吐槽
+    var catBtns = document.querySelectorAll('.category-btn');
+    for (var ci = 0; ci < catBtns.length; ci++) {
+        (function (btn) {
+            btn.addEventListener('mouseenter', function () {
+                var cat = btn.getAttribute('data-category') || '';
+                if (cat === 'all' && typeof toolsData !== 'undefined') {
+                    var count = toolsData.length;
+                    hoverIn('cat-all', isEn()
+                        ? 'All ' + count + ' tools are right here — pick your favorite ✨'
+                        : '当前共有 ' + count + ' 个工具，挑一个顺眼的用吧 ✨');
+                } else {
+                    hoverIn('cat-' + cat);
+                }
+            });
+            btn.addEventListener('mouseleave', scheduleNormalResume);
+        })(catBtns[ci]);
+    }
+    // 语言 / 主题按钮悬浮
+    var langToggleHover = document.getElementById('langToggle');
+    if (langToggleHover) {
+        langToggleHover.addEventListener('mouseenter', function () { hoverIn('lang-toggle'); });
+        langToggleHover.addEventListener('mouseleave', scheduleNormalResume);
+    }
+    var themeToggleHover = document.getElementById('themeToggle');
+    if (themeToggleHover) {
+        themeToggleHover.addEventListener('mouseenter', function () { hoverIn('theme-toggle'); });
+        themeToggleHover.addEventListener('mouseleave', scheduleNormalResume);
+    }
+    // 广告位悬浮 → 吉祥物吐槽
+    var adBannerHover = document.getElementById('adBanner');
+    if (adBannerHover) {
+        adBannerHover.addEventListener('mouseenter', function () { hoverIn('ad-banner'); });
+        adBannerHover.addEventListener('mouseleave', scheduleNormalResume);
+    }
+
+    // 外部交互（喝水 / 久坐 / 完成待办等）通过事件让吉祥物说话
+    document.addEventListener('mascot-say', function (e) {
+        var d = e.detail;
+        if (!d) return;
+        if (sleepActive) { sleepActive = false; if (wakeTimer) { clearTimeout(wakeTimer); wakeTimer = null; } }
+        haltRotate();
+        displayText(isEn() ? (d.en || d.zh) : (d.zh || d.en));
+        scheduleNormalResume();
+    });
 
     // ===== 睡觉 / 唤醒的对话联动 =====
     // 鼠标静止进入睡觉时，随机显示一条「睡觉」文案并暂停轮换；

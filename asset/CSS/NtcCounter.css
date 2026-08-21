@@ -1,0 +1,266 @@
+/* ============================================================
+   NtcCounter.html 页面特有样式
+   包含：主布局网格、模式 Tab、结果条、标定网格、R-T 曲线图、数据表、公式行
+   （基础变量、导航栏、面板、按钮、输入框等见 common.css）
+   ============================================================ */
+
+/* ===== 图表专用变量（亮色） ===== */
+:root {
+    --ntc-chart-bg: #ffffff;
+    --ntc-chart-grid: #e9edf4;
+    --ntc-chart-axis: #94a3b8;
+    --ntc-chart-label: #64748b;
+    --ntc-chart-line: #6366f1;
+    --ntc-chart-line-volt: #e67e22;
+    --ntc-chart-fill: rgba(99, 102, 241, 0.08);
+    --ntc-chart-dot: #ef4444;
+    --ntc-chart-crosshair: rgba(99, 102, 241, 0.3);
+}
+
+/* ===== 图表专用变量（暗色） ===== */
+[data-theme="dark"] {
+    --ntc-chart-bg: #1e1e1e;
+    --ntc-chart-grid: #3d3d3d;
+    --ntc-chart-axis: #888888;
+    --ntc-chart-label: #888888;
+    --ntc-chart-line: #7a9eff;
+    --ntc-chart-line-volt: #f5a866;
+    --ntc-chart-fill: rgba(122, 158, 255, 0.12);
+    --ntc-chart-dot: #ff8080;
+    --ntc-chart-crosshair: rgba(122, 158, 255, 0.35);
+}
+
+/* ===== 主布局：左控件 / 右可视化 ===== */
+.ntc-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 18px;
+    margin-top: 16px;
+    align-items: start;
+}
+.ntc-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+}
+.ntc-viz { min-width: 0; }
+.ntc-viz > .panel { padding: 14px 16px 16px; }
+.ntc-controls > .panel { padding: 14px 16px 16px; }
+@media (max-width: 900px) {
+    .ntc-layout { grid-template-columns: 1fr; }
+}
+
+/* 紧凑 2 列输入网格（覆盖 common.css 的 18px gap） */
+.ntc-grid-compact { gap: 10px; }
+
+/* ===== 模式切换 Tabs（内嵌于面板） ===== */
+.mode-tabs {
+    display: flex;
+    gap: 4px;
+    margin: -2px -4px 12px;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border-light);
+    padding: 0 4px;
+}
+.mode-tab {
+    padding: 6px 16px 8px;
+    border-radius: 10px 10px 0 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-bottom: none;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: -1px;
+    user-select: none;
+}
+.mode-tab:hover {
+    color: var(--text-secondary);
+    background: var(--bg-panel);
+    border-color: var(--border-light);
+}
+.mode-tab.active {
+    background: var(--bg-input);
+    color: var(--text-primary);
+    border-color: var(--border-light);
+    border-bottom-color: var(--bg-input);
+    font-weight: 600;
+}
+[data-theme="dark"] .mode-tab.active {
+    background: var(--bg-input);
+    border-bottom-color: var(--bg-input);
+}
+
+/* ===== 模式面板 ===== */
+.mode-panel { display: none; }
+.mode-panel.active { display: block; }
+
+/* ===== 子标题（面板内二级标题，如图表/表格名） ===== */
+.ntc-sub-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    transition: color 0.25s;
+}
+
+/* ===== 结果条 ===== */
+.result-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--bg-option-grid);
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s, border-color 0.25s;
+}
+.result-chip {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.result-chip strong { font-weight: 600; color: var(--text-muted); }
+.result-chip .val {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--accent-blue);
+    letter-spacing: -0.01em;
+}
+.result-chip small { color: var(--text-light); font-weight: 400; }
+
+/* ===== 标定三点网格：每行一个标定点（R / T 配对） ===== */
+.calib-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 14px;
+}
+@media (max-width: 520px) {
+    .calib-grid { grid-template-columns: 1fr; }
+}
+
+/* ===== 图表容器 ===== */
+.chart-wrapper {
+    position: relative;
+    background: var(--ntc-chart-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    padding: 8px 12px 4px;
+    transition: background 0.25s, border-color 0.25s;
+    height: 260px;
+}
+#chartCanvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+    touch-action: none;
+}
+.chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-input);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 0.62rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 10;
+    line-height: 1.6;
+}
+.chart-tooltip.visible { opacity: 1; }
+
+/* ===== 表格容器（固定上限高度，内部滚动，避免行数过多时撑爆右列） ===== */
+.table-wrap {
+    max-height: 282px;
+    overflow: auto;
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+}
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.78rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+.table-wrap th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--bg-option-grid);
+    padding: 8px 14px;
+    text-align: right;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border-light);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+.table-wrap th:first-child { text-align: center; }
+.table-wrap td {
+    padding: 6px 14px;
+    text-align: right;
+    border-bottom: 1px solid var(--border-light);
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+.table-wrap td:first-child {
+    text-align: center;
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+.table-wrap tbody tr:hover td {
+    background: var(--bg-panel-accent);
+}
+.table-wrap::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-wrap::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+.table-wrap::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+
+/* ===== 公式说明（紧凑单行 3 列） ===== */
+.ntc-formula { padding: 12px 16px; }
+.formula-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px 18px;
+    align-items: center;
+}
+.formula-item {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    min-width: 0;
+    flex-wrap: wrap;
+}
+.formula-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-tag);
+    padding: 2px 8px;
+    border-radius: 40px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.formula-item code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    word-break: break-word;
+}
+@media (max-width: 900px) {
+    .formula-row { grid-template-columns: 1fr; gap: 6px; }
+}

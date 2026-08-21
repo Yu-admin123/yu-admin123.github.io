@@ -30,8 +30,7 @@
                     <span class="nav-mouth" aria-hidden="true"></span>
                 </span>
                 <!-- 语言对话框：30 秒随机一句，点击换句，✕ 收起 -->
-                <span class="nav-chat" id="navChat" role="button" tabindex="0"
-                      title="点击换一句 · ✕ 收起" data-i18n-title="index.nav.chat">
+                <span class="nav-chat" id="navChat" role="button" tabindex="0" data-i18n-title="index.nav.chat">
                     <span class="nav-chat-bubble">
                         <span class="nav-chat-text" id="navChatText">今日宜用 C，忌用汇编</span>
                         <button type="button" class="nav-chat-close" id="navChatClose"
@@ -45,11 +44,12 @@
                 <!-- 分类按钮组 -->
                 <div class="category-tabs" id="categoryTabs">
                     <button class="category-btn active" data-category="all" data-i18n="index.cat.all">全部</button>
+                    <button class="category-btn" data-category="fav" data-i18n="index.cat.fav">收藏</button>
                     <button class="category-btn" data-category="debug" data-i18n="index.cat.debug">调试</button>
                     <button class="category-btn" data-category="hardware" data-i18n="index.cat.hardware">硬件</button>
                     <button class="category-btn" data-category="software" data-i18n="index.cat.software">软件</button>
+                    <button class="category-btn" data-category="doc" data-i18n="index.cat.doc">文档</button>
                     <button class="category-btn" data-category="other" data-i18n="index.cat.other">其他</button>
-                    <button class="category-btn" data-category="fav" data-i18n="index.cat.fav">收藏</button>
                 </div>
 
                 <!-- 搜索框 -->
@@ -84,6 +84,15 @@
         </div>
     </nav>
 
+    <!-- ===== 顶部浮动广告横幅（fixed 悬浮在导航栏下方，不占布局、不推动内容） ===== -->
+    <!-- <div class="ad-banner" id="adBanner">
+        <a href="https://github.com/Yu-admin123/yu-admin123.github.io" class="ad-banner-link" target="_blank" rel="noopener noreferrer">
+            <span class="ad-badge" data-i18n="index.ad.badge">广告</span>
+            <span class="ad-banner-text" id="adBannerText">这里的广告位正在招商，欢迎赞助这个免费工具箱 ✨</span>
+        </a>
+        <button class="ad-banner-close" id="adBannerClose" title="关闭广告" data-i18n-title="index.ad.close">✕</button>
+    </div> -->
+
     <!-- ===== Hero 区域（三栏：小组件 | 居中标题 | 对称占位） ===== -->
     <section class="hero">
         <!-- 左侧小组件：时钟 · 下班进度 · 提醒（融入布局，窄屏自动隐藏） -->
@@ -97,7 +106,7 @@
                 <div class="hw-section">
                     <div class="hw-label-row">
                         <span class="hw-label" data-i18n="index.hw.offProgress">下班进度</span>
-                        <button class="hw-settings-btn" id="hwSettingsBtn" title="设置">⚙</button>
+                        <button class="hw-settings-btn" id="hwSettingsBtn" data-i18n-title="index.hw.settings" title="设置">⚙</button>
                     </div>
                     <div class="hw-progress-wrap">
                         <div class="hw-progress-bar">
@@ -110,11 +119,11 @@
             </div>
             <!-- 提醒 -->
             <div class="hw-reminders">
-                <div class="hw-reminder-item water" id="hwWaterItem" title="点击消除提醒">
+                <div class="hw-reminder-item water" id="hwWaterItem" title="点击记录一杯">
                     <span class="hw-reminder-icon">💧</span>
                     <span class="hw-reminder-label" data-i18n="index.hw.waterReminder">喝水</span>
                     <div class="hw-reminder-mini-bar"><div class="hw-reminder-mini-fill" id="hwWaterFill" style="width:0%"></div></div>
-                    <span class="hw-reminder-timer" id="hwWaterTimer">--:--</span>
+                    <span class="hw-reminder-timer" id="hwWaterTimer">0 ml</span>
                 </div>
                 <div class="hw-reminder-item sit" id="hwSitItem" title="点击消除提醒">
                     <span class="hw-reminder-icon">🪑</span>
@@ -143,7 +152,8 @@
                 <span class="hw-label" data-i18n="index.todo.title">今日待办</span>
                 <input type="text" class="todo-input" id="todoInput" maxlength="60" autocomplete="off"
                        placeholder="输入待办，回车添加" data-i18n-placeholder="index.todo.inputPlaceholder">
-                <button class="hw-settings-btn" id="todoClearBtn" title="清除已完成" data-i18n-title="index.todo.clearDone">🗑</button>
+                       
+                <button class="hw-settings-btn" id="todoClearBtn" title="清除已完成" data-i18n-title="index.todo.clearDone">⇄</button>
             </div>
             <ul class="todo-list" id="todoList"></ul>
             <div class="todo-empty" id="todoEmpty" data-i18n="index.todo.empty">暂无待办，输入后回车添加 ✍️</div>
@@ -182,10 +192,17 @@
                 <input type="time" id="hwInWorkEnd" value="18:00">
             </div>
             <div class="hw-modal-field">
-                <label>💧 <span data-i18n="index.hw.waterInterval">喝水间隔</span></label>
+                <label>💧 <span data-i18n="index.hw.waterMl">每次喝水</span></label>
                 <div>
-                    <input type="number" id="hwInWater" value="30" min="1" max="999">
-                    <span class="hw-unit" data-i18n="index.hw.minutes">分钟</span>
+                    <input type="number" id="hwInWaterMl" value="250" min="1" max="9999">
+                    <span class="hw-unit">ml</span>
+                </div>
+            </div>
+            <div class="hw-modal-field">
+                <label>🥤 <span data-i18n="index.hw.waterGoal">每日目标</span></label>
+                <div>
+                    <input type="number" id="hwInWaterGoal" value="2000" min="1" max="99999">
+                    <span class="hw-unit">ml</span>
                 </div>
             </div>
             <div class="hw-modal-field">

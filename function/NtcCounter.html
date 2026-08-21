@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>NTC 电阻计算器</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 主题 + 语言预初始化（必须在 head 内联，防闪烁） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/NtcCounter.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换（必须在主题切换之前） -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容容器 -->
+    <div class="container">
+        <h1 class="page-title" data-i18n="ntc.page.title">🔥 NTC 电阻计算器</h1>
+        <p class="subhead" data-i18n="ntc.subhead">🔹 B 值快速模式 &amp; 三点标定模式 &amp; 两点算 B · 电阻↔温度双向互算 · 分压 &amp; ADC 查表</p>
+
+        <!-- ===== 主布局：左控件 / 右可视化 ===== -->
+        <div class="ntc-layout">
+            <!-- ===== 左列：所有输入控件 ===== -->
+            <div class="ntc-controls" >
+                <!-- 模式选择 + 当前模式输入（合并为一个面板） -->
+                <div class="panel panel-accent" style="height: 280px;">
+                    <div class="panel-title"><span data-i18n="ntc.p1.title">① 计算模式</span> <small data-i18n="ntc.p1.small">B 值 / 三点标定 / 两点算 B</small></div>
+                    <div class="mode-tabs" role="tablist">
+                        <div class="mode-tab active" data-mode="B" role="tab" aria-selected="true">
+                            <span data-i18n="ntc.tab.bmode">📌 B 值模式</span>
+                        </div>
+                        <div class="mode-tab" data-mode="calib" role="tab" aria-selected="false">
+                            <span data-i18n="ntc.tab.calib">📐 三点标定</span>
+                        </div>
+                        <div class="mode-tab" data-mode="calcB" role="tab" aria-selected="false">
+                            <span data-i18n="ntc.tab.calcb">🧮 两点算B值</span>
+                        </div>
+                    </div>
+
+                    <!-- B 值模式 -->
+                    <div id="panelB" class="mode-panel active" style="height: 280px;">
+                        <div class="grid-2col ntc-grid-compact">
+                            <div class="input-row">
+                                <label data-i18n="ntc.label.r25">R₂₅ (Ω)</label>
+                                <input type="number" id="r25Input" value="10000" step="any" min="0">
+                            </div>
+                            <div class="input-row">
+                                <label data-i18n="ntc.label.bvalue">B 值 (K)</label>
+                                <input type="number" id="bInput" value="3950" step="any" min="0">
+                            </div>
+                        </div>
+
+                        <!-- 常用 NTC 型号预设（快速填入 R25 + B） -->
+                        <div class="input-row" style="margin-top:6px;">
+                            <label data-i18n="ntc.label.preset">常用型号</label>
+                            <select id="bPreset">
+                                <option value="custom" data-i18n="ntc.preset.custom">— 自定义 —</option>
+                                <option value="10000:3950">10K · B3950</option>
+                                <option value="10000:3435">10K · B3435</option>
+                                <option value="10000:3977">10K · B3977</option>
+                                <option value="50000:3950">50K · B3950</option>
+                                <option value="100000:3950">100K · B3950</option>
+                                <option value="5000:3470">5K · B3470</option>
+                                <option value="3000:3977">3K · B3977</option>
+                            </select>
+                        </div>
+
+                        <!-- 应用按钮 + 成功提示 -->
+                        <div class="flex-between" style="margin:10px 0;">
+                            <button class="btn btn-outline" id="applyBbtn" data-i18n="ntc.btn.applyB">✅ 应用参数</button>
+                            <span class="status-ok" id="applyBStatus" style="display:none;"></span>
+                        </div>
+
+                        <!-- 关键温度点电阻预览：随 R25/B 实时更新，不必点应用 -->
+                        <div class="result-strip" id="bPreviewStrip" style="padding:8px 12px;">
+                            <span class="result-chip"><strong>0°C</strong> <span class="val" id="bPrev0">--</span> <small>Ω</small></span>
+                            <span class="result-chip"><strong>25°C</strong> <span class="val" id="bPrev25">--</span> <small>Ω</small></span>
+                            <span class="result-chip"><strong>50°C</strong> <span class="val" id="bPrev50">--</span> <small>Ω</small></span>
+                        </div>
+                    </div>
+
+                    <!-- 三点标定 -->
+                    <div id="panelCalib" class="mode-panel" style="height: 280px;">
+                        <div class="calib-grid">
+                            <div class="input-row"><label>R₁ (Ω)</label><input type="number" id="r1" value="10000" step="any" min="0"></div>
+                            <div class="input-row"><label>T₁ (°C)</label><input type="number" id="t1" value="25" step="any"></div>
+                            <div class="input-row"><label>R₂ (Ω)</label><input type="number" id="r2" value="4160" step="any" min="0"></div>
+                            <div class="input-row"><label>T₂ (°C)</label><input type="number" id="t2" value="50" step="any"></div>
+                            <div class="input-row"><label>R₃ (Ω)</label><input type="number" id="r3" value="1451" step="any" min="0"></div>
+                            <div class="input-row"><label>T₃ (°C)</label><input type="number" id="t3" value="85" step="any"></div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline" id="calcBtn" data-i18n="ntc.btn.calcCoeff">📊 计算并应用</button>
+                            <button class="btn btn-outline" id="resetDefault" data-i18n="ntc.btn.resetDefault">↺ 默认数据</button>
+                        </div>
+                        <div class="result-strip" id="coeffResult" style="margin-top:5px;">
+                            <span class="result-chip"><strong>B₁₂ =</strong> <span class="val" id="b12">--</span> <small>K</small></span>
+                            <span class="result-chip"><strong>B₁₃ =</strong> <span class="val" id="b13">--</span> <small>K</small></span>
+                            <span class="result-chip"><strong>B₂₃ =</strong> <span class="val" id="b23">--</span> <small>K</small></span>
+                        </div>
+                    </div>
+
+                    <!-- 两点算 B值 -->
+                    <div id="panelCalcB" class="mode-panel">
+                        <div class="grid-2col ntc-grid-compact">
+                            <div class="input-row"><label>R₁ (Ω)</label><input type="number" id="cb_r1" value="10000" step="any" min="0"></div>
+                            <div class="input-row"><label>T₁ (°C)</label><input type="number" id="cb_t1" value="25" step="any"></div>
+                            <div class="input-row"><label>R₂ (Ω)</label><input type="number" id="cb_r2" value="4160" step="any" min="0"></div>
+                            <div class="input-row"><label>T₂ (°C)</label><input type="number" id="cb_t2" value="50" step="any"></div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-outline" id="calcBbtn" data-i18n="ntc.btn.calcB">🧮 计算 B 值</button>
+                            <button class="btn btn-outline" id="applyBtoModel" data-i18n="ntc.btn.applyResult">→ 应用到模型</button>
+                        </div>
+                        <div class="result-strip" style="margin-top:16px;">
+                            <span class="result-chip"><strong data-i18n="ntc.result.bcalc">B =</strong> <span class="val" id="calcBResult">--</span> <small>K</small></span>
+                            <span class="status-ok" id="calcBStatus" style="display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通用参数 -->
+                <div class="panel panel-accent" id="panelCommon">
+                    <div class="panel-title"><span data-i18n="ntc.p4.title">② 通用参数</span> <small data-i18n="ntc.p4.small">供电电压与温度范围</small></div>
+                    <div class="input-group">
+                        <div class="input-row">
+                            <label>Vcc (V)</label>
+                            <input type="number" id="vcc" value="3.3" step="0.1" min="0.5" style="flex:0.4;">
+                            <label style="min-width:auto;">Rp (Ω)</label>
+                            <input type="number" id="rpullup" value="10000" step="100" min="0" style="flex:0.5;">
+                        </div>
+                        <div class="input-row">
+                            <label data-i18n="ntc.label.tempRange">温度范围</label>
+                            <input type="number" id="tmin" value="-40" step="1" style="flex:0.3;">
+                            <span class="unit">~</span>
+                            <input type="number" id="tmax" value="125" step="1" style="flex:0.3;">
+                            <span class="unit">°C</span>
+                        </div>
+                        <div class="flex-between">
+                            <button class="btn btn-outline" id="updateBtn" data-i18n="ntc.btn.update">🔄 更新</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 双向互算 -->
+                <div class="panel panel-accent" id="panelReverse">
+                    <div class="panel-title"><span data-i18n="ntc.p5.title">③ 电阻 ↔ 温度</span> <small data-i18n="ntc.p5.small">双向互算 · 分压 & ADC</small></div>
+                    <div class="input-group">
+                        <div class="input-row">
+                            <label data-i18n="ntc.label.reverseMode">模式</label>
+                            <select id="reverseMode">
+                                <option value="RtoT" data-i18n="ntc.option.r2t">R → T</option>
+                                <option value="TtoR" data-i18n="ntc.option.t2r">T → R</option>
+                            </select>
+                            <label id="reverseInputLabel" data-i18n="ntc.label.resistance" style="min-width:auto;">电阻 (Ω)</label>
+                            <input type="number" id="reverseInput" value="5000" step="any" min="0" style="flex:0.4;">
+                        </div>
+                        <div class="input-row">
+                            <label data-i18n="ntc.label.adcBits">ADC</label>
+                            <select id="adcBits">
+                                <option value="8">8</option>
+                                <option value="12" selected>12</option>
+                                <option value="16">16</option>
+                                <option value="24">24</option>
+                            </select>
+                            <button class="btn btn-outline" id="reverseBtn" data-i18n="ntc.btn.reverseCalc">▶ 计算</button>
+                        </div>
+                        <div class="result-strip">
+                            <span class="result-chip"><strong data-i18n="ntc.result.temp">T =</strong> <span class="val" id="resTemp">--</span> <small>°C</small></span>
+                            <span class="result-chip"><strong data-i18n="ntc.result.res">R =</strong> <span class="val" id="resRes">--</span> <small>Ω</small></span>
+                            <span class="result-chip"><strong data-i18n="ntc.result.volt">V =</strong> <span class="val" id="resVolt">--</span> <small>V</small></span>
+                            <span class="result-chip"><strong data-i18n="ntc.result.adc">ADC =</strong> <span class="val" id="resAdc">--</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 右列：图表 + 表格 ===== -->
+            <div class="ntc-viz">
+                <div class="panel">
+                    <div class="panel-title"><span data-i18n="ntc.viz.title">特性曲线 & 数据表</span> <small data-i18n="ntc.viz.small">电阻 / 分压随温度</small></div>
+                    <div id="chartWrapPanel">
+                        <div class="ntc-sub-label" data-i18n="ntc.chart.title">R-T 特性曲线</div>
+                        <div class="chart-wrapper" id="chartWrapper">
+                            <canvas id="chartCanvas"></canvas>
+                            <div class="chart-tooltip" id="chartTooltip"></div>
+                        </div>
+                    </div>
+                    <div id="tableWrapPanel" style="margin-top:14px;">
+                        <div class="flex-between" style="margin-bottom:8px;">
+                            <div class="ntc-sub-label" style="margin-bottom:0;" data-i18n="ntc.table.title">数据表</div>
+                            <div class="btn-group">
+                                <button class="btn btn-outline btn-sm" id="copyTableBtn" data-i18n="ntc.btn.copyTable">📋 复制</button>
+                                <button class="btn btn-outline btn-sm" id="exportCsvBtn" data-i18n="ntc.btn.exportCsv">💾 CSV</button>
+                            </div>
+                        </div>
+                        <div class="table-wrap" id="tableWrap">
+                            <table id="dataTable">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="ntc.table.thTemp">温度 (°C)</th>
+                                        <th data-i18n="ntc.table.thRes">电阻 (Ω)</th>
+                                        <th data-i18n="ntc.table.thVolt">分压 Vout (V)</th>
+                                        <th data-i18n="ntc.table.thAdc">ADC (12‑bit)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 公式说明（全宽模块） ===== -->
+        <div class="panel panel-accent ntc-formula" style="margin-top:18px;">
+            <div class="panel-title"><span data-i18n="ntc.p6.title">⑤ 公式说明</span></div>
+            <div class="formula-row">
+                <div class="formula-item">
+                    <span class="formula-label" data-i18n="ntc.formula.bmodel">B 值模型</span>
+                    <code>R(T) = R₂₅ · exp(B·(1/T − 1/298.15))</code>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-label" data-i18n="ntc.formula.bcalc">两点法</span>
+                    <code>B = ln(R₁/R₂) / (1/T₁ − 1/T₂)</code>
+                </div>
+                <div class="formula-item">
+                    <span class="formula-label" data-i18n="ntc.formula.div">分压</span>
+                    <code>Vout = Vcc · R / (Rp + R)</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer-note">
+            <span data-i18n="ntc.footer">🔥 NTC 热敏电阻计算器 · B 值模型 · 三点标定 · 双向互算</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 脚本层：theme.js → i18n.js → 页面特有 -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/NtcCounter.js"></script>
+</body>
+</html>

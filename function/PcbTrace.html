@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>PCB 走线宽度计算器</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题 + 语言预初始化（必须内联，防闪烁） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/PcbTrace.css">
+</head>
+<body>
+    <!-- 导航栏（语言切换 → 主题切换） -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title" data-i18n="pcb.title">🖥️ PCB 走线宽度计算器</h1>
+        <p class="subhead" data-i18n="pcb.subhead">🔹 默认 IPC-2152 + 内层散热降额 ×2（贴近主流厂商 DFM 惯例）；可切换 IPC-2221 保守基线或调整降额系数对比。正向求线宽 / 反向求电流，并给出电阻、压降与功耗估算。</p>
+
+        <div class="pcb-stack">
+        <div class="pcb-top">
+            <!-- 左栏：① 计算模式 + ③ 计算结果 合并为一张卡片 -->
+            <div class="panel panel-accent pcb-left">
+                <div class="panel-title"><span data-i18n="pcb.p1.title">计算模式</span> <small data-i18n="pcb.p1.small">正向 / 反向求解</small></div>
+                <div class="mode-tabs" role="tablist">
+                    <button class="mode-tab active" data-mode="forward" data-i18n="pcb.mode.forward">正向：求线宽</button>
+                    <button class="mode-tab" data-mode="reverse" data-i18n="pcb.mode.reverse">反向：求电流</button>
+                </div>
+
+                <div class="pcb-formula" id="modeFormula"></div>
+
+                <div class="pcb-preset-title" data-i18n="pcb.preset.title">常用电流预设</div>
+                <div class="pcb-preset" id="presetBar">
+                    <button class="pcb-preset-btn" type="button" data-amp="0.5">0.5 A</button>
+                    <button class="pcb-preset-btn" type="button" data-amp="1">1 A</button>
+                    <button class="pcb-preset-btn" type="button" data-amp="2">2 A</button>
+                    <button class="pcb-preset-btn" type="button" data-amp="5">5 A</button>
+                    <button class="pcb-preset-btn" type="button" data-amp="10">10 A</button>
+                </div>
+
+                <div class="pcb-sep"></div>
+
+                <div class="pcb-subtitle"><span data-i18n="pcb.p3.title">计算结果</span> <small data-i18n="pcb.p3.small">实时计算</small></div>
+                <div class="result-strip" id="resultStrip">
+                    <span class="result-chip"><strong data-i18n="pcb.result.width">所需线宽 W</strong> <span class="val" id="widthResult">--</span> <small id="widthUnit">mm</small></span>
+                    <span class="result-chip"><strong data-i18n="pcb.result.area">截面积 A</strong> <span class="val" id="areaResult">--</span> <small id="areaUnit">mm²</small></span>
+                    <span class="result-chip"><strong data-i18n="pcb.result.current">电流 I</strong> <span class="val" id="currentResult">--</span> <small>A</small></span>
+                    <span class="result-chip"><strong data-i18n="pcb.result.res">直流电阻 R</strong> <span class="val" id="resResult">--</span> <small id="resUnit">Ω</small></span>
+                    <span class="result-chip"><strong data-i18n="pcb.result.vdrop">压降 ΔV</strong> <span class="val" id="vdropResult">--</span> <small id="vdropUnit">V</small></span>
+                    <span class="result-chip"><strong data-i18n="pcb.result.power">功耗 P</strong> <span class="val" id="powerResult">--</span> <small id="powerUnit">W</small></span>
+                </div>
+                <div id="statusMsg" class="status-error" style="display:none; margin-top:10px;"></div>
+                <div class="pcb-converter">
+                    <div class="conv-title"><span data-i18n="pcb.conv.title">线宽换算</span> <small data-i18n="pcb.conv.small">mm ↔ mil · 计算后自动填入</small></div>
+                    <div class="conv-row">
+                        <div class="conv-side">
+                            <label data-i18n="pcb.conv.mm">毫米 (mm)</label>
+                            <input type="number" id="widthMmConv" step="0.001" min="0" placeholder="0.000">
+                        </div>
+                        <div class="conv-arrow">↔</div>
+                        <div class="conv-side">
+                            <label data-i18n="pcb.conv.mil">密耳 (mil)</label>
+                            <input type="number" id="widthMilConv" step="1" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右栏：② 输入参数 -->
+            <div class="panel panel-accent pcb-right">
+                <div class="panel-title"><span data-i18n="pcb.p2.title">输入参数</span> <small data-i18n="pcb.p2.small">双标准 · IPC-2152 默认</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="pcb.label.std">计算标准</label>
+                        <select id="standard">
+                            <option value="ipc2152" selected data-i18n="pcb.std.2152">IPC-2152（推荐）</option>
+                            <option value="ipc2221" data-i18n="pcb.std.2221">IPC-2221（保守）</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="pcb.label.unit">尺寸单位</label>
+                        <select id="unitSel">
+                            <option value="mm" selected data-i18n="pcb.unit.mm">mm（毫米）</option>
+                            <option value="mil" data-i18n="pcb.unit.mil">mil（密耳）</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="pcb.label.dt">温升 ΔT</label>
+                        <input type="number" id="tempRise" value="10" step="1" min="0" list="dtList">
+                        <span class="unit">°C</span>
+                        <datalist id="dtList">
+                            <option value="5">5 °C</option>
+                            <option value="10">10 °C</option>
+                            <option value="20">20 °C</option>
+                            <option value="30">30 °C</option>
+                            <option value="50">50 °C</option>
+                        </datalist>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="pcb.label.oz">铜厚</label>
+                        <select id="copperOz">
+                            <option value="0.5">0.5 oz</option>
+                            <option value="1" selected>1 oz</option>
+                            <option value="2">2 oz</option>
+                            <option value="3">3 oz</option>
+                        </select>
+                        <span class="hint-text" id="ozHint">≈ 35 µm</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="pcb.label.layer">走线层</label>
+                        <select id="layer">
+                            <option value="external" selected data-i18n="pcb.layer.ext">外层（暴露）</option>
+                            <option value="internal" data-i18n="pcb.layer.int">内层（夹心）</option>
+                        </select>
+                    </div>
+                    <div class="input-row" id="derateRow">
+                        <label data-i18n="pcb.label.derate">内层散热降额</label>
+                        <select id="innerDerate">
+                            <option value="2" selected data-i18n="pcb.derate.x2">×2.0（载流 −50%，≈IPC-2221，推荐）</option>
+                            <option value="1.5" data-i18n="pcb.derate.x1_5">×1.5（载流 −33%）</option>
+                            <option value="1" data-i18n="pcb.derate.x1">×1.0（IPC-2152 实测）</option>
+                            <option value="2.5" data-i18n="pcb.derate.x2_5">×2.5（更稳妥）</option>
+                        </select>
+                        <span class="hint-text" data-i18n="pcb.hint.derate">仅内层 · 2152 生效</span>
+                    </div>
+                    <div class="input-row" id="planeRow">
+                        <label data-i18n="pcb.label.plane">邻近铜平面</label>
+                        <select id="plane">
+                            <option value="none" selected data-i18n="pcb.plane.none">无</option>
+                            <option value="yes" data-i18n="pcb.plane.yes">有（≈+40% 载流）</option>
+                        </select>
+                        <span class="hint-text" data-i18n="pcb.hint.plane">仅 2152 生效</span>
+                    </div>
+                    <div class="input-row" id="boardRow">
+                        <label data-i18n="pcb.label.board">板厚</label>
+                        <select id="board">
+                            <option value="0.8">0.8 mm</option>
+                            <option value="1.0">1.0 mm</option>
+                            <option value="1.6" selected>1.6 mm</option>
+                            <option value="2.0">2.0 mm</option>
+                            <option value="2.4">2.4 mm</option>
+                        </select>
+                        <span class="hint-text" data-i18n="pcb.hint.board">仅 2152 生效</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="pcb.label.length">走线长度 L</label>
+                        <input type="number" id="traceLen" value="50" step="any" min="0">
+                        <span class="unit" id="traceLenUnit">mm</span>
+                        <span class="hint-text" data-i18n="pcb.hint.short">≤10mm 温升可忽略</span>
+                    </div>
+                    <div class="input-row" id="currentRow">
+                        <label data-i18n="pcb.label.current">电流 I</label>
+                        <input type="number" id="current" value="2" step="0.1" min="0">
+                        <span class="unit">A</span>
+                    </div>
+                    <div class="input-row" id="widthRow" style="display:none;">
+                        <label data-i18n="pcb.label.width">线宽 W</label>
+                        <input type="number" id="widthMm" value="0.8" step="0.05" min="0">
+                        <span class="unit" id="widthInputUnit">mm</span>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /pcb-top -->
+
+        <!-- ④ 载流能力曲线 -->
+        <div class="panel panel-accent">
+            <div class="panel-title"><span data-i18n="pcb.p4.title">载流能力曲线</span> <small data-i18n="pcb.p4.small">最大电流随线宽变化</small></div>
+            <div class="chart-wrapper" id="chartWrapper">
+                <canvas id="chartCanvas"></canvas>
+                <div class="chart-tooltip" id="chartTooltip"></div>
+            </div>
+        </div>
+
+        <!-- ⑤ 推荐线宽参考表 -->
+        <div class="panel panel-accent">
+            <div class="panel-title"><span data-i18n="pcb.p5.title">推荐线宽参考</span> <small data-i18n="pcb.p5.small">常见电流 · 随温升实时更新</small></div>
+            <div class="table-wrap" id="refTableWrap">
+                <table id="refTable">
+                    <thead>
+                        <tr>
+                            <th data-i18n="pcb.table.thI">电流 (A)</th>
+                            <th data-i18n="pcb.table.thExt1">外层 1oz</th>
+                            <th data-i18n="pcb.table.thExt2">外层 2oz</th>
+                            <th data-i18n="pcb.table.thInt1">内层 1oz</th>
+                            <th data-i18n="pcb.table.thInt2">内层 2oz</th>
+                        </tr>
+                    </thead>
+                    <tbody id="refBody"></tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="pcb.footer">🖥️ PCB 走线宽度计算器 · 正向求线宽 · 反向求电流 · 默认 IPC-2152（可切 IPC-2221）· 电阻/压降/功耗估算</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 脚本层：theme.js → i18n.js → 页面.js -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/PcbTrace.js?v=20260819"></script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>电阻分压计算器</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题 + 语言预初始化（必须内联，防闪烁） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式层：先 common → 再页面特有 -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/ResDivider.css">
+</head>
+<body>
+    <!-- 导航栏（语言切换 → 主题切换） -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title" data-i18n="rdiv.title">🧮 电阻分压计算器</h1>
+        <p class="subhead" data-i18n="rdiv.subhead">🔹 常规电阻分压计算器：正向根据 Vin / R1 / R2 求输出电压，反向根据目标 Vout 求分压电阻，并给出 E24 标准电阻推荐。</p>
+
+        <div class="rd-stack">
+        <div class="rd-top">
+            <!-- 左栏：① 计算模式 + ③ 计算结果 合并为一张卡片 -->
+            <div class="panel panel-accent rd-left">
+                <div class="panel-title"><span data-i18n="rdiv.p1.title">计算模式</span> <small data-i18n="rdiv.p1.small">正向 / 反向求解</small></div>
+                <div class="mode-tabs" role="tablist">
+                    <button class="mode-tab active" data-mode="forward" data-i18n="rdiv.mode.forward">正向：求 Vout</button>
+                    <button class="mode-tab" data-mode="reverseR2" data-i18n="rdiv.mode.reverseR2">反向：求 R2</button>
+                    <button class="mode-tab" data-mode="reverseR1" data-i18n="rdiv.mode.reverseR1">反向：求 R1</button>
+                </div>
+
+                <div class="rd-formula" id="modeFormula"></div>
+
+                <div class="rd-preset-title" data-i18n="rdiv.preset.title">常用分压预设</div>
+                <div class="rd-preset" id="presetBar">
+                    <button class="rd-preset-btn" type="button" data-preset="ratio" data-vin="5" data-val="0.5">½</button>
+                    <button class="rd-preset-btn" type="button" data-preset="ratio" data-vin="5" data-val="0.3333">⅓</button>
+                    <button class="rd-preset-btn" type="button" data-preset="ratio" data-vin="5" data-val="0.25">¼</button>
+                    <button class="rd-preset-btn" type="button" data-preset="ratio" data-vin="5" data-val="0.1">1/10</button>
+                    <button class="rd-preset-btn" type="button" data-preset="volt" data-vin="5" data-val="3.3">5V→3.3V</button>
+                    <button class="rd-preset-btn" type="button" data-preset="volt" data-vin="3.3" data-val="1.8">3.3V→1.8V</button>
+                    <button class="rd-preset-btn" type="button" data-preset="volt" data-vin="5" data-val="1.8">5V→1.8V</button>
+                </div>
+
+                <div class="rd-sep"></div>
+
+                <div class="rd-subtitle"><span data-i18n="rdiv.p3.title">计算结果</span> <small data-i18n="rdiv.p3.small">实时计算</small></div>
+                <div class="result-strip" id="resultStrip">
+                    <span class="result-chip"><strong data-i18n="rdiv.result.vout">输出电压 Vout</strong> <span class="val" id="voutResult">--</span> <small>V</small></span>
+                    <span class="result-chip"><strong data-i18n="rdiv.result.ratio">分压比</strong> <span class="val" id="ratioResult">--</span></span>
+                    <span class="result-chip"><strong data-i18n="rdiv.result.current">电流 I</strong> <span class="val" id="currentResult">--</span> <small>mA</small></span>
+                    <span class="result-chip"><strong data-i18n="rdiv.result.p1">R1 功耗</strong> <span class="val" id="p1Result">--</span> <small>mW</small></span>
+                    <span class="result-chip"><strong data-i18n="rdiv.result.p2">R2 功耗</strong> <span class="val" id="p2Result">--</span> <small>mW</small></span>
+                    <span class="result-chip"><strong data-i18n="rdiv.result.ptotal">总功耗</strong> <span class="val" id="ptotalResult">--</span> <small>mW</small></span>
+                </div>
+                <div id="statusMsg" class="status-error" style="display:none; margin-top:10px;"></div>
+            </div>
+
+            <!-- 右栏：② 输入参数 -->
+            <div class="panel panel-accent rd-right">
+                <div class="panel-title"><span data-i18n="rdiv.p2.title">输入参数</span> <small data-i18n="rdiv.p2.small">单位可切换 Ω/kΩ/MΩ</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="rdiv.label.vin">输入电压 Vin</label>
+                        <input type="number" id="vin" value="5" step="0.1" min="0">
+                        <span class="unit">V</span>
+                    </div>
+                    <div class="input-row" id="r1Row">
+                        <label data-i18n="rdiv.label.r1">上电阻 R1</label>
+                        <input type="number" id="r1" value="10000" step="any" min="0">
+                        <select id="r1Unit">
+                            <option value="1" selected>Ω</option>
+                            <option value="1000">kΩ</option>
+                            <option value="1000000">MΩ</option>
+                        </select>
+                    </div>
+                    <div class="input-row" id="r2Row">
+                        <label data-i18n="rdiv.label.r2">下电阻 R2</label>
+                        <input type="number" id="r2" value="10000" step="any" min="0">
+                        <select id="r2Unit">
+                            <option value="1" selected>Ω</option>
+                            <option value="1000">kΩ</option>
+                            <option value="1000000">MΩ</option>
+                        </select>
+                    </div>
+                    <div class="input-row" id="voutRow" style="display:none;">
+                        <label data-i18n="rdiv.label.voutTarget">目标 Vout</label>
+                        <input type="number" id="voutTarget" value="2.5" step="0.01" min="0">
+                        <span class="unit">V</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="rdiv.label.rl">负载 RL</label>
+                        <input type="number" id="rl" value="0" step="any" min="0">
+                        <select id="rlUnit">
+                            <option value="1">Ω</option>
+                            <option value="1000">kΩ</option>
+                            <option value="1000000" selected>MΩ</option>
+                        </select>
+                        <span class="hint-text" data-i18n="rdiv.hint.rl">0 = 无负载</span>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="rdiv.label.chartVar">曲线变量</label>
+                        <select id="chartVar">
+                            <option value="R2" data-i18n="rdiv.chart.varR2">R2 变化 (固定 R1)</option>
+                            <option value="R1" data-i18n="rdiv.chart.varR1">R1 变化 (固定 R2)</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="rdiv.label.range">曲线范围</label>
+                        <input type="number" id="rangeMin" value="1000" step="100" style="max-width:110px;">
+                        <span class="unit">~</span>
+                        <input type="number" id="rangeMax" value="100000" step="100" style="max-width:110px;">
+                        <span class="unit">Ω</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="recommendBtn" data-i18n="rdiv.btn.recommend">💡 推荐标准电阻组合</button>
+                    </div>
+                </div>
+            </div>
+        </div><!-- /rd-top -->
+
+        <!-- ④ 分压曲线 -->
+        <div class="panel panel-accent">
+            <div class="panel-title"><span data-i18n="rdiv.p4.title">分压曲线</span> <small data-i18n="rdiv.p4.small">Vout 随电阻变化</small></div>
+            <div class="chart-wrapper" id="chartWrapper">
+                <canvas id="chartCanvas"></canvas>
+                <div class="chart-tooltip" id="chartTooltip"></div>
+            </div>
+        </div>
+
+        <!-- ⑤ 推荐标准电阻组合 -->
+        <div class="panel panel-accent" id="recommendPanel" style="display:none;">
+            <div class="panel-title"><span data-i18n="rdiv.p5.title">推荐标准电阻组合</span> <small data-i18n="rdiv.p5.small">E24 系列 · 按误差排序</small></div>
+            <div class="table-wrap" id="recTableWrap">
+                <table id="recTable">
+                    <thead>
+                        <tr>
+                            <th data-i18n="rdiv.table.thR1">R1 (Ω)</th>
+                            <th data-i18n="rdiv.table.thR2">R2 (Ω)</th>
+                            <th data-i18n="rdiv.table.thVout">实际 Vout (V)</th>
+                            <th data-i18n="rdiv.table.thErr">误差 (%)</th>
+                            <th data-i18n="rdiv.table.thPower">功耗 (mW)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recBody"></tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="rdiv.footer">🧮 电阻分压计算器 · 正向求 Vout · 反向求 R1/R2 · E24 标准电阻推荐</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 脚本层：theme.js → i18n.js → 页面.js -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/ResDivider.js"></script>
+</body>
+</html>

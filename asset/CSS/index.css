@@ -93,11 +93,11 @@
     gap: 8px;
     background: var(--bg-option-grid);
     border: 1px solid var(--border-input);
-    border-radius: 40px;
+    border-radius: 36px;
     padding: 7px 16px;
     transition: background 0.25s, border-color 0.25s;
-    min-width: 180px;
-    flex: 0 1 240px;
+    min-width: 160px;
+    flex: 0 1 160px;
 }
 .search-box:focus-within {
     border-color: var(--border-focus);
@@ -159,6 +159,88 @@
     margin: 0 auto;
     padding: 64px 24px 48px;
     text-align: center;
+}
+
+/* ===== 顶部浮动广告横幅（fixed 悬浮，不占布局、不推动内容） ===== */
+.ad-banner {
+    position: fixed;
+    top: 70px;
+    left: 50%;
+    z-index: 1000;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 560px;
+    width: auto;
+    min-height: 40px;
+    padding: 6px 38px 6px 14px;
+    border-radius: 40px;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+    transition: background 0.25s, border-color 0.25s, transform 0.15s;
+    box-sizing: border-box;
+    font-size: 0.82rem;
+}
+.ad-banner:hover {
+    border-color: var(--accent-blue);
+    transform: translateX(-50%) translateY(-1px);
+}
+.ad-banner-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    color: var(--text-primary);
+}
+.ad-badge {
+    flex: 0 0 auto;
+    background: var(--accent-blue);
+    color: #fff;
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+}
+.ad-banner-text {
+    white-space: nowrap;
+    text-align: left;
+    color: var(--text-secondary);
+    transition: color 0.25s;
+}
+.ad-banner-close {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    line-height: 1;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+}
+.ad-banner-close:hover {
+    background: rgba(128, 128, 128, 0.18);
+    color: var(--text-primary);
+}
+@media (max-width: 600px) {
+    .ad-banner {
+        top: 60px;
+        max-width: 92vw;
+        min-height: 36px;
+        padding: 6px 34px 6px 12px;
+        font-size: 0.76rem;
+    }
+    .ad-banner-text {
+        white-space: normal;
+    }
 }
 .hero-badge {
     display: inline-flex;
@@ -789,16 +871,24 @@
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 0.82rem;
-    padding: 1px 4px;
+    font-size: 1.3rem; 
+    padding: 1px 4px;   
     border-radius: 6px;
     transition: all 0.25s;
-    opacity: 0.5;
+    opacity: 0.85;
     line-height: 1;
+
 }
 .hw-settings-btn:hover {
     opacity: 1;
     background: var(--bg-option-grid);
+}
+
+/* 今日待办「清除」按钮（⇄）：它是纯文字符号，共用 .hw-settings-btn 时因半透明显得比 ⚙ emoji 淡，
+   这里单独调亮——显式文字色 + 不透明度提满，消除对比差 */
+#todoClearBtn {
+    color: var(--text-secondary);
+    opacity: 1;
 }
 
 /* 进度条 */
@@ -910,6 +1000,15 @@
 }
 .hw-reminder-item.sit .hw-reminder-mini-fill {
     background: #f59e0b;
+}
+
+/* 今日喝水达标（≥ 每日目标 ml）：进度条变绿 + 数字加粗高亮 */
+.hw-reminder-item.water.done .hw-reminder-mini-fill {
+    background: #10b981;
+}
+.hw-reminder-item.water.done .hw-reminder-timer {
+    color: var(--status-ok-text);
+    font-weight: 700;
 }
 
 /* 触发状态：脉冲 + 浅色高亮提示 */

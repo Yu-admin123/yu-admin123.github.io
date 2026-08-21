@@ -1,0 +1,525 @@
+/* ============================================================
+   MermaidDraw.html 页面特有样式
+   通用样式（主题变量、导航栏、面板、按钮等）见 common.css
+   ============================================================ */
+
+/* ===== 页面特有 CSS 变量 ===== */
+:root {
+    --flowchart-toolbar-bg: #f8fafc;
+    --flowchart-editor-bg: #ffffff;
+    --flowchart-preview-bg: #fafcff;
+    --flowchart-toolbar-border: #e9edf4;
+    --flowchart-status-ready: #34d399;
+    --flowchart-status-error: #f87171;
+    --flowchart-status-rendering: #fbbf24;
+    --flowchart-resize-handle: #d1d9e6;
+    --flowchart-empty-color: #94a3b8;
+
+    /* Mermaid 语法高亮：VSCode Light+ 配色 */
+    --hl-keyword: #0000ff;   /* 关键字 */
+    --hl-comment: #008000;   /* 注释 */
+    --hl-string: #a31515;    /* 字符串 */
+    --hl-number: #098658;    /* 数字 */
+    --hl-edge: #af00db;      /* 连线/箭头 */
+    --hl-nodeid: #267f99;    /* 节点 ID */
+    --hl-bracket: #795e26;   /* 分隔符 */
+    --hl-gutter: #237893;    /* 行号 */
+    --hl-caret: #000000;     /* 光标 */
+}
+
+[data-theme="dark"] {
+    --flowchart-toolbar-bg: #262626;
+    --flowchart-editor-bg: #1e1e1e;
+    --flowchart-preview-bg: #2c2c2c;
+    --flowchart-toolbar-border: #3d3d3d;
+    --flowchart-status-ready: #34d399;
+    --flowchart-status-error: #f87171;
+    --flowchart-status-rendering: #fbbf24;
+    --flowchart-resize-handle: #4a4a4a;
+    --flowchart-empty-color: #666666;
+
+    /* Mermaid 语法高亮：VSCode Dark+ 配色 */
+    --hl-keyword: #569cd6;   /* 关键字 */
+    --hl-comment: #6a9955;   /* 注释 */
+    --hl-string: #ce9178;    /* 字符串 */
+    --hl-number: #b5cea8;    /* 数字 */
+    --hl-edge: #c586c0;      /* 连线/箭头 */
+    --hl-nodeid: #4ec9b0;    /* 节点 ID */
+    --hl-bracket: #dcdcaa;   /* 分隔符 */
+    --hl-gutter: #858585;    /* 行号 */
+    --hl-caret: #ffffff;     /* 光标 */
+}
+
+/* ===== 工具栏（含快捷功能区） ===== */
+.flowchart-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px 16px;
+    background: var(--flowchart-toolbar-bg);
+    border: 1px solid var(--flowchart-toolbar-border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    transition: background 0.25s, border-color 0.25s;
+}
+
+.flowchart-toolbar .flowchart-quickbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+}
+
+.flowchart-quickbar .quickbar-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--flowchart-toolbar-border);
+    margin: 0 4px;
+    align-self: center;
+    transition: background 0.25s;
+}
+
+.toolbar-section {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+}
+
+/* 渲染模式及其后的分区：整体靠右，与左侧模板分区形成左右分区 */
+.toolbar-push-right {
+    margin-left: auto;
+}
+
+/* 右侧操作组（渲染模式 / 缩放 / 导出）：整体靠右，
+   组内自动换行——导出按钮不会再被挤到左侧独立一行 */
+.toolbar-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px 16px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.toolbar-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    transition: color 0.25s;
+}
+
+.toolbar-select {
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.72rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.25s, color 0.25s, border-color 0.25s;
+    outline: none;
+    max-width: 200px;
+}
+.toolbar-select:focus {
+    border-color: var(--border-focus);
+}
+
+/* 模板下拉框固定宽度：切换分类（嵌入式开发 / Mermaid 模板）时
+   select 宽度不再随选项文字长度伸缩，右侧按钮保持原位不被挤到下一行 */
+#templateCat {
+    width: 115px;
+    flex-shrink: 0;
+}
+#templateSelect {
+    width: 200px;
+    flex-shrink: 0;
+}
+
+/* 模式按钮 */
+.mode-btn {
+    min-width: 70px;
+    justify-content: center;
+}
+.mode-btn.active {
+    background: var(--accent-blue);
+    color: white;
+    border-color: var(--accent-blue);
+}
+
+/* 缩放徽章 */
+.zoom-badge {
+    display: inline-block;
+    background: var(--bg-badge);
+    color: var(--text-badge);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    min-width: 48px;
+    text-align: center;
+    transition: background 0.25s, color 0.25s;
+}
+
+/* 缩放百分比徽章：可点击重置为 100% */
+.zoom-badge-reset {
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid transparent;
+}
+.zoom-badge-reset:hover {
+    background: var(--accent-blue);
+    border-color: var(--accent-blue);
+    color: #ffffff;
+}
+
+/* ===== 左右分栏（可拖动调整宽度） ===== */
+.flowchart-main {
+    display: flex;
+    align-items: stretch;
+    gap: 6px;
+    min-height: 520px;
+}
+
+.flowchart-editor-panel {
+    flex: 0 0 50%;
+    min-width: 260px;
+}
+.flowchart-preview-panel {
+    flex: 1 1 0;
+    min-width: 260px;
+}
+
+/* 全屏模式：某一框占满，另一框与分隔条收起 */
+.flowchart-main.fs-editor .flowchart-editor-panel { flex: 1 1 0; }
+.flowchart-main.fs-editor .flowchart-preview-panel,
+.flowchart-main.fs-editor .flowchart-resizer { display: none; }
+
+.flowchart-main.fs-preview .flowchart-preview-panel { flex: 1 1 0; }
+.flowchart-main.fs-preview .flowchart-editor-panel,
+.flowchart-main.fs-preview .flowchart-resizer { display: none; }
+
+/* 拖动分隔条 */
+.flowchart-resizer {
+    flex: 0 0 8px;
+    position: relative;
+    cursor: col-resize;
+    z-index: 5;
+    background: transparent;
+    touch-action: none;
+    transition: background 0.2s;
+}
+.flowchart-resizer::before {
+    content: '';
+    position: absolute;
+    top: 14%;
+    bottom: 14%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    border-radius: 2px;
+    background: var(--border-light);
+    transition: background 0.2s;
+}
+.flowchart-resizer:hover::before,
+.flowchart-resizer.active::before {
+    background: var(--accent-blue);
+}
+/* 拖动中：禁止选中文本、隐藏面板指针事件，避免干扰 */
+body.flowchart-resizing {
+    user-select: none;
+    cursor: col-resize;
+}
+body.flowchart-resizing .flowchart-editor,
+body.flowchart-resizing .flowchart-resizer {
+    pointer-events: none;
+}
+
+.flowchart-panel {
+    background: var(--bg-panel);
+    border-radius: 14px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s, border-color 0.25s;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.flowchart-panel .panel-title {
+    padding: 12px 16px 8px;
+    margin: 0;
+    border-bottom: 1px solid var(--border-light);
+    transition: border-color 0.25s;
+    display: flex;
+    align-items: center;
+}
+
+/* 面板标题右侧操作区（状态 + 全屏按钮） */
+.flowchart-panel-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.flowchart-fs-btn {
+    padding: 3px 9px;
+    font-size: 0.82rem;
+    line-height: 1;
+    min-width: auto;
+}
+.flowchart-fs-btn.active {
+    background: var(--accent-blue);
+    color: #fff;
+    border-color: var(--accent-blue);
+}
+
+/* ===== 代码编辑器（VSCode 风格 overlay 高亮） ===== */
+.flowchart-editor-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 440px;
+    overflow: hidden;
+    background: var(--flowchart-editor-bg);
+    transition: background 0.25s;
+    --editor-font-size: 0.78rem;
+}
+
+/* 确保高亮层所有子元素使用等宽字体并禁用字距调整，
+   避免与 textarea 光标位置错位（common.css 的 * 规则
+   会将内部 span 的字体覆盖为系统无衬线字体） */
+.flowchart-highlight,
+.flowchart-highlight *,
+.flowchart-highlight code,
+.flowchart-highlight .line,
+.flowchart-highlight .line span {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace !important;
+}
+
+/* 三层共享字体与间距，保证严格对齐 */
+.flowchart-editor,
+.flowchart-highlight,
+.flowchart-gutter {
+    margin: 0;
+    border: none;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+    font-size: var(--editor-font-size);
+    line-height: 1.7;
+    tab-size: 4;
+    letter-spacing: normal;
+    word-spacing: normal;
+    font-kerning: none;
+    white-space: pre;
+    word-wrap: normal;
+    overflow-wrap: normal;
+}
+
+/* textarea：文字透明、光标可见，负责输入与滚动 */
+.flowchart-editor {
+    position: absolute;
+    top: 0;
+    left: 44px;
+    right: 0;
+    bottom: 0;
+    padding: 14px 16px;
+    background: transparent;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    caret-color: var(--hl-caret);
+    resize: none;
+    outline: none;
+    overflow: auto;
+    /* 隐藏滚动条，避免占用宽度导致光标与高亮层错位 */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    z-index: 1;
+}
+.flowchart-editor::-webkit-scrollbar {
+    display: none;
+}
+.flowchart-editor::placeholder {
+    color: var(--text-light);
+}
+.flowchart-editor::selection {
+    background: var(--selection-bg, rgba(56, 132, 255, 0.28));
+}
+
+/* 高亮层：textarea 下层，实时渲染语法着色 */
+.flowchart-highlight {
+    position: absolute;
+    top: 0;
+    left: 44px;
+    right: 0;
+    bottom: 0;
+    padding: 14px 16px;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+    color: var(--text-code);
+}
+
+/* 行号栏 */
+.flowchart-gutter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 44px;
+    padding: 14px 8px 14px 0;
+    text-align: right;
+    color: var(--hl-gutter);
+    overflow: hidden;
+    user-select: none;
+    z-index: 2;
+    background: transparent;
+}
+
+/* ===== Mermaid 语法高亮配色（VSCode Dark+/Light+ 风格） ===== */
+.hl-keyword { color: var(--hl-keyword); }
+.hl-comment { color: var(--hl-comment); font-style: italic; }
+.hl-string  { color: var(--hl-string); }
+.hl-number  { color: var(--hl-number); }
+.hl-edge    { color: var(--hl-edge); font-weight: 500; }
+.hl-nodeid  { color: var(--hl-nodeid); font-weight: 600; }
+.hl-bracket { color: var(--hl-bracket); }
+
+/* ===== 预览区 ===== */
+.flowchart-preview-wrap {
+    flex: 1;
+    overflow: hidden;
+    cursor: grab;
+    position: relative;
+    background: var(--flowchart-preview-bg);
+    transition: background 0.25s;
+}
+
+.flowchart-preview-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100%;
+    min-width: 100%;
+    padding: 20px;
+    transform-origin: top left;
+    max-height: 760px;
+}
+
+.flowchart-preview-inner svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 空状态 */
+.flowchart-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--flowchart-empty-color);
+    font-size: 0.85rem;
+    transition: color 0.25s;
+}
+.flowchart-empty-state .empty-icon {
+    font-size: 3rem;
+    opacity: 0.5;
+}
+
+/* 错误提示 */
+.flowchart-error-msg {
+    color: var(--status-error-text);
+    background: var(--status-error-bg);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    white-space: pre-wrap;
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
+
+/* 兜底：隐藏 Mermaid 内部错误 SVG 的炸弹图标和错误文本 */
+#previewInner .error-icon,
+#previewInner .error-text {
+    display: none !important;
+}
+
+/* 状态徽章 */
+.status-badge {
+    font-size: 0.65rem;
+    padding: 2px 10px;
+    border-radius: 40px;
+    font-weight: 500;
+    transition: background 0.25s, color 0.25s;
+    margin-left: auto;
+}
+.status-badge.ready {
+    background: var(--status-ok-bg);
+    color: var(--status-ok-text);
+}
+.status-badge.rendering {
+    background: var(--status-warn-bg);
+    color: var(--status-warn-text);
+}
+.status-badge.error {
+    background: var(--status-error-bg);
+    color: var(--status-error-text);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 900px) {
+    .flowchart-main {
+        flex-direction: column;
+        min-height: auto;
+    }
+    .flowchart-resizer { display: none; }
+    .flowchart-editor-panel,
+    .flowchart-preview-panel {
+        flex: 1 1 auto;
+        min-width: 280px;
+    }
+    .flowchart-editor-wrap {
+        min-height: 280px;
+    }
+    .flowchart-preview-wrap {
+        min-height: 360px;
+    }
+    .flowchart-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .toolbar-section {
+        justify-content: flex-start;
+    }
+    .toolbar-right {
+        justify-content: flex-start;
+        margin-left: 0;
+    }
+    .toolbar-select {
+        max-width: 160px;
+    }
+}
+
+@media (max-width: 600px) {
+    .toolbar-group {
+        flex-wrap: wrap;
+    }
+    .flowchart-editor-wrap {
+        min-height: 220px;
+        --editor-font-size: 0.7rem;
+    }
+    .flowchart-preview-wrap {
+        min-height: 300px;
+    }
+}
