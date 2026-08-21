@@ -16,7 +16,7 @@ Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、�
 
 ## 🧰 工具一览
 
-23 个工具，覆盖调试、软件、硬件等场景：
+24 个工具，覆盖调试、软件、硬件等场景：
 
 | 工具 | 一句话说明 |
 |------|-----------|
@@ -43,6 +43,7 @@ Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、�
 | 🧮 [电阻分压计算器](./function/ResDivider.html) | 正反向求解，E24 推荐 |
 | 🖥️ [PCB 走线宽度计算器](./function/PcbTrace.html) | IPC-2152 模型，线宽 / 电流互算 |
 | 🕳️ [PCB 过孔电流计算器](./function/ViaCalc.html) | 单孔载流 / 过孔数量互算 |
+| 🔲 [二维码读写工具](./function/QRCodeTool.html) | 离线生成二维码/条形码，解析图片中的二维码，支持多种格式 |
 
 另有桌面版 [Yu_Tool 通讯助手](https://gitee.com/Yu_29211/yu_-tool)（基于 Qt，串口 / Modbus / MQTT / TCP）。
 
@@ -70,8 +71,6 @@ Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、�
 Yu_ToolBox/
 ├── index.html                    # 主页：导航 / 分类 / 搜索 / 收藏 / 吉祥物彩蛋 / 广告位
 ├── README.md / README_en.md      # 项目说明（中 / 英）
-├── AIRobotoReadmi.md             # AI 交接文档：架构、规范、模板、禁忌
-├── descr.md                      # 开发者指南：给 AI 传哪些文件、怎么描述需求
 ├── LICENSE / NOTICE              # 开源协议与版权声明
 │
 ├── asset/                        # 静态资源
@@ -106,18 +105,23 @@ Yu_ToolBox/
 │   │   ├── NtcCounter.css        # NTC 电阻计算器
 │   │   ├── ResDivider.css        # 电阻分压计算器
 │   │   ├── PcbTrace.css          # PCB 走线宽度计算器
-│   │   └── ViaCalc.css           # PCB 过孔电流计算器
+│   │   ├── ViaCalc.css           # PCB 过孔电流计算器
+│   │   └── QRCodeTool.css        # 二维码读写工具
 │   │
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ 共用主题：setTheme + themechange 事件 + 图标同步
 │   │   ├── i18n.js               # ★ 共用语言：I18N 字典 + languagechange 事件 + data-i18n 应用
 │   │   ├── index.js              # 主页脚本：toolsData 注册表 + 分类/搜索/收藏 + 吉祥物彩蛋
-│   │   └── <工具名>.js ×23       # 各工具业务逻辑，与上方 CSS 同名一一对应
+│   │   └── <工具名>.js ×24       # 各工具业务逻辑，与上方 CSS 同名一一对应
 │   │
 │   └── lib/                      # 本地第三方库（离线模式兜底）
 │       ├── mermaid.min.js        # mermaid v11（在线流程图离线渲染）
 │       ├── marked.min.js         # marked v12（Markdown 编辑器离线渲染）
-│       └── highlight.min.js      # highlight.js v11（Markdown 编辑器离线代码高亮）
+│       ├── highlight.min.js      # highlight.js v11（Markdown 编辑器离线代码高亮）
+│       ├── qrcode.min.js         # 二维码标准生成（qrcode-generator，离线）
+│       ├── qrcode_UTF8.js        # qrcode-generator UTF-8 补丁（中文正确编码/解码）
+│       ├── bwip-js.js            # 多格式二维码/条形码生成引擎（离线）
+│       └── jsQR.js               # 二维码解析（jsQR，离线）
 │
 └── function/                     # 工具页入口 HTML，与 asset 下同名 CSS/JS 组成三件套
     ├── serialPortTool.html       # 在线串口工具
@@ -142,7 +146,8 @@ Yu_ToolBox/
     ├── NtcCounter.html           # NTC 电阻计算器
     ├── ResDivider.html           # 电阻分压计算器
     ├── PcbTrace.html             # PCB 走线宽度计算器
-    └── ViaCalc.html              # PCB 过孔电流计算器
+    ├── ViaCalc.html              # PCB 过孔电流计算器
+    └── QRCodeTool.html           # 二维码读写工具
 ```
 
 几个约定，想改代码前先知道：
@@ -160,6 +165,7 @@ Yu_ToolBox/
 | MQTT 助手 | mqtt.js（CDN） | MQTT over WebSocket 客户端 |
 | 在线流程图 | mermaid@11（CDN + 本地 lib 兜底） | 流程图渲染，断网也能用 |
 | Markdown 编辑器 | marked + highlight.js（CDN + 本地 lib 兜底） | 实时预览 + 代码高亮 |
+| 二维码读写工具 | qrcode + bwip-js + jsQR（本地 lib，纯离线） | 多格式二维码/条形码生成与解析 |
 
 其余 19 个页面纯原生 JS，零外部依赖。
 

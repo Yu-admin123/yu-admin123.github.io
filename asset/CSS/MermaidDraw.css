@@ -332,7 +332,7 @@ body.flowchart-resizing .flowchart-resizer {
     left: 44px;
     right: 0;
     bottom: 0;
-    padding: 14px 16px;
+    padding: 14px 16px 32px;   /* 底部留出横向滚动条空间 */
     background: transparent;
     color: transparent;
     -webkit-text-fill-color: transparent;
@@ -355,14 +355,21 @@ body.flowchart-resizing .flowchart-resizer {
     background: var(--selection-bg, rgba(56, 132, 255, 0.28));
 }
 
-/* 高亮层：textarea 下层，实时渲染语法着色 */
+/* 高亮层：textarea 下层，实时渲染语法着色
+   注意1：不能用 bottom:0 锁定高度为可视区高度，否则滚动时被平移
+         出可视区，超出输入框的文字「变透明」。
+   注意2：同样不能把宽度锁死为可视区宽（right:0），否则长行
+         （wrap=off）横向滑过去右侧内容看不见。 */
 .flowchart-highlight {
     position: absolute;
     top: 0;
     left: 44px;
-    right: 0;
-    bottom: 0;
-    padding: 14px 16px;
+    right: auto;
+    width: max-content;           /* 宽度由内容撑开，容纳最长行 */
+    min-width: calc(100% - 44px); /* 短内容时至少覆盖可视区 */
+    bottom: auto;                 /* 高度由内容撑开，覆盖全部文本 */
+    min-height: 100%;
+    padding: 14px 16px 32px;
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
@@ -374,15 +381,46 @@ body.flowchart-resizing .flowchart-resizer {
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
+    bottom: auto;        /* 高度由内容撑开，与高亮层一致，随 transform 滚动 */
+    min-height: 100%;
     width: 44px;
-    padding: 14px 8px 14px 0;
+    padding: 14px 8px 32px 0;
     text-align: right;
     color: var(--hl-gutter);
     overflow: hidden;
     user-select: none;
     z-index: 2;
     background: transparent;
+}
+
+/* 底部横向滚动条：长行（wrap=off）左右滚动查看 */
+.flowchart-hscroll {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12px;
+    z-index: 3;
+    cursor: default;
+    background: transparent;
+}
+.flowchart-hscroll-thumb {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: 100%;
+    min-width: 28px;
+    border-radius: 4px;
+    background: var(--border, rgba(120, 120, 128, 0.32));
+    opacity: 0.55;
+    transition: opacity 0.18s;
+}
+.flowchart-hscroll-thumb:hover {
+    opacity: 0.85;
+}
+.flowchart-hscroll-thumb.dragging {
+    opacity: 1;
 }
 
 /* ===== Mermaid 语法高亮配色（VSCode Dark+/Light+ 风格） ===== */

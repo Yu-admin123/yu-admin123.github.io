@@ -185,6 +185,7 @@
     align-items: stretch;
     gap: 6px;
     min-height: 540px;
+    max-height: 760px;
 }
 
 .md-editor-panel {
@@ -328,7 +329,7 @@ body.md-resizing .md-resizer {
     left: 48px;
     right: 0;
     bottom: 0;
-    padding: 14px 16px;
+    padding: 14px 16px 32px;   /* 底部留出横向滚动条空间，避免最后一行被遮挡 */
     background: transparent;
     color: transparent;
     -webkit-text-fill-color: transparent;
@@ -351,14 +352,55 @@ body.md-resizing .md-resizer {
     background: var(--md-selection);
 }
 
-/* 高亮层：textarea 下层，实时渲染语法着色 */
+/* 底部横向滚动条：长行（wrap=off）左右滚动查看
+   覆盖在编辑区底部，不侵占/不影响内部光标与高亮层对齐 */
+.md-hscroll {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12px;
+    z-index: 3;
+    cursor: default;
+    background: transparent;
+}
+/* 横向滚动条轨道（伪类简化：直接用底边细线示意） */
+.md-hscroll-thumb {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 0;
+    width: 100%;
+    min-width: 28px;
+    border-radius: 4px;
+    background: var(--border, rgba(120, 120, 128, 0.32));
+    opacity: 0.55;
+    transition: opacity 0.18s;
+}
+.md-hscroll-thumb:hover {
+    opacity: 0.85;
+}
+.md-hscroll-thumb.dragging {
+    opacity: 1;
+}
+
+/* 高亮层：textarea 下层，实时渲染语法着色
+   注意1：不能用 bottom:0 锁定高度为可视区高度。
+         必须让该层高度等于文本内容真实高度，滚动时才不会被循环平移
+         出可视区，导致超出输入框的文字「变透明」。
+   注意2：同样不能把宽度锁死为可视区宽（right:0）。
+         长行（wrap=off）时宽度必须由内容撑开，translateX 平移后
+         右侧超宽文本才能进入视口，否则横向滑过去右边内容看不见。 */
 .md-highlight {
     position: absolute;
     top: 0;
     left: 48px;
-    right: 0;
-    bottom: 0;
-    padding: 14px 16px;
+    right: auto;
+    width: max-content;          /* 宽度由内容撑开，容纳最长行 */
+    min-width: calc(100% - 48px);/* 短内容时至少覆盖可视区 */
+    bottom: auto;                /* 高度由内容撑开，覆盖全部文本 */
+    min-height: 100%;
+    padding: 14px 16px 32px;
     overflow: hidden;
     pointer-events: none;
     z-index: 0;
@@ -370,9 +412,10 @@ body.md-resizing .md-resizer {
     position: absolute;
     top: 0;
     left: 0;
-    bottom: 0;
+    bottom: auto;        /* 高度由内容撑开，与高亮层一致，随 transform 滚动 */
+    min-height: 100%;
     width: 48px;
-    padding: 14px 8px 14px 0;
+    padding: 14px 8px 32px 0;
     text-align: right;
     color: var(--hl-gutter);
     overflow: hidden;

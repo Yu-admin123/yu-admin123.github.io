@@ -17,7 +17,7 @@ Yu_ToolBox gathers these everyday needs into a single web page. **Pure front-end
 
 ## 🧰 What's inside
 
-23 tools, covering debugging, software and hardware work:
+24 tools, covering debugging, software and hardware work:
 
 | Tool | What it does |
 |------|--------------|
@@ -44,6 +44,7 @@ Yu_ToolBox gathers these everyday needs into a single web page. **Pure front-end
 | 🧮 [Resistive Divider Calculator](./function/ResDivider.html) | Forward / reverse solve, E24 suggestion |
 | 🖥️ [PCB Trace Width Calculator](./function/PcbTrace.html) | IPC-2152 model, width ↔ current |
 | 🕳️ [PCB Via Current Calculator](./function/ViaCalc.html) | Single-via current / via count |
+| 🔲 [QR Code Reader/Writer](./function/QRCodeTool.html) | Generate QR/barcodes offline, decode QR from images, multi-format |
 
 There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu_29211/yu_-tool) (Qt-based, covering serial / Modbus / MQTT / TCP).
 
@@ -71,8 +72,6 @@ Pure static project, no build step. Every tool follows the "three-file rule": on
 Yu_ToolBox/
 ├── index.html                    # Home page: nav / categories / search / favorites / mascot / ad banner
 ├── README.md / README_en.md      # Project docs (Chinese / English)
-├── AIRobotoReadmi.md             # Spec for AI agents: architecture, conventions, templates, pitfalls
-├── descr.md                      # Dev guide: which files to hand an AI, how to phrase the request
 ├── LICENSE / NOTICE              # Open-source license and copyright notice
 │
 ├── asset/                        # Static assets
@@ -107,18 +106,23 @@ Yu_ToolBox/
 │   │   ├── NtcCounter.css        # NTC Thermistor Calculator
 │   │   ├── ResDivider.css        # Resistive Divider Calculator
 │   │   ├── PcbTrace.css          # PCB Trace Width Calculator
-│   │   └── ViaCalc.css           # PCB Via Current Calculator
+│   │   ├── ViaCalc.css           # PCB Via Current Calculator
+│   │   └── QRCodeTool.css        # QR Code Reader/Writer
 │   │
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ Shared theming: setTheme + themechange event + icon sync
 │   │   ├── i18n.js               # ★ Shared i18n: I18N dictionary + languagechange event + data-i18n
 │   │   ├── index.js              # Home scripts: toolsData registry + categories/search/favorites + mascot
-│   │   └── <tool>.js ×23         # Per-tool logic, one-to-one with the CSS files above
+│   │   └── <tool>.js ×24         # Per-tool logic, one-to-one with the CSS files above
 │   │
 │   └── lib/                      # Local third-party libs (offline fallback)
 │       ├── mermaid.min.js        # mermaid v11 (offline rendering for Flowchart Drawer)
 │       ├── marked.min.js         # marked v12 (offline rendering for Markdown Editor)
-│       └── highlight.min.js      # highlight.js v11 (offline highlighting for Markdown Editor)
+│       ├── highlight.min.js      # highlight.js v11 (offline highlighting for Markdown Editor)
+│       ├── qrcode.min.js         # standard QR generation (qrcode-generator, offline)
+│       ├── qrcode_UTF8.js        # qrcode-generator UTF-8 patch (correct CJK encoding/decoding)
+│       ├── bwip-js.js            # multi-format QR/barcode generation engine (offline)
+│       └── jsQR.js               # QR decoding (jsQR, offline)
 │
 └── function/                     # Tool entry HTML, forming the three-file set with asset CSS/JS
     ├── serialPortTool.html       # Serial Port Tool
@@ -143,7 +147,8 @@ Yu_ToolBox/
     ├── NtcCounter.html           # NTC Thermistor Calculator
     ├── ResDivider.html           # Resistive Divider Calculator
     ├── PcbTrace.html             # PCB Trace Width Calculator
-    └── ViaCalc.html              # PCB Via Current Calculator
+    ├── ViaCalc.html              # PCB Via Current Calculator
+    └── QRCodeTool.html           # QR Code Reader/Writer
 ```
 
 A few conventions worth knowing before touching the code:
@@ -161,6 +166,7 @@ A few conventions worth knowing before touching the code:
 | MQTT Helper | mqtt.js (CDN) | MQTT over WebSocket client |
 | Flowchart Drawer | mermaid@11 (CDN + local lib fallback) | Diagram rendering, works offline |
 | Markdown Editor | marked + highlight.js (CDN + local lib fallback) | Live preview + code highlighting |
+| QR Code Reader/Writer | qrcode + bwip-js + jsQR (local lib, fully offline) | Multi-format QR/barcode generation & decoding |
 
 The other 19 pages are vanilla JS with zero external dependencies.
 

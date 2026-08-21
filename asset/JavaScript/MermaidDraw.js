@@ -973,6 +973,8 @@ function tt(key, vars) {
     var codeGutter   = document.getElementById('codeGutter');
     var codeHighlight = document.getElementById('codeHighlight');
     var codeHighlightCode = document.getElementById('codeHighlightCode');
+    var flowchartHScroll = document.getElementById('flowchartHScroll');
+    var flowchartHScrollThumb = document.getElementById('flowchartHScrollThumb');
     var quickbar     = document.querySelector('.flowchart-quickbar');
 
     // 分栏：拖动分隔条 + 全屏
@@ -1299,6 +1301,68 @@ function tt(key, vars) {
             'translate(' + (-codeEditor.scrollLeft) + 'px, ' + (-codeEditor.scrollTop) + 'px)';
         codeGutter.style.transform =
             'translateY(' + (-codeEditor.scrollTop) + 'px)';
+        syncHScroll();
+    }
+
+    // ===== 底部横向滚动条 =====
+    function syncHScroll() {
+        if (!codeEditor || !flowchartHScroll || !flowchartHScrollThumb) return;
+        var scrollable = codeEditor.scrollWidth - codeEditor.clientWidth;
+        if (scrollable <= 1) {
+            flowchartHScroll.style.display = 'none';
+            return;
+        }
+        flowchartHScroll.style.display = 'block';
+        var track = flowchartHScroll.clientWidth || 1;
+        var thumbW = Math.max(28, track * (codeEditor.clientWidth / codeEditor.scrollWidth));
+        flowchartHScrollThumb.style.width = thumbW + 'px';
+        var maxLeft = Math.max(0, track - thumbW);
+        var left = maxLeft * (codeEditor.scrollLeft / scrollable);
+        flowchartHScrollThumb.style.left = left + 'px';
+    }
+
+    function initFlowHScrollDrag() {
+        if (!flowchartHScroll || !flowchartHScrollThumb || !codeEditor) return;
+        var dragging = false, startX = 0, startLeft = 0, scrollable = 0;
+
+        function onDown(e) {
+            if (flowchartHScroll.style.display === 'none') return;
+            scrollable = codeEditor.scrollWidth - codeEditor.clientWidth;
+            if (scrollable <= 1) return;
+            e.preventDefault();
+            dragging = true;
+            startX = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
+            startLeft = parseFloat(flowchartHScrollThumb.style.left) || 0;
+            flowchartHScrollThumb.classList.add('dragging');
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+        }
+        function onMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            var x = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
+            var track = flowchartHScroll.clientWidth;
+            var thumbW = flowchartHScrollThumb.offsetWidth;
+            var maxLeft = Math.max(0, track - thumbW);
+            var left = Math.min(maxLeft, Math.max(0, startLeft + (x - startX)));
+            flowchartHScrollThumb.style.left = left + 'px';
+            var ratio = (scrollable > 0) ? (left / maxLeft) * scrollable : 0;
+            codeEditor.scrollLeft = ratio;
+            codeEditor.dispatchEvent(new Event('scroll', { bubbles: true }));
+        }
+        function onUp() {
+            if (!dragging) return;
+            dragging = false;
+            flowchartHScrollThumb.classList.remove('dragging');
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend', onUp);
+        }
+        flowchartHScroll.addEventListener('mousedown', onDown);
+        flowchartHScroll.addEventListener('touchstart', onDown, { passive: false });
     }
 
     // Tab 键插入四个空格（保持缩进输入体验，与格式化后的 4 空格缩进一致）
@@ -1854,6 +1918,7 @@ function tt(key, vars) {
     codeEditor.addEventListener('input', function() {
         renderHighlight();
         autoRender();
+        syncHScroll();   // 内容变化后更新底部横向滚动条
     });
     // 滚动时同步高亮层与行号栏
     codeEditor.addEventListener('scroll', syncEditorScroll);
@@ -2114,6 +2179,9 @@ function tt(key, vars) {
         }
         // 首次渲染语法高亮
         renderHighlight();
+        // 初始化底部横向滚动条，并按当前内容更新显示
+        initFlowHScrollDrag();
+        syncHScroll();
         // 加载 Mermaid
         setMode('online');
     }

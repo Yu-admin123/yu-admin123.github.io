@@ -97,10 +97,12 @@ function tt(key) { return window.I18N.t(key) || ''; }
     // ============================================================
     //  DOM 引用
     // ============================================================
-    var editor        = document.getElementById('codeEditor');
-    var codeGutter    = document.getElementById('codeGutter');
-    var codeHighlight = document.getElementById('codeHighlight');
+    var editor           = document.getElementById('codeEditor');
+    var codeGutter       = document.getElementById('codeGutter');
+    var codeHighlight    = document.getElementById('codeHighlight');
     var codeHighlightCode = document.getElementById('codeHighlightCode');
+    var mdHScroll        = document.getElementById('mdHScroll');
+    var mdHScrollThumb   = document.getElementById('mdHScrollThumb');
     var preview       = document.getElementById('preview');
     var previewWrap   = document.getElementById('previewWrap');
     var emptyState    = document.getElementById('emptyState');
@@ -272,6 +274,69 @@ function tt(key) { return window.I18N.t(key) || ''; }
             'translate(' + (-editor.scrollLeft) + 'px, ' + (-editor.scrollTop) + 'px)';
         codeGutter.style.transform =
             'translateY(' + (-editor.scrollTop) + 'px)';
+        syncHScroll();
+    }
+
+    // ===== 底部横向滚动条 =====
+    function syncHScroll() {
+        if (!editor || !mdHScroll || !mdHScrollThumb) return;
+        var scrollable = editor.scrollWidth - editor.clientWidth;
+        if (scrollable <= 1) {
+            mdHScroll.style.display = 'none';
+            return;
+        }
+        mdHScroll.style.display = 'block';
+        var track = mdHScroll.clientWidth || 1;
+        var thumbW = Math.max(28, track * (editor.clientWidth / editor.scrollWidth));
+        mdHScrollThumb.style.width = thumbW + 'px';
+        var maxLeft = Math.max(0, track - thumbW);
+        var left = maxLeft * (editor.scrollLeft / scrollable);
+        mdHScrollThumb.style.left = left + 'px';
+    }
+
+    function initHScrollDrag() {
+        if (!mdHScroll || !mdHScrollThumb || !editor) return;
+        var dragging = false, startX = 0, startLeft = 0, scrollable = 0;
+
+        function onDown(e) {
+            if ((mdHScroll.style.display === 'none')) return;
+            scrollable = editor.scrollWidth - editor.clientWidth;
+            if (scrollable <= 1) return;
+            e.preventDefault();
+            dragging = true;
+            startX = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
+            startLeft = parseFloat(mdHScrollThumb.style.left) || 0;
+            mdHScrollThumb.classList.add('dragging');
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('touchend', onUp);
+        }
+        function onMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            var x = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
+            var track = mdHScroll.clientWidth;
+            var thumbW = mdHScrollThumb.offsetWidth;
+            var maxLeft = Math.max(0, track - thumbW);
+            var left = Math.min(maxLeft, Math.max(0, startLeft + (x - startX)));
+            mdHScrollThumb.style.left = left + 'px';
+            // 换算为 textarea 的 scrollLeft
+            var ratio = (scrollable > 0) ? (left / maxLeft) * scrollable : 0;
+            editor.scrollLeft = ratio;
+            editor.dispatchEvent(new Event('scroll', { bubbles: true }));
+        }
+        function onUp() {
+            if (!dragging) return;
+            dragging = false;
+            mdHScrollThumb.classList.remove('dragging');
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('touchend', onUp);
+        }
+        mdHScroll.addEventListener('mousedown', onDown);
+        mdHScroll.addEventListener('touchstart', onDown, { passive: false });
     }
 
     // ============================================================
@@ -839,6 +904,7 @@ function tt(key) { return window.I18N.t(key) || ''; }
     document.title = tt('markdown.doc.title');
     renderHighlight();
     syncEditorScroll();
+    initHScrollDrag();
     updateCount();
     if (emptyState) emptyState.classList.toggle('show', !editor.value.trim());
     loadLibs();

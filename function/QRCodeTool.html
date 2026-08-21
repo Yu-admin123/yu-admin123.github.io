@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>二维码读写工具</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题+语言预初始化（必须内联 head，防闪烁，不可移出） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 本地离线库：标准QR生成(qrcode) + 多格式二维码/条形码生成(bwip-js) + QR解析(jsQR) -->
+    <script src="../asset/lib/qrcode.min.js"></script>
+    <script src="../asset/lib/qrcode_UTF8.js"></script>
+    <script src="../asset/lib/bwip-js.js"></script>
+    <script src="../asset/lib/jsQR.js"></script>
+    <!-- 3. 样式：common.css → 页面.css -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/QRCodeTool.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon">
+                    <img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <!-- 语言切换（必须在主题切换之前） -->
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <!-- 主题切换 -->
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="page-title" data-i18n="qrcode.page.title">🔲 二维码读写工具</h1>
+        <p class="subhead" data-i18n="qrcode.subhead">🔹 离线生成二维码 / 条形码 · 从图片解析二维码 · 支持多种格式 · 全程本地运行</p>
+
+        <div class="grid-2col">
+            <!-- ===== 左侧：生成 ===== -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="qrcode.gen.title">① 生成二维码 / 条形码</span> <small data-i18n="qrcode.gen.small">完全离线</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="qrcode.label.category">类别</label>
+                        <select id="genCategory" style="flex:0.9;">
+                            <option value="2d" data-i18n="qrcode.cat.2d">二维码（2D）</option>
+                            <option value="1d" data-i18n="qrcode.cat.1d">条形码（1D）</option>
+                        </select>
+                        <label data-i18n="qrcode.label.fmt">格式</label>
+                        <select id="genFormat" style="flex:1.4;">
+                            <option value="qrcode" data-i18n="qrcode.fmt.qr">标准 QR</option>
+                            <option value="microqrcode" data-i18n="qrcode.fmt.microqr">Micro QR</option>
+                            <option value="datamatrix" data-i18n="qrcode.fmt.datamatrix">Data Matrix</option>
+                            <option value="pdf417" data-i18n="qrcode.fmt.pdf417">PDF417</option>
+                            <option value="azteccode" data-i18n="qrcode.fmt.aztec">Aztec Code</option>
+                            <option value="hanxin" data-i18n="qrcode.fmt.hanxin">汉信码</option>
+                            <option value="maxicode" data-i18n="qrcode.fmt.maxicode">MaxiCode</option>
+                        </select>
+                    </div>
+                    <div class="input-row">
+                        <label data-i18n="qrcode.label.content">内容</label>
+                        <textarea id="genContent" rows="3" placeholder="https://example.com" data-i18n-placeholder="qrcode.ph.content"></textarea>
+                    </div>
+                    <div class="input-row" id="qrOptionRow" style="flex-wrap:wrap;">
+                        <label style="min-width:auto;" data-i18n="qrcode.label.size">尺寸</label>
+                        <input type="range" id="genSize" min="1" max="5" step="1" value="3">
+                        <span class="unit" id="genSizeVal">3×</span>
+                        <span class="hint-text" data-i18n="qrcode.hint.qr">放大倍数，可点击下载高清 PNG</span>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" id="btnExample" data-i18n="qrcode.btn.example">🎯 示例</button>
+                        <button class="btn" id="btnGenerate" data-i18n="qrcode.btn.generate">▶ 生成</button>
+                        <button class="btn btn-outline" id="btnSave" data-i18n="qrcode.btn.save">💾 下载图片</button>
+                        <button class="btn btn-outline" id="btnCopyData" data-i18n="qrcode.btn.copyData">📋 复制内容</button>
+                    </div>
+                </div>
+                <div style="margin-top:14px;text-align:center;">
+                    <div class="qr-preview-wrap">
+                        <canvas id="genCanvas" width="256" height="256"></canvas>
+                    </div>
+                    <div class="hint-text" id="genStatus">—</div>
+                    <div class="hint-text" id="genDetail" style="display:none;font-family:'SF Mono','Fira Code',monospace;"></div>
+                </div>
+            </div>
+
+            <!-- ===== 右侧：解析 ===== -->
+            <div class="panel panel-accent">
+                <div class="panel-title"><span data-i18n="qrcode.rd.title">② 解析图片中的二维码 / 条形码</span> <small data-i18n="qrcode.rd.small">选择图片 · 直接粘贴 (Ctrl+V) · 拖拽</small></div>
+                <div class="input-group">
+                    <div class="input-row">
+                        <label data-i18n="qrcode.label.img">图片</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="imgInput" accept="image/*" data-i18n-title="qrcode.label.chooseImg">
+                            <button class="btn btn-outline" id="btnChoose" data-i18n="qrcode.btn.choose">🖼 选择图片</button>
+                        </div>
+                        <span class="hint-text" data-i18n="qrcode.hint.drop">也可直接拖拽图片到下方 / 在页面粘贴</span>
+                    </div>
+                    <div class="drop-zone" id="dropZone">
+                        <div class="drop-zone-inner">
+                            <div class="drop-zone-icon">🔍</div>
+                            <div class="drop-zone-text" data-i18n="qrcode.drop.hint">截图后在此页面 Ctrl+V 粘贴，或拖拽图片 / 点击"选择图片"</div>
+                        </div>
+                        <canvas id="rdCanvas" style="display:none;"></canvas>
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn" id="btnDecode" data-i18n="qrcode.btn.decode">▶ 开始解析</button>
+                        <button class="btn btn-outline" id="btnClear" data-i18n="qrcode.btn.clear">🧹 清空</button>
+                    </div>
+                </div>
+                <div style="margin-top:14px;">
+                    <div class="panel-title" style="margin-bottom:8px;"><span data-i18n="qrcode.result.title">解析结果</span></div>
+                    <div class="result-toolbar">
+                        <span class="status-ok" id="rdStatus" style="display:none;">—</span>
+                        <button class="btn btn-outline btn-sm" id="btnCopyResult" data-i18n="qrcode.btn.copyResult">📋 复制结果</button>
+                    </div>
+                    <div class="code-output" id="rdResult" style="max-height:180px;">—</div>
+                    <div class="hint-text" style="margin-top:8px;" id="rdNote">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ③ 格式说明 ===== -->
+        <div class="panel full-width" style="margin-top:18px;">
+            <div class="panel-title"><span data-i18n="qrcode.note.title">③ 支持格式说明</span></div>
+            <div class="note-grid">
+                <div class="note-item">
+                    <span class="range-badge">2D</span>
+                    <span data-i18n="qrcode.note.2d">二维码（2D）：标准 QR / Micro QR / Data Matrix / PDF417 / Aztec / 汉信码 / MaxiCode</span>
+                </div>
+                <div class="note-item">
+                    <span class="range-badge">1D</span>
+                    <span data-i18n="qrcode.note.1d">条形码（1D）：CODE128 / CODE39 / EAN-13 / EAN-8 / UPC-A / UPC-E / ITF-14 / Codabar</span>
+                </div>
+                <div class="note-item">
+                    <span class="range-badge">解析</span>
+                    <span data-i18n="qrcode.note.decode">优先使用浏览器原生 BarcodeDetector（支持二维码+条形码），无此 API 时回退 jsQR 仅解析二维码</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="qrcode.footer">🔲 二维码读写工具 · 离线生成二维码/条形码 · 解析图片二维码 · 多格式 · 全程本地</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 4. 脚本：theme.js → i18n.js → 页面.js -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/QRCodeTool.js"></script>
+</body>
+</html>

@@ -336,6 +336,17 @@ const toolsData = [{
     category: 'Markdown/编辑器/文档/预览/笔记', categoryEn: 'Markdown/Editor/Document/Preview/Note',
     categoryType: ['software', 'doc'],
     isNew: true
+}, {
+    id: 'QRCodeTool',
+    title: '二维码读写工具', titleEn: 'QR Code Reader/Writer',
+    desc: '离线生成二维码/条形码 · 解析图片二维码 · 支持多种格式', descEn: 'Generate QR/barcode offline · decode QR from image · multi-format.',
+    icon: '🔲',
+    iconClass: 'icon-blue',
+    url: './function/QRCodeTool.html',
+    tagAccent: [true, false, false],
+    category: '二维码/条形码/生成/解析/图像/文档', categoryEn: 'QR/Barcode/Generate/Decode/Image/Docs',
+    categoryType: 'doc',
+    isNew: true
 }, ];
 
 // 根据当前语言获取工具的标题/描述/分类
@@ -1934,6 +1945,7 @@ renderTools();
         'BLE_Debugger': { zh: 'UUID 抄错一位，调试两小时 — 蓝牙让你深刻体会“位”的重要性 🔍', en: 'One wrong UUID digit, two hours of debugging — BLE really teaches you the value of bits 🔍' },
         'MermaidDraw': { zh: 'Mermaid 在手，图表不愁 📊', en: 'with Mermaid, diagrams are a breeze 📊' },
         'MarkdownEditor': { zh: '写文档也能很爽，VSCode 配色实时预览 ✍️', en: 'Docs made easy — VSCode colors with live preview ✍️' },
+        'QRCodeTool': { zh: '扫一扫 / 生成二维码都交给我，离线也照跑 🔲', en: 'Scan or generate QR & barcodes — works offline, no excuses 🔲' },
 
         // 分类标签 / 语言 / 主题按钮悬浮
         'cat-all':      { zh: '全部工具都在这，挑一个顺眼的用吧 ✨', en: 'All tools in one place — pick your favorite ✨' },
