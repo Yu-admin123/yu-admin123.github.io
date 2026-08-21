@@ -46,6 +46,7 @@ window.I18N_STRINGS = {
     'index.hw.waterMl':      { zh: '每次喝水', en: 'Per drink' },
     'index.hw.waterGoal':    { zh: '每日目标', en: 'Daily goal' },
     'index.hw.sitInterval':    { zh: '久坐间隔', en: 'Sit Interval' },
+    'index.hw.sitRest':        { zh: '休息时长', en: 'Rest Duration' },
     'index.hw.notifications':  { zh: '桌面通知', en: 'Notifications' },
     'index.hw.save':           { zh: '保存', en: 'Save' },
     'index.hw.cancel':         { zh: '取消', en: 'Cancel' },
@@ -80,7 +81,7 @@ const toolsData = [{
     url: 'https://gitee.com/Yu_29211/yu_-tool',
     tagAccent: [true, false, false],
     category: '下载导航', categoryEn: 'Download',
-    categoryType: ['other','debug'],
+    categoryType: ['debug','other'],
     isNew: false
 }, {
     id: 'serial-port',
@@ -256,7 +257,7 @@ const toolsData = [{
     url: './function/Timing_lab.html',
     tagAccent: [true, false, false],
     category: '时序/秒表/脉宽/测量/分析/调试/计时/时间/开发', categoryEn: 'Timing/Stopwatch/Pulse/Measure/Analysis/Debug/Time/Dev',
-    categoryType: ['hardware', 'software'],
+    categoryType: ['software'],
     isNew: false
 }, {
     id: 'NtcCounter',
@@ -368,7 +369,20 @@ function toggleFav(id) {
     if (i >= 0) favorites.splice(i, 1);
     else favorites.push(id);
     saveFavs();
-    renderTools();
+    // 只更新当前页面上可见的该卡片星标，避免全量重绘导致的闪烁
+    var card = toolsGrid.querySelector('.tool-card[data-id="' + id + '"]');
+    if (card) {
+        var star = card.querySelector('.tool-fav');
+        if (star) {
+            var faved = isFav(id);
+            star.textContent = faved ? '★' : '☆';
+            star.classList.toggle('active', faved);
+            star.title = window.I18N ? window.I18N.t(faved ? 'index.fav.remove' : 'index.fav.add') : (faved ? '取消收藏' : '收藏');
+        }
+    } else {
+        // 卡片不在当前视图中（如"收藏"分类下取消收藏），仍需全量重绘
+        renderTools();
+    }
 }
 
 // ============================================================
@@ -394,6 +408,87 @@ categoryBtns.forEach(btn => {
 searchInput.addEventListener('input', function() {
     renderTools();
 });
+
+// "全部"模式下，为每个工具确定唯一主分类（用于分组显示）
+// 优先级： debug > hardware > doc > software > other（software 最宽泛，作兜底）
+function getPrimaryCategoryType(tool) {
+    var types = Array.isArray(tool.categoryType) ? tool.categoryType : [tool.categoryType];
+    var priority = ['debug', 'hardware', 'doc', 'software','other'];
+    for (var i = 0; i < priority.length; i++) {
+        if (types.indexOf(priority[i]) !== -1) return priority[i];
+    }
+    return types[0];
+}
+
+// 获取分类显示名称（兼容 i18n）
+function getCatName(catType) {
+    var i18nKey = 'index.cat.' + catType;
+    if (window.I18N) return window.I18N.t(i18nKey);
+    var fallbacks = {
+        debug:    { zh: '调试',   en: 'Debug' },
+        hardware: { zh: '硬件',   en: 'Hardware' },
+        software: { zh: '软件',   en: 'Software' },
+        doc:      { zh: '文档',   en: 'Docs' },
+        other:    { zh: '其他',   en: 'Other' }
+    };
+    var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
+    return fallbacks[catType] ? fallbacks[catType][lang] : catType;
+}
+
+// 分类描述文本（中英文）
+var CAT_DESCS = {
+    debug:    { zh: '串口、网络、总线、蓝牙等常用调试工具，快速定位与排查问题。', en: 'Serial, network, bus, BLE and other debugging tools for quick troubleshooting.' },
+    hardware: { zh: '功耗、PCB、电阻、ADC 等硬件设计与计算工具。', en: 'Power, PCB, resistor, ADC and other hardware design & calculation tools.' },
+    software: { zh: '进制转换、CRC、PID、FFT 等嵌入式软件开发常用工具。', en: 'Radix, CRC, PID, FFT and other embedded software development tools.' },
+    doc:      { zh: '文本对比、流程图、Markdown 等文档与协作工具。', en: 'Diff, flowchart, Markdown and other documentation & collaboration tools.' },
+    other:    { zh: '其他未分类的实用工具与资源。', en: 'Other uncategorized tools and resources.' }
+};
+
+function getCatDesc(catType) {
+    var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
+    var desc = CAT_DESCS[catType];
+    return desc ? desc[lang] : '';
+}
+
+// 创建单个工具卡片元素（提取为公共函数，分组/平铺两种渲染复用）
+function createToolCard(tool, index) {
+    var card = document.createElement('a');
+    card.className = 'tool-card';
+    card.href = tool.url;
+    card.target = tool.url.startsWith('http') ? '_blank' : '_self';
+    card.dataset.id = tool.id;   // 供悬浮彩弹匹配特殊对话
+    card.style.animationDelay = (index * 0.02) + 's';
+
+    var title = getToolTitle(tool);
+    var desc = getToolDesc(tool);
+    var faved = isFav(tool.id);
+    var favTitle = window.I18N ? window.I18N.t(faved ? 'index.fav.remove' : 'index.fav.add') : (faved ? '取消收藏' : '收藏');
+
+    var iconHtml;
+    if (tool.icon && (tool.icon.endsWith('.png') || tool.icon.endsWith('.jpg') || tool.icon
+            .endsWith('.svg'))) {
+        iconHtml =
+            '<img src="' + tool.icon + '" alt="' + title + '" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">';
+    } else {
+        iconHtml = tool.icon;
+    }
+
+    card.innerHTML =
+        '<div class="tool-card-header">' +
+            '<div class="tool-card-icon ' + tool.iconClass + '">' + iconHtml + '</div>' +
+            '<div class="tool-card-info">' +
+                '<div class="tool-card-title">' +
+                    title +
+                    (tool.isNew ? '<span class="new-badge">NEW</span>' : '') +
+                '</div>' +
+            '</div>' +
+        '</div>' +
+        '<p class="tool-card-desc">' + desc + '</p>' +
+        '<span class="tool-fav ' + (faved ? 'active' : '') + '" title="' + favTitle + '" data-fav-id="' + tool.id + '" role="button" tabindex="0">' + (faved ? '★' : '☆') + '</span>' +
+        '<span class="tool-card-arrow">→</span>';
+
+    return card;
+}
 
 function renderTools() {
     const keyword = searchInput.value.trim().toLowerCase();
@@ -441,45 +536,44 @@ function renderTools() {
         return;
     }
 
-    filtered.forEach((tool, index) => {
-        const card = document.createElement('a');
-        card.className = 'tool-card';
-        card.href = tool.url;
-        card.target = tool.url.startsWith('http') ? '_blank' : '_self';
-        card.dataset.id = tool.id;   // 供悬浮彩弹匹配特殊对话
-        card.style.animationDelay = (index * 0.06) + 's';
+    // ===== 渲染：全部模式按分类分组，其他模式平铺 =====
+    if (currentCategory === 'all') {
+        // 分类显示顺序（与导航栏一致，排除 all / fav）
+        var catOrder = ['debug', 'hardware', 'software', 'doc', 'other'];
+        var cardIndex = 0;   // 动画延迟计数器，跨分类连续递增
+        var groupIndex = 0;  // 分类序号，用于判断是否需要细横线
 
-        const title = getToolTitle(tool);
-        const desc = getToolDesc(tool);
-        const faved = isFav(tool.id);
-        const favTitle = window.I18N ? window.I18N.t(faved ? 'index.fav.remove' : 'index.fav.add') : (faved ? '取消收藏' : '收藏');
+        catOrder.forEach(function (catType) {
+            var catTools = filtered.filter(function (tool) {
+                return getPrimaryCategoryType(tool) === catType;
+            });
+            if (catTools.length === 0) return;
 
-        let iconHtml;
-        if (tool.icon && (tool.icon.endsWith('.png') || tool.icon.endsWith('.jpg') || tool.icon
-                .endsWith('.svg'))) {
-            iconHtml =
-                `<img src="${tool.icon}" alt="${title}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
-        } else {
-            iconHtml = tool.icon;
-        }
+            // 分类标题（渐变蓝竖线 + 分类名 + 数量徽章 + 描述，动画延迟与同组第一张卡片一致）
+            var header = document.createElement('div');
+            header.className = 'tool-cat-header' + (groupIndex > 0 ? ' has-divider' : '');
+            header.style.animationDelay = (cardIndex * 0.02) + 's';
+            header.innerHTML =
+                '<span class="tool-cat-line"></span>' +
+                '<span class="tool-cat-title">' + getCatName(catType) + '</span>' +
+                '<span class="tool-cat-count">' + catTools.length + '</span>' +
+                '<span class="tool-cat-desc">' + getCatDesc(catType) + '</span>';
+            toolsGrid.appendChild(header);
 
-        card.innerHTML = `
-                <div class="tool-card-header">
-                    <div class="tool-card-icon ${tool.iconClass}">${iconHtml}</div>
-                    <div class="tool-card-info">
-                        <div class="tool-card-title">
-                            ${title}
-                            ${tool.isNew ? '<span class="new-badge">NEW</span>' : ''}
-                        </div>
-                    </div>
-                </div>
-                <p class="tool-card-desc">${desc}</p>
-                <span class="tool-fav ${faved ? 'active' : ''}" title="${favTitle}" data-fav-id="${tool.id}" role="button" tabindex="0">${faved ? '★' : '☆'}</span>
-                <span class="tool-card-arrow">→</span>
-            `;
+            // 该分类下的工具卡片
+            catTools.forEach(function (tool) {
+                toolsGrid.appendChild(createToolCard(tool, cardIndex));
+                cardIndex++;
+            });
 
-        toolsGrid.appendChild(card);
-    });
+            groupIndex++;
+        });
+    } else {
+        // 非"全部"模式：平铺渲染
+        filtered.forEach(function (tool, index) {
+            toolsGrid.appendChild(createToolCard(tool, index));
+        });
+    }
 }
 
 // 收藏按钮的点击/回车交互（卡片会因渲染重建，故用委托监听，只在模块作用域注册一次）
@@ -530,6 +624,7 @@ renderTools();
         waterMl: 250,      // 每次喝水 ml
         waterGoal: 2000,   // 每日目标 ml
         sitInterval:   60,   // 分钟
+        sitRestMin:    5,    // 休息时长（分钟）
         notifications: true
     };
 
@@ -540,7 +635,12 @@ renderTools();
     var waterToday = loadWaterToday();
     // 久坐：仍为倒计时提醒，时间戳持久化延续
     var sitNextTs  = loadNextTs('sit', settings.sitInterval);
-    var sitTriggered   = false;
+    var sitTriggered   = false;   // 阶段1：久坐提醒触发
+    var sitResting     = false;   // 阶段2：正在休息倒计时
+    var sitDone        = false;   // 阶段3：休息完成，等待点击回到阶段 0
+    var sitRestEndTs   = 0;       // 休息结束时间戳
+    // 休息时长（毫秒，随设置动态更新）
+    function getSitRestMs() { return Math.max(1, settings.sitRestMin || 5) * 60000; }
 
     // ===== i18n 辅助 =====
     var DAY_ZH = ['日','一','二','三','四','五','六'];
@@ -578,6 +678,7 @@ renderTools();
         el.inWaterMl   = document.getElementById('hwInWaterMl');
         el.inWaterGoal = document.getElementById('hwInWaterGoal');
         el.inSit       = document.getElementById('hwInSit');
+        el.inSitRest   = document.getElementById('hwInSitRest');
         el.notifToggle = document.getElementById('hwNotifToggle');
         el.notifStatus = document.getElementById('hwNotifStatus');
 //        el.storageStatus = document.getElementById('hwStorageStatus');
@@ -798,20 +899,63 @@ renderTools();
         // 喝水：刷新今日累计显示与进度
         updateWater();
 
-        // 久坐
-        if (!sitTriggered && now >= sitNextTs) {
-            sitTriggered = true;
-            triggerReminder('sit');
-        }
-        if (sitTriggered) {
+        // 久坐三态循环：
+        //   阶段 0 — 正常计时（sitTriggered=false, sitResting=false, sitDone=false）
+        //   阶段 1 — 久坐提醒触发（sitTriggered=true, sitResting=false），点击进入休息
+        //   阶段 2 — 休息倒计时中（sitResting=true），休息结束进入阶段 3
+        //   阶段 3 — 休息完成（sitDone=true），点击回到阶段 0
+        // --- 先更新显示 ---
+        if (sitTriggered && !sitResting && !sitDone) {
+            // 阶段 1：久坐提醒
             var sAlert = t('index.hw.sitAlert') || '该活动了！';
             el.sitTimer.textContent = sAlert;
             el.sitFill.style.width = '100%';
+        } else if (sitResting) {
+            // 阶段 2：休息倒计时
+            el.sitItem.classList.remove('rest-done');
+            el.sitItem.classList.add('resting');
+            el.sitItem.classList.remove('triggered');
+            var restRemain = Math.max(0, sitRestEndTs - now);
+            if (restRemain <= 0) {
+                el.sitTimer.textContent = '00:00';
+                el.sitFill.style.width = '100%';
+            } else {
+                var restPrefix = isEn() ? 'Rest ' : '休息 ';
+                el.sitTimer.textContent = restPrefix + formatCountdown(restRemain);
+                var rPct = 100 - (restRemain / getSitRestMs()) * 100;
+                el.sitFill.style.width = Math.min(100, Math.max(0, rPct)) + '%';
+            }
+        } else if (sitDone) {
+            // 阶段 3：休息完成，等待点击
+            el.sitItem.classList.remove('resting');
+            el.sitItem.classList.add('rest-done');
+            el.sitItem.classList.add('triggered');
+            var doneText = isEn() ? 'Rest done ✓' : '休息完成 ✓';
+            el.sitTimer.textContent = doneText;
+            el.sitFill.style.width = '100%';
         } else {
+            // 阶段 0：正常显示倒计时
+            el.sitItem.classList.remove('resting');
+            el.sitItem.classList.remove('rest-done');
+            el.sitItem.classList.remove('triggered');
             var sRemain = Math.max(0, sitNextTs - now);
             el.sitTimer.textContent = formatCountdown(sRemain);
             var sPct = 100 - (sRemain / (settings.sitInterval * 60000)) * 100;
             el.sitFill.style.width = Math.min(100, Math.max(0, sPct)) + '%';
+        }
+
+        // --- 再更新状态（状态变化会影响下一帧显示） ---
+        if (!sitTriggered && !sitResting && !sitDone) {
+            // 阶段 0：正常倒计时
+            if (now >= sitNextTs) {
+                sitTriggered = true;
+                triggerReminder('sit');
+            }
+        } else if (sitResting && now >= sitRestEndTs) {
+            // 阶段 2 → 阶段 3：休息结束进入完成态
+            sitResting = false;
+            sitDone = true;
+            el.sitItem.classList.remove('resting');
         }
     }
 
@@ -825,7 +969,7 @@ renderTools();
     function triggerReminder(type) {
         // 现在是倒计时提醒，只有久坐会触发；喝水改为 ml 累计，不再触发通知
         var title = (t('index.hw.sitAlert') || '该活动了！') + ' 🪑';
-        var body  = isEn() ? 'Stand up and stretch, click to dismiss' : '站起来活动一下，点击消除提醒';
+        var body  = isEn() ? 'Stand up and stretch, click to start rest' : '站起来活动一下，点击进入休息';
         el.sitItem.classList.add('triggered');
         // 推进下次提醒时间并持久化
         sitNextTs = Date.now() + settings.sitInterval * 60000;
@@ -834,15 +978,37 @@ renderTools();
         playBeep(660);
     }
 
-    function dismissReminder() {
-        if (!sitTriggered) return;
-        sitTriggered = false;
-        sitNextTs = Date.now() + settings.sitInterval * 60000;
-        saveNextTs('sit', sitNextTs);
-        el.sitItem.classList.remove('triggered');
-        document.dispatchEvent(new CustomEvent('mascot-say', {
-            detail: { zh: '起来活动一下，久坐伤身，我替你记着时间 🪑', en: 'Time to stretch — sitting too long hurts. I will keep the clock 🪑' }
-        }));
+    function handleSitClick() {
+        if (sitTriggered && !sitResting && !sitDone) {
+            // 阶段1 → 阶段2：点击进入休息倒计时
+            var restMs = getSitRestMs();
+            sitTriggered = false;
+            sitResting = true;
+            sitRestEndTs = Date.now() + restMs;
+            el.sitItem.classList.remove('triggered');
+            el.sitItem.classList.remove('rest-done');
+            el.sitItem.classList.add('resting');
+            el.sitFill.style.width = '0%';
+            var restPrefix = isEn() ? 'Rest ' : '休息 ';
+            el.sitTimer.textContent = restPrefix + formatCountdown(restMs);
+            document.dispatchEvent(new CustomEvent('mascot-say', {
+                detail: { zh: '休息 ' + (settings.sitRestMin || 5) + ' 分钟，活动一下再回来 🪑', en: 'Take a ' + (settings.sitRestMin || 5) + '-min break, stretch and come back 🪑' }
+            }));
+            playBeep(880);
+        } else if (sitDone) {
+            // 阶段3 → 阶段0：点击回到久坐计时
+            sitDone = false;
+            sitTriggered = false;
+            sitNextTs = Date.now() + settings.sitInterval * 60000;
+            saveNextTs('sit', sitNextTs);
+            el.sitItem.classList.remove('triggered');
+            el.sitItem.classList.remove('rest-done');
+            document.dispatchEvent(new CustomEvent('mascot-say', {
+                detail: { zh: '休息结束，继续搬砖 🪑', en: 'Break over, back to work 🪑' }
+            }));
+            playBeep(880);
+        }
+        // 其余阶段点击无效
     }
 
     // ===== 通知 =====
@@ -980,6 +1146,7 @@ renderTools();
         el.inWaterMl.value   = settings.waterMl;
         el.inWaterGoal.value = settings.waterGoal;
         el.inSit.value       = settings.sitInterval;
+        el.inSitRest.value   = settings.sitRestMin;
         el.notifToggle.classList.toggle('on', settings.notifications);
         el.modalOverlay.classList.add('active');
         // 打开设置即更新权限状态，并在用户手势中请求权限（若未授权）
@@ -996,13 +1163,18 @@ renderTools();
         settings.waterMl      = Math.max(1, parseInt(el.inWaterMl.value, 10) || 200);
         settings.waterGoal    = Math.max(1, parseInt(el.inWaterGoal.value, 10) || 2000);
         settings.sitInterval  = Math.max(1, parseInt(el.inSit.value,      10) || 60);
+        settings.sitRestMin   = Math.max(1, parseInt(el.inSitRest.value,  10) || 5);
         settings.notifications = el.notifToggle.classList.contains('on');
 
         // 间隔变化只影响久坐：重置其倒计时（时间戳持久化）
         sitNextTs = Date.now() + settings.sitInterval * 60000;
         saveNextTs('sit', sitNextTs);
         sitTriggered = false;
+        sitResting = false;
+        sitDone = false;
         el.sitItem.classList.remove('triggered');
+        el.sitItem.classList.remove('resting');
+        el.sitItem.classList.remove('rest-done');
 
         if (settings.notifications) requestNotifPermission();
         saveSettings();
@@ -1019,9 +1191,13 @@ renderTools();
         updateWater();
         // 久坐：从当前时间重新开始倒计时
         sitTriggered = false;
+        sitResting = false;
+        sitDone = false;
         sitNextTs = Date.now() + settings.sitInterval * 60000;
         saveNextTs('sit', sitNextTs);
         el.sitItem.classList.remove('triggered');
+        el.sitItem.classList.remove('resting');
+        el.sitItem.classList.remove('rest-done');
         updateReminders();
         playBeep(1046);
     }
@@ -1039,7 +1215,7 @@ renderTools();
             if (e.target === el.modalOverlay) closeSettings();
         });
         el.waterItem.addEventListener('click', recordWater);
-        el.sitItem.addEventListener('click',   function() { dismissReminder(); });
+        el.sitItem.addEventListener('click',   function() { handleSitClick(); });
         el.notifToggle.addEventListener('click', function() {
             var on = !el.notifToggle.classList.contains('on');
             el.notifToggle.classList.toggle('on');
@@ -1162,6 +1338,32 @@ renderTools();
             span.className = 'todo-text';
             span.textContent = item.text;
             span.title = item.text;
+            // 双击编辑待办文本
+            span.addEventListener('dblclick', function () {
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'todo-text todo-text-edit';
+                input.value = item.text;
+                input.maxLength = 60;
+                input.autofocus = true;
+                input.style.width = (span.parentElement.offsetWidth - 60) + 'px';
+                span.parentElement.replaceChild(input, span);
+                input.focus();
+                input.select();
+                function finishEdit() {
+                    var val = (input.value || '').trim();
+                    if (val && val !== item.text) {
+                        todos[i].text = val;
+                        saveTodos();
+                    }
+                    render();
+                }
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter') { e.preventDefault(); finishEdit(); }
+                    if (e.key === 'Escape') { render(); }
+                });
+                input.addEventListener('blur', finishEdit);
+            });
 
             var del = document.createElement('button');
             del.type = 'button';

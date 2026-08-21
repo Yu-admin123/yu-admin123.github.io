@@ -368,7 +368,7 @@
     flex-direction: column;
     position: relative;
     overflow: hidden;
-    animation: fadeInUp 0.4s ease both;
+    animation: fadeInUp 0.2s ease both;
 }
 .tool-card:hover {
     box-shadow: var(--shadow-tool-card-hover);
@@ -542,6 +542,64 @@
     border-radius: 40px;
     font-weight: 600;
     transition: background 0.25s, color 0.25s;
+}
+
+/* ===== 工具分类标题（仅"全部"模式分组显示时出现） ===== */
+.tool-cat-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    margin: 0 0 -14px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--bg-option-grid) 38%, transparent);
+    animation: fadeInUp 0.2s ease both;
+    transition: background 0.25s;
+}
+/* 非首个分类 */
+.tool-cat-header.has-divider {
+    margin-top: -9px;
+}
+/* 渐变蓝色竖线 */
+.tool-cat-line {
+    width: 3px;
+    height: 18px;
+    border-radius: 2px;
+    background: var(--hero-gradient);
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+.tool-cat-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+    transition: color 0.25s;
+}
+.tool-cat-count {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    background: var(--bg-tag);
+    padding: 2px 10px;
+    border-radius: 40px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: background 0.25s, color 0.25s;
+}
+/* 分类描述文本（居中放在标题和徽章之后） */
+.tool-cat-desc {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.78rem;
+    line-height: 1.4;
+    color: var(--text-light);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.25s;
 }
 
 /* ===== 空状态 ===== */
@@ -1001,6 +1059,18 @@
 .hw-reminder-item.sit .hw-reminder-mini-fill {
     background: #f59e0b;
 }
+/* 休息倒计时：进度条变绿色 */
+.hw-reminder-item.sit.resting .hw-reminder-mini-fill {
+    background: #10b981;
+}
+/* 休息完成：绿色脉冲 */
+.hw-reminder-item.sit.rest-done {
+    animation: hwPulseGreen 1.2s ease-in-out infinite;
+}
+@keyframes hwPulseGreen {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.30); }
+    50%      { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+}
 
 /* 今日喝水达标（≥ 每日目标 ml）：进度条变绿 + 数字加粗高亮 */
 .hw-reminder-item.water.done .hw-reminder-mini-fill {
@@ -1324,6 +1394,21 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     transition: color 0.2s;
+}
+/* 待办编辑输入框 */
+.todo-text-edit {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 5px;
+    border: 1px solid var(--border-focus);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    font-family: inherit;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.12);
 }
 .todo-item.done .todo-text {
     text-decoration: line-through;

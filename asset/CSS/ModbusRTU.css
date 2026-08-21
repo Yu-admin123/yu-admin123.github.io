@@ -12,30 +12,30 @@
 }
 .rx-entry .time {
     color: var(--text-muted);
-    font-size: 0.6rem;
+    font-size: 0.66rem;
     margin-right: 8px;
 }
 .rx-entry .dir-tx {
     color: #f59e0b;
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 600;
     margin-right: 6px;
 }
 .rx-entry .dir-rx {
     color: #34d399;
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 600;
     margin-right: 6px;
 }
 .rx-entry .dir-err {
     color: #f87171;
-    font-size: 0.62rem;
+    font-size: 0.68rem;
     font-weight: 600;
     margin-right: 6px;
 }
 .rx-entry .hex-part {
     color: var(--text-muted);
-    font-size: 0.65rem;
+    font-size: 0.72rem;
 }
 .rx-entry .text-part {
     color: var(--text-code);
@@ -91,7 +91,7 @@
     padding: 6px 10px;
     text-align: left;
     font-weight: 600;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     z-index: 2;
 }
 .reg-table td {
@@ -144,7 +144,7 @@
     padding: 6px 10px;
     text-align: left;
     font-weight: 600;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     z-index: 2;
 }
 .resp-table td {
@@ -168,7 +168,7 @@
     transition: background 0.25s;
 }
 .cmd-item .cmd-label {
-    font-size: 0.6rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     max-width: 80px;
     overflow: hidden;
@@ -190,7 +190,7 @@
 .cmd-del {
     cursor: pointer;
     color: var(--text-light);
-    font-size: 0.65rem;
+    font-size: 0.71rem;
     padding: 0 4px;
 }
 .cmd-del:hover {
@@ -232,7 +232,7 @@ body.mode-slave .slave-only {
     border: 1px solid var(--border-input);
     background: var(--bg-input);
     color: var(--text-muted);
-    font-size: 0.62rem;
+    font-size: 0.72rem;
     cursor: pointer;
     border-radius: 6px;
     font-family: 'SF Mono', 'Fira Code', monospace;

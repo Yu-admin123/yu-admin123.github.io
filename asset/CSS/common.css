@@ -635,7 +635,7 @@ body {
 }
 .panel-title small {
     font-weight: 400;
-    font-size: 0.65rem;
+    font-size: 0.72rem;
     color: var(--text-light);
 }
 
@@ -644,6 +644,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    font-size: 0.88rem;
 }
 .input-row {
     display: flex;
@@ -655,7 +656,7 @@ body {
     font-weight: 500;
     color: var(--text-secondary);
     min-width: 70px;
-    font-size: 0.78rem;
+    font-size: 0.79rem;
     transition: color 0.25s;
 }
 
@@ -836,7 +837,7 @@ body {
     padding: 10px 14px;
     border-radius: 12px;
     font-family: 'SF Mono', 'Fira Code', monospace;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     max-height: 130px;
     overflow: auto;
     white-space: pre-wrap;
@@ -871,14 +872,14 @@ body {
     background: var(--status-error-bg);
     padding: 2px 12px;
     border-radius: 40px;
-    font-size: 0.65rem;
+    font-size: 0.72rem;
 }
 .status-warn {
     color: var(--status-warn-text);
     background: var(--status-warn-bg);
     padding: 2px 12px;
     border-radius: 40px;
-    font-size: 0.65rem;
+    font-size: 0.72rem;
 }
 
 /* ===== 页脚备注 ===== */
@@ -975,7 +976,7 @@ body {
     .lang-toggle {
         width: 32px;
         height: 32px;
-        font-size: 0.66rem;
+        font-size: 074rem;
     }
     .theme-toggle .toggle-track {
         width: 36px;
@@ -1001,7 +1002,7 @@ body {
 @media (max-width: 480px) {
     .theme-toggle {
         padding: 4px 8px 4px 12px;
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         gap: 4px;
     }
     .theme-toggle .toggle-track {

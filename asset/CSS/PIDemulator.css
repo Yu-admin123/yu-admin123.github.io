@@ -183,7 +183,7 @@
     display: inline-block;
 }
 .zoom-hint {
-    font-size: 0.55rem;
+    font-size: 0.65rem;
     color: var(--text-light);
     font-style: italic;
     margin-left: 4px;
