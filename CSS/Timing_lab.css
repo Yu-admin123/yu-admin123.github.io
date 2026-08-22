@@ -1,0 +1,301 @@
+/* ============================================================
+   时序秒表 Timing_lab.html 页面特有样式
+   包含：图表/显示专用 CSS 变量、秒表大数字显示、统计卡片、
+         脉宽波形图（图例/缩放/悬浮提示）、事件时间线列布局等
+   （基础变量、导航栏、面板、按钮、输入框等共用样式见 common.css）
+   ============================================================ */
+
+/* ===== 页面专用 CSS 变量（亮色） ===== */
+:root {
+    --chart-bg: #ffffff;
+    --chart-grid: #e9edf4;
+    --chart-axis: #94a3b8;
+    --chart-label: #64748b;
+    --chart-line: #6366f1;
+    --chart-fill: rgba(99, 102, 241, 0.16);
+    --chart-rise: #22c55e;
+    --chart-fall: #f87171;
+    --chart-lap: #f59e0b;
+    --chart-cursor: rgba(15, 23, 42, 0.55);
+    --chart-cur0: #dc2626;
+    --chart-cur1: #0284c7;
+    --display-color: #0f172a;
+    --display-accent: #6366f1;
+}
+
+/* ===== 页面专用 CSS 变量（暗色） ===== */
+[data-theme="dark"] {
+    --chart-bg: #1e1e1e;
+    --chart-grid: #3d3d3d;
+    --chart-axis: #888888;
+    --chart-label: #888888;
+    --chart-line: #7a9eff;
+    --chart-fill: rgba(122, 158, 255, 0.2);
+    --chart-rise: #4ade80;
+    --chart-fall: #f87171;
+    --chart-lap: #fbbf24;
+    --chart-cursor: rgba(255, 255, 255, 0.6);
+    --chart-cur0: #f87171;
+    --chart-cur1: #38bdf8;
+    --display-color: #e6e6e6;
+    --display-accent: #7a9eff;
+}
+
+/* ===== 状态信息（中性灰，避免与 common 状态标签混淆） ===== */
+.status-info {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* ===== 秒表大数字显示 ===== */
+.stopwatch-display {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 2.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--display-color);
+    background: var(--bg-code);
+    border: 1px solid var(--border-light);
+    border-radius: 14px;
+    padding: 12px 16px;
+    text-align: center;
+    line-height: 1.2;
+    transition: color 0.25s, background 0.25s, border-color 0.25s;
+    user-select: none;
+}
+.stopwatch-display.running {
+    color: var(--display-accent);
+    border-color: var(--border-focus);
+}
+
+/* ===== 按钮组分隔线（主秒表控制与脉宽边沿按钮之间） ===== */
+.edge-sep {
+    width: 1px;
+    height: 18px;
+    background: var(--border-input);
+    margin: 0 2px;
+    align-self: center;
+    flex-shrink: 0;
+}
+
+/* ===== 统计卡片 ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+.stat-card {
+    background: var(--bg-option-grid);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 6px 8px;
+    text-align: center;
+    transition: background 0.25s, border-color 0.25s;
+}
+.stat-card .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+}
+.stat-card .stat-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-primary);
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+/* ===== 脉宽波形图（图例） ===== */
+.pw-legend {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+.pw-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.62rem;
+    color: var(--text-muted);
+}
+.pw-legend .legend-line {
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+}
+.pw-legend .legend-spike {
+    width: 2px;
+    height: 14px;
+    border-radius: 1px;
+}
+.pw-legend .zoom-hint {
+    font-size: 0.58rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-left: auto;
+}
+
+/* ===== 脉宽波形图（画布） ===== */
+.pw-chart-wrapper {
+    position: relative;
+    background: var(--chart-bg);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: background 0.25s, border-color 0.25s;
+}
+#pwCanvas {
+    display: block;
+    width: 100%;
+    height: 300px;
+    cursor: crosshair;
+    touch-action: none;
+}
+#pwCanvas.panning {
+    cursor: grabbing;
+}
+
+/* ===== 测量读数条（T0 / T1 / ΔT / f） ===== */
+.pw-measure {
+    margin-top: 10px;
+    padding: 7px 12px;
+    background: var(--bg-option-grid);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow-x: auto;
+    transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
+.pw-measure.active {
+    color: var(--text-secondary);
+    border-color: var(--border-focus);
+}
+
+/* ===== 脉宽悬浮提示（逻辑分析仪 ATK-Logic 风格） ===== */
+.pw-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(15, 18, 25, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.62rem;
+    color: #e8e8e8;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 10px;
+    row-gap: 1px;
+    line-height: 1.7;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.1s;
+    z-index: 10;
+}
+.pw-tooltip.visible {
+    opacity: 1;
+}
+.pw-tooltip .tip-k {
+    color: #8a94a6;
+    text-align: right;
+}
+.pw-tooltip .tip-v {
+    color: #f0f4ff;
+    font-weight: 600;
+}
+
+/* ===== 事件时间线（列布局：累计时间 | 与上次相差 | 事件） ===== */
+.timeline-box {
+    background: var(--bg-code);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    max-height: 380px;
+    overflow-y: auto;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.68rem;
+    line-height: 1.7;
+    padding: 0;
+    transition: background 0.25s, border-color 0.25s;
+}
+.tl-header,
+.timeline-item {
+    display: grid;
+    grid-template-columns: 118px 118px 1fr;
+    gap: 8px;
+    padding: 2px 12px;
+    align-items: baseline;
+}
+.tl-header {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--bg-code);
+    border-bottom: 1px solid var(--border-light);
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    padding-top: 6px;
+    padding-bottom: 4px;
+}
+.timeline-item .tl-time {
+    color: var(--text-light);
+    white-space: nowrap;
+}
+.timeline-item .tl-delta {
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+.timeline-item .tl-text {
+    color: var(--text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.timeline-item.tl-rise .tl-text {
+    color: var(--chart-rise);
+}
+.timeline-item.tl-fall .tl-text {
+    color: var(--chart-fall);
+}
+.timeline-item.tl-main .tl-text {
+    color: var(--display-accent);
+}
+.timeline-empty {
+    padding: 14px 12px;
+    text-align: center;
+    color: var(--text-light);
+    font-size: 0.65rem;
+}
+#timelineClearBtn {
+    margin-left: auto;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 700px) {
+    .stopwatch-display {
+        font-size: 1.6rem;
+    }
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    #pwCanvas {
+        height: 220px;
+    }
+    .tl-header,
+    .timeline-item {
+        grid-template-columns: 96px 96px 1fr;
+    }
+    .pw-legend .zoom-hint {
+        margin-left: 0;
+    }
+}

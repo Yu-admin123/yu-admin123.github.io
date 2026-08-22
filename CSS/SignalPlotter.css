@@ -1,0 +1,120 @@
+/* ============================================================
+   数据曲线可视化 SignalPlotter 页面特有样式
+   包含：表单组、Tab 切换、画布容器、Tooltip、图例、
+         FFT 显示模式、数据表格、公式框等
+   （基础变量、导航栏、面板、按钮等共用样式见 common.css）
+   ============================================================ */
+
+/* ===== 表单组（页面使用 .form-group 而非 .input-row） ===== */
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 0.78rem; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; transition: color 0.25s; }
+input[type="text"], input[type="number"], select { width: 100%; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); font-size: 0.8rem; font-family: 'SF Mono', 'Fira Code', monospace; transition: 0.15s, background 0.25s, color 0.25s, border-color 0.25s; outline: none; }
+input:focus, select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12); }
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+/* ===== 画布容器 ===== */
+.canvas-wrap { position: relative; width: 100%; height: 360px; background: var(--bg-panel-accent); border-radius: 12px; border: 1px solid var(--border-light); overflow: hidden; margin-top: 12px; cursor: grab; transition: background 0.25s, border-color 0.25s; contain: strict; }
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Tooltip ===== */
+.tooltip { position: fixed; background: rgba(15,23,42,0.9); color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 0.7rem; font-family: 'SF Mono', 'Fira Code', monospace; pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 999; white-space: nowrap; }
+
+/* ===== 图例 ===== */
+.legend { display: flex; gap: 16px; margin-top: 10px; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-color { width: 14px; height: 4px; border-radius: 2px; }
+
+/* ===== 统计信息 ===== */
+.stats { margin-top: 10px; font-size: 0.7rem; color: var(--text-muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+
+/* ===== Tab 切换 ===== */
+.tabs { display: flex; gap: 4px; margin-bottom: 14px; border-bottom: 1px solid var(--border-light); padding-bottom: 4px; }
+.tab { padding: 6px 14px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.78rem; color: var(--text-muted); transition: all 0.15s; border: none; background: none; font-family: inherit; }
+.tab.active { background: rgba(129,140,248,0.1); color: var(--accent-blue); font-weight: 600; }
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* ===== 复选框容器 ===== */
+.checkbox-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-blue);
+}
+
+/* ===== FFT 显示模式切换按钮 ===== */
+.fft-mode-group {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+.fft-mode-btn {
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--border-input);
+  background: var(--bg-input);
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.fft-mode-btn:hover { border-color: var(--border-focus); }
+.fft-mode-btn.active {
+  background: var(--hero-gradient);
+  color: white;
+  border-color: transparent;
+}
+
+/* ===== 数据表格 ===== */
+.data-table { width:100%; border-collapse:collapse; font-size:0.8rem; margin-bottom:10px; }
+.data-table th, .data-table td { padding:4px 6px; border:1px solid var(--border-light); text-align:center; }
+.data-table th { background:var(--bg-option-grid); color:var(--text-muted); font-weight:600; font-size:0.7rem; }
+.data-table td input { width:100%; border:none; background:transparent; text-align:center; font-family:'SF Mono','Fira Code',monospace; font-size:0.78rem; color:var(--text-primary); outline:none; padding:2px; }
+.data-table td input:focus { background:rgba(129,140,248,0.08); border-radius:4px; }
+.data-table-wrap { max-height:220px; overflow:auto; border:1px solid var(--border-light); border-radius:10px; }
+.table-toolbar { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; align-items:center; }
+.file-input { display:none; }
+
+/* ===== 公式展示框 ===== */
+.formula-box {
+  background: var(--bg-code);
+  color: var(--text-code);
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.7rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin-top: 6px;
+  transition: background 0.25s, color 0.25s;
+}

@@ -1,0 +1,627 @@
+/* ============================================================
+   MaterialManager.css — 物料管理工具（页面级样式）
+   仅使用 common.css 的主题变量，不重复定义基础变量，
+   不自定义 .btn-* 控件（复用 common.css 的 .btn/.btn-outline/.btn-sm）。
+   页面级需要的几个「强调色微调」用本页 :root / [data-theme=dark] 块定义。
+   ============================================================ */
+
+:root {
+    --mm-border: var(--border-light);
+    --mm-input-border: var(--border-input);
+    --mm-item-bg: var(--bg-badge);          /* 已放置物料格的底色（蓝调） */
+    --mm-item-border: var(--accent-blue);
+    --mm-empty-bg: var(--bg-option-grid);
+    --mm-matched-border: var(--status-ok-text);
+    --mm-matched-bg: var(--status-ok-bg);
+    --mm-low-border: var(--status-error-text);
+    --mm-low-bg: var(--status-error-bg);
+    --mm-batch-bg: color-mix(in srgb, var(--accent-blue) 14%, transparent);
+    --mm-batch-border: var(--accent-blue);
+}
+
+/* ===== 工具栏（搜索 + 过滤 + 操作，统一面板框） ===== */
+.mm-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    background: var(--bg-panel);
+    padding: 12px 18px;
+    border-radius: 14px;
+    border: 1px solid var(--mm-border);
+    margin-bottom: 18px;
+}
+.mm-search {
+    flex: 1 1 180px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.mm-search input {
+    flex: 1;
+    padding: 8px 14px;
+    border: 1px solid var(--mm-input-border);
+    border-radius: 10px;
+    font-size: 0.8rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s, background 0.25s, color 0.25s;
+}
+.mm-search input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
+}
+.mm-clear {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: none;
+    padding: 0 4px;
+}
+.mm-clear.visible {
+    display: block;
+}
+.mm-filters {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.mm-filters select {
+    padding: 7px 12px;
+    border: 1px solid var(--mm-input-border);
+    border-radius: 10px;
+    font-size: 0.75rem;
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    outline: none;
+    cursor: pointer;
+}
+.mm-filters select:focus {
+    border-color: var(--border-focus);
+}
+/* 文件上传：标签按钮覆盖在透明 file input 上，点击即触发选择 */
+.file-input-wrapper {
+    position: relative;
+    display: inline-flex;
+    overflow: hidden;
+}
+.file-input-wrapper input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0;
+}
+
+/* 第二行：导入/导出按钮组（强制换行 + 细分隔线） */
+.mm-toolrow-export {
+    flex: 1 1 100%;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 2px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--mm-border);
+}
+.mm-toolrow-extra {
+    margin-left: auto;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.mm-btn-danger {
+    color: var(--status-error-text);
+    border-color: color-mix(in srgb, var(--status-error-text) 45%, var(--mm-border));
+}
+.mm-btn-danger:hover {
+    background: var(--status-error-bg);
+    border-color: var(--status-error-text);
+}
+
+/* ===== 工具栏内联统计（填充按钮行空白） ===== */
+.mm-statgroup {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+    flex-wrap: wrap;
+}
+.mm-statpill {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 30px;
+    background: var(--bg-tag);
+    border: 1px solid transparent;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.mm-statpill.clickable {
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+.mm-statpill.clickable:hover {
+    border-color: var(--accent-blue);
+    background: var(--mm-batch-bg);
+}
+.mm-statpill-num {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+.mm-statpill.low .mm-statpill-num {
+    color: var(--status-error-text);
+}
+
+/* ===== 低库存预警清单 ===== */
+.mm-alerts {
+    background: var(--mm-low-bg);
+    border: 1px solid var(--mm-low-border);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin-bottom: 18px;
+}
+.mm-alerts[hidden] {
+    display: none;
+}
+.mm-alerts-title {
+    font-weight: 600;
+    color: var(--status-error-text);
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+}
+.mm-alerts-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.mm-alert-chip {
+    background: var(--bg-panel);
+    border: 1px solid var(--mm-low-border);
+    border-radius: 30px;
+    padding: 4px 14px;
+    font-size: 0.76rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+.mm-alert-chip:hover {
+    background: var(--bg-tag);
+}
+
+/* ===== 批量操作栏 ===== */
+.mm-batchbar {
+    display: none;
+    background: var(--mm-batch-bg);
+    padding: 8px 18px;
+    border-radius: 12px;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    border: 1px solid var(--mm-batch-border);
+}
+.mm-batchbar.active {
+    display: flex;
+}
+.mm-batchbar .mm-batch-info {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+.mm-batchbar .mm-batch-label {
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+}
+.mm-batchbar select {
+    padding: 5px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--mm-batch-border);
+    background: var(--bg-input);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+}
+
+/* ===== 物料盒卡片 ===== */
+.mm-boxcard {
+    background: var(--bg-panel);
+    border-radius: 20px;
+    border: 1px solid var(--mm-border);
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+[data-theme="dark"] .mm-boxcard {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.mm-boxheader {
+    padding: 16px 24px 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--mm-border);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.mm-boxtitle {
+    font-weight: 700;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+}
+.mm-boxtitle .mm-badge {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    background: var(--bg-tag);
+    padding: 2px 14px;
+    border-radius: 30px;
+}
+.mm-boxactions {
+    display: flex;
+    gap: 6px;
+}
+.mm-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 10px 0 6px 0;
+}
+.mm-navbtn {
+    background: var(--bg-tag);
+    border: none;
+    border-radius: 40px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+}
+.mm-navbtn:hover:not(:disabled) {
+    background: var(--mm-item-bg);
+}
+.mm-navbtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+.mm-pageind {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    min-width: 70px;
+    text-align: center;
+}
+
+/* ===== 物料格（盒子视图） ===== */
+.mm-grid {
+    display: grid;
+    padding: 20px 24px 24px 24px;
+    gap: 12px;
+}
+.mm-cell {
+    background: var(--mm-empty-bg);
+    border-radius: 14px;
+    border: 2px dashed var(--mm-input-border);
+    aspect-ratio: 1 / 1;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    text-align: center;
+    font-size: 0.8rem;
+    transition: 0.15s;
+    cursor: pointer;
+    position: relative;
+    word-break: break-all;
+    color: var(--text-secondary);
+}
+.mm-cell.has-item {
+    border: 2px solid var(--mm-item-border);
+    background: var(--mm-item-bg);
+}
+.mm-cell.has-item.matched {
+    border-color: var(--mm-matched-border);
+    background: var(--mm-matched-bg);
+    box-shadow: 0 0 0 2px var(--status-ok-text);
+}
+.mm-cell.low-stock {
+    border-color: var(--mm-low-border) !important;
+    background: var(--mm-low-bg) !important;
+    box-shadow: 0 0 0 2px var(--mm-low-border);
+}
+.mm-cell.low-stock .mm-lowbadge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--status-error-text);
+    color: #fff;
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 30px;
+}
+.mm-cell .mm-model {
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.2;
+    color: var(--text-primary);
+}
+.mm-cell .mm-name {
+    font-size: 0.68rem;
+    line-height: 1.3;
+    color: var(--text-light);
+    margin-top: 1px;
+}
+.mm-cell .mm-qty {
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    background: color-mix(in srgb, var(--accent-blue) 12%, transparent);
+    padding: 0 12px;
+    border-radius: 30px;
+    margin-top: 2px;
+    font-weight: 500;
+}
+.mm-cell .mm-cat {
+    font-size: 0.56rem;
+    color: var(--text-light);
+    background: var(--bg-tag);
+    padding: 0 8px;
+    border-radius: 30px;
+    margin-top: 1px;
+}
+.mm-cell .mm-empty {
+    color: var(--text-light);
+    font-size: 0.75rem;
+}
+.mm-cell:hover {
+    background: var(--bg-tag);
+    border-color: var(--text-light);
+}
+.mm-cell.has-item:hover {
+    background: var(--mm-item-bg);
+    border-color: var(--accent-blue);
+}
+.mm-cell .mm-index {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    font-size: 0.6rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+/* 批量选择 */
+.mm-cell.batch-select {
+    cursor: pointer;
+    border-color: var(--text-light);
+}
+.mm-cell.batch-select.selected {
+    border-color: var(--mm-batch-border);
+    background: var(--mm-batch-bg);
+    box-shadow: 0 0 0 2px var(--mm-batch-border);
+}
+.mm-cell.batch-select .mm-check {
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    font-size: 1rem;
+    color: var(--accent-blue);
+}
+
+/* ===== 表格视图 ===== */
+.mm-tablewrap {
+    background: var(--bg-panel);
+    border-radius: 16px;
+    border: 1px solid var(--mm-border);
+    overflow-x: auto;
+    margin-top: 12px;
+}
+.mm-tablewrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    min-width: 800px;
+}
+.mm-tablewrap th {
+    background: var(--bg-option-grid);
+    text-align: left;
+    padding: 12px 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--mm-border);
+}
+.mm-tablewrap td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--mm-border);
+    vertical-align: middle;
+    color: var(--text-secondary);
+}
+.mm-loc {
+    background: var(--bg-tag);
+    padding: 2px 12px;
+    border-radius: 30px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+.mm-catbadge {
+    font-size: 0.68rem;
+    padding: 2px 10px;
+    border-radius: 30px;
+    background: var(--bg-tag);
+    color: var(--text-secondary);
+}
+.mm-lowbadge {
+    background: var(--status-error-text);
+    color: #fff;
+    padding: 1px 10px;
+    border-radius: 30px;
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+.mm-empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: var(--text-light);
+}
+.mm-empty-state .mm-emoji {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 12px;
+}
+
+/* ===== 模态框 ===== */
+.mm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+.mm-overlay.active {
+    display: flex;
+}
+.mm-modal {
+    background: var(--bg-panel);
+    border-radius: 24px;
+    padding: 32px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+    animation: mmFadeUp 0.2s ease;
+    border: 1px solid var(--mm-border);
+}
+[data-theme="dark"] .mm-modal {
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+}
+@keyframes mmFadeUp {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.mm-modal h3 {
+    font-size: 1.35rem;
+    margin: 0 0 16px;
+    color: var(--text-primary);
+}
+.mm-modal label {
+    font-weight: 500;
+    font-size: 0.85rem;
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+}
+.mm-modal input,
+.mm-modal textarea,
+.mm-modal select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--mm-input-border);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s, background 0.25s, color 0.25s;
+}
+.mm-modal input:focus,
+.mm-modal textarea:focus,
+.mm-modal select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(122, 158, 255, 0.12);
+}
+.mm-row2 {
+    display: flex;
+    gap: 14px;
+}
+.mm-row2 > div {
+    flex: 1;
+}
+.mm-modal .mm-btngroup {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: flex-end;
+}
+.mm-modal .mm-btngroup .btn {
+    flex: 1;
+    justify-content: center;
+}
+
+/* ===== Toast ===== */
+.mm-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--btn-primary);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 40px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transform: translateY(80px);
+    opacity: 0;
+    transition: 0.3s ease;
+    z-index: 9999;
+}
+.mm-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+.mm-toast.success {
+    background: var(--status-ok-bg);
+    color: var(--status-ok-text);
+}
+.mm-toast.error {
+    background: var(--status-error-bg);
+    color: var(--status-error-text);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 700px) {
+    .mm-grid {
+        gap: 8px;
+        padding: 12px 12px 16px 12px;
+    }
+    .mm-cell {
+        min-height: 60px;
+        font-size: 0.68rem;
+    }
+    .mm-cell .mm-model { font-size: 0.8rem; }
+    .mm-cell .mm-name { font-size: 0.6rem; }
+    .mm-modal {
+        margin: 16px;
+        padding: 24px;
+    }
+    .mm-row2 { flex-direction: column; }
+    .mm-navbtn { width: 38px; height: 38px; font-size: 1.1rem; }
+    .mm-statgroup { margin-left: 0; width: 100%; justify-content: flex-start; }
+}

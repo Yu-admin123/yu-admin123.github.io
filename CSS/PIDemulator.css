@@ -1,0 +1,258 @@
+/* ============================================================
+   PID 调试仿真工具 PIDemulator.html 页面特有样式
+   包含：图表专用 CSS 变量、滑块取值显示、性能指标卡片、
+         图表画布与工具栏、图例、Tooltip、缩放状态、
+         预设按钮组、图表面板布局等
+   （基础变量、导航栏、面板、按钮等共用样式见 common.css）
+   ============================================================ */
+
+/* ===== 图表专用 CSS 变量（亮色） ===== */
+:root {
+    --chart-bg: #ffffff;
+    --chart-grid: #e9edf4;
+    --chart-axis: #94a3b8;
+    --chart-label: #64748b;
+    --chart-crosshair: rgba(99, 102, 241, 0.35);
+    --chart-line-setpoint: #f87171;
+    --chart-line-process: #3b82f6;
+    --chart-line-output: #22c55e;
+}
+
+/* ===== 图表专用 CSS 变量（暗色） ===== */
+[data-theme="dark"] {
+    --chart-bg: #1e1e1e;
+    --chart-grid: #3d3d3d;
+    --chart-axis: #888888;
+    --chart-label: #888888;
+    --chart-crosshair: rgba(122, 158, 255, 0.3);
+    --chart-line-setpoint: #f87171;
+    --chart-line-process: #60a5fa;
+    --chart-line-output: #4ade80;
+}
+
+/* ===== 滑块取值显示 ===== */
+.input-row .range-value {
+    min-width: 40px;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--accent-blue);
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ===== 状态信息（中性灰色） ===== */
+.status-info {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+
+/* ===== 性能指标卡片 ===== */
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin-top: 4px;
+}
+.metric-card {
+    background: var(--bg-option-grid);
+    border-radius: 12px;
+    padding: 8px 12px;
+    text-align: center;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s, border-color 0.25s;
+}
+.metric-card .metric-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.metric-card .metric-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-primary);
+    margin-top: 2px;
+}
+.metric-card .metric-value.good {
+    color: var(--status-ok-text);
+}
+.metric-card .metric-value.bad {
+    color: var(--status-error-text);
+}
+.metric-card .metric-value.warn {
+    color: #f59e0b;
+}
+
+/* ===== 图表容器 ===== */
+.chart-wrapper {
+    position: relative;
+    background: var(--chart-bg);
+    border-radius: 14px;
+    border: 1px solid var(--border-light);
+    overflow: hidden;
+    transition: background 0.25s, border-color 0.25s;
+    margin-top: 4px;
+    cursor: grab;
+}
+.chart-wrapper.grabbing {
+    cursor: grabbing;
+}
+.chart-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 14px 0;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.chart-toolbar .chart-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.chart-toolbar .chart-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.chart-legend {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.chart-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.6rem;
+    color: var(--text-muted);
+}
+.chart-legend .legend-line {
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+}
+.chart-legend .legend-line.dashed {
+    height: 0;
+    border-top: 2px dashed;
+    width: 20px;
+}
+#chartCanvas {
+    display: block;
+    width: 100%;
+    cursor: crosshair;
+    touch-action: none;
+}
+.chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-input);
+    border-radius: 10px;
+    padding: 6px 10px;
+    font-size: 0.62rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    color: var(--text-secondary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.12s;
+    z-index: 10;
+    line-height: 1.5;
+}
+.chart-tooltip.visible {
+    opacity: 1;
+}
+
+/* ===== 缩放状态指示器 ===== */
+#zoomStatus {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    background: var(--bg-option-grid);
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+    display: none;
+    white-space: nowrap;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+#zoomStatus.visible {
+    display: inline-block;
+}
+.zoom-hint {
+    font-size: 0.65rem;
+    color: var(--text-light);
+    font-style: italic;
+    margin-left: 4px;
+}
+
+/* ===== 预设按钮组 ===== */
+.preset-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+}
+.preset-grid .preset-btn {
+    padding: 6px 16px;
+    border-radius: 40px;
+    border: 1px solid var(--btn-outline-border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.preset-grid .preset-btn:hover {
+    background: var(--btn-outline-hover-bg);
+    border-color: var(--border-focus);
+    transform: scale(0.97);
+}
+.preset-grid .preset-btn.active {
+    background: var(--hero-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
+/* ===== 页面工具类（不在 common.css 内） ===== */
+.mt-12 {
+    margin-top: 12px;
+}
+.w-full {
+    width: 100%;
+}
+.gap-4 {
+    gap: 4px;
+}
+
+/* ===== 图表面板（让右侧图表区域占更多高度） ===== */
+.panel-chart {
+    display: flex;
+    flex-direction: column;
+}
+.panel-chart .chart-wrapper {
+    flex: 1;
+    min-height: 420px;
+}
+.panel-chart .chart-wrapper canvas {
+    min-height: 380px;
+}
+
+@media (max-width: 1000px) {
+    .panel-chart .chart-wrapper {
+        min-height: 340px;
+    }
+    .panel-chart .chart-wrapper canvas {
+        min-height: 300px;
+    }
+}

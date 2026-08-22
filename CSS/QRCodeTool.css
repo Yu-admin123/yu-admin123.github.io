@@ -1,0 +1,107 @@
+/* ===== QRCodeTool.html 页面特有样式 ===== */
+
+/* ===== 生成预览区 ===== */
+.qr-preview-wrap {
+    display: inline-flex;
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border-light);
+    min-width: 220px;
+    min-height: 220px;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.25s, border-color 0.25s;
+}
+.qr-preview-wrap canvas {
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    border-radius: 6px;
+}
+
+/* ===== 解析拖放区 ===== */
+.drop-zone {
+    width: 100%;
+    min-height: 220px;
+    border: 2px dashed var(--border-input);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-option-grid);
+    transition: border-color 0.25s, background 0.25s;
+    overflow: hidden;
+    position: relative;
+}
+.drop-zone.dragover {
+    border-color: var(--accent-blue);
+    background: var(--bg-panel-accent);
+}
+.drop-zone.has-img {
+    border-style: solid;
+    padding: 12px;
+}
+.drop-zone-inner {
+    text-align: center;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+.drop-zone-icon {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+}
+.drop-zone-text {
+    font-size: 0.75rem;
+    line-height: 1.6;
+    padding: 0 16px;
+}
+.drop-zone canvas {
+    display: block;
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+}
+
+/* ===== 结果工具栏 ===== */
+.result-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+/* ===== 格式说明网格 ===== */
+.note-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    font-size: 0.78rem;
+}
+@media (min-width: 700px) {
+    .note-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+.note-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    background: var(--bg-option-grid);
+    border-radius: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border-light);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    transition: background 0.25s, border-color 0.25s;
+}
+.note-item .range-badge {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ===== 全宽面板 ===== */
+.full-width {
+    margin-top: 18px;
+}

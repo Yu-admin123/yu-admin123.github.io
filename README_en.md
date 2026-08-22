@@ -17,7 +17,7 @@ Yu_ToolBox gathers these everyday needs into a single web page. **Pure front-end
 
 ## 🧰 What's inside
 
-24 tools, covering debugging, software and hardware work:
+25 tools, covering debugging, software and hardware work:
 
 | Tool | What it does |
 |------|--------------|
@@ -45,6 +45,7 @@ Yu_ToolBox gathers these everyday needs into a single web page. **Pure front-end
 | 🖥️ [PCB Trace Width Calculator](./function/PcbTrace.html) | IPC-2152 model, width ↔ current |
 | 🕳️ [PCB Via Current Calculator](./function/ViaCalc.html) | Single-via current / via count |
 | 🔲 [QR Code Reader/Writer](./function/QRCodeTool.html) | Generate QR/barcodes offline, decode QR from images, multi-format |
+| 📦 [Material Manager](./function/MaterialManager.html) | Component intake, stocktake, low-stock alerts, CSV/JSON import & export |
 
 There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu_29211/yu_-tool) (Qt-based, covering serial / Modbus / MQTT / TCP).
 
@@ -107,13 +108,14 @@ Yu_ToolBox/
 │   │   ├── ResDivider.css        # Resistive Divider Calculator
 │   │   ├── PcbTrace.css          # PCB Trace Width Calculator
 │   │   ├── ViaCalc.css           # PCB Via Current Calculator
-│   │   └── QRCodeTool.css        # QR Code Reader/Writer
+│   │   ├── QRCodeTool.css        # QR Code Reader/Writer
+│   │   └── MaterialManager.css   # Material Manager
 │   │
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ Shared theming: setTheme + themechange event + icon sync
 │   │   ├── i18n.js               # ★ Shared i18n: I18N dictionary + languagechange event + data-i18n
 │   │   ├── index.js              # Home scripts: toolsData registry + categories/search/favorites + mascot
-│   │   └── <tool>.js ×24         # Per-tool logic, one-to-one with the CSS files above
+│   │   └── <tool>.js ×25         # Per-tool logic, one-to-one with the CSS files above
 │   │
 │   └── lib/                      # Local third-party libs (offline fallback)
 │       ├── mermaid.min.js        # mermaid v11 (offline rendering for Flowchart Drawer)
@@ -148,7 +150,8 @@ Yu_ToolBox/
     ├── ResDivider.html           # Resistive Divider Calculator
     ├── PcbTrace.html             # PCB Trace Width Calculator
     ├── ViaCalc.html              # PCB Via Current Calculator
-    └── QRCodeTool.html           # QR Code Reader/Writer
+    ├── QRCodeTool.html           # QR Code Reader/Writer
+    └── MaterialManager.html      # Material Manager
 ```
 
 A few conventions worth knowing before touching the code:

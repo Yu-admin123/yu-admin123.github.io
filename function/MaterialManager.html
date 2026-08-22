@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>物料管理</title>
+    <link rel="icon" href="../asset/Logo/Yu_Tools.png" type="image/png">
+    <!-- 1. 主题+语言预初始化（必须内联 head，防闪烁，不可移出） -->
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <!-- 2. 样式：common.css → 页面.css -->
+    <link rel="stylesheet" href="../asset/CSS/common.css">
+    <link rel="stylesheet" href="../asset/CSS/MaterialManager.css">
+</head>
+<body>
+    <!-- ===== 导航栏（语言→主题，顺序固定） ===== -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../index.html">
+                <div class="brand-icon"><img src="../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox"></div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- ===== 页面标题 ===== -->
+        <h1 class="page-title" data-i18n="mat.page.title">📦 物料管理</h1>
+        <p class="subhead" data-i18n="mat.subhead">🔹 嵌入式电子物料的入库、盘点与低库存预警</p>
+
+        <!-- ===== 工具栏（搜索 / 过滤 / 新建 / 导入导出，统一收进一个面板框） ===== -->
+        <div class="mm-toolbar">
+            <div class="mm-search">
+                <input type="text" id="searchInput" data-i18n-placeholder="mat.search.ph" placeholder="🔍 搜索名称/型号/位置..." />
+                <button class="mm-clear" id="clearSearchBtn" title="清除">✕</button>
+            </div>
+            <div class="mm-filters">
+                <select id="categoryFilter">
+                    <option value="" data-i18n="mat.filter.catAll">📂 全部分类</option>
+                </select>
+                <select id="stockFilter">
+                    <option value="" data-i18n="mat.filter.stockAll">📊 全部库存</option>
+                    <option value="low" data-i18n="mat.filter.stockLow">⚠️ 低库存预警</option>
+                    <option value="normal" data-i18n="mat.filter.stockNormal">✅ 库存正常</option>
+                </select>
+            </div>
+            <button class="btn btn-outline" id="addItemBtn" data-i18n="mat.btn.addItem">➕ 添加物料</button>
+            <button class="btn btn-outline" id="addBoxBtn" data-i18n="mat.btn.addBox">➕ 新建物料盒</button>
+            <button class="btn btn-outline " id="batchBtn" data-i18n="mat.btn.batch">☑️ 批量编辑</button>
+            <button class="btn btn-outline " id="toggleViewBtn" data-i18n="mat.btn.viewTable">📋 切换表格</button>
+            <div class="mm-statgroup" id="statGroup">
+                <button class="mm-statpill clickable low" id="statLowPill" type="button" title="点击筛选低库存">
+                    <span class="mm-statpill-num" id="statLow">0</span>
+                    <span class="mm-statpill-label" data-i18n="mat.stat.low">低库存</span>
+                </button>
+                <span class="mm-statpill">
+                    <span class="mm-statpill-num" id="statBoxes">0</span>
+                    <span class="mm-statpill-label" data-i18n="mat.stat.boxes">物料盒</span>
+                </span>
+                <span class="mm-statpill">
+                    <span class="mm-statpill-num" id="statKinds">0</span>
+                    <span class="mm-statpill-label" data-i18n="mat.stat.kinds">物料种类</span>
+                </span>
+                <span class="mm-statpill">
+                    <span class="mm-statpill-num" id="statCat">0</span>
+                    <span class="mm-statpill-label" data-i18n="mat.stat.cat">分类数</span>
+                </span>
+            </div>
+            <div class="mm-toolrow-export">
+                <button class="btn btn-outline" id="exportCsvBtn" data-i18n="mat.btn.exportCsv">📤 导出 CSV</button>
+                <button class="btn btn-outline" id="backupJsonBtn" data-i18n="mat.btn.backup">💾 备份 JSON</button>
+                <div class="file-input-wrapper">
+                    <button class="btn btn-outline" data-i18n="mat.btn.importCsv">📥 导入 CSV</button>
+                    <input type="file" id="fileInput" accept=".csv" />
+                </div>
+                <div class="file-input-wrapper">
+                    <button class="btn btn-outline" data-i18n="mat.btn.restore">🔄 恢复 JSON</button>
+                    <input type="file" id="jsonFileInput" accept=".json" />
+                </div>
+                <div class="mm-toolrow-extra">
+                    <button class="btn btn-outline" id="printListBtn" data-i18n="mat.btn.print">🖨️ 打印清单</button>
+                    <button class="btn btn-outline" id="resetDemoBtn" data-i18n="mat.btn.resetDemo">🔄 重置示例</button>
+                    <button class="btn btn-outline" id="clearAllBtn" data-i18n="mat.btn.clearAll">🗑️ 清空全部</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 低库存预警清单 ===== -->
+        <div class="mm-alerts" id="alertsBox" hidden>
+            <div class="mm-alerts-title" data-i18n="mat.alerts.title">⚠️ 低库存预警</div>
+            <div class="mm-alerts-list" id="alertsList"></div>
+        </div>
+
+        <!-- ===== 批量操作栏 ===== -->
+        <div class="mm-batchbar" id="batchBar">
+            <span class="mm-batch-info" id="batchInfo">已选 0 项</span>
+            <span class="mm-batch-label" data-i18n="mat.batch.label">批量操作：</span>
+            <select id="batchCategorySelect">
+                <option value="" data-i18n="mat.batch.selectCat">设置分类...</option>
+            </select>
+            <button class="btn " id="batchApplyCat" data-i18n="mat.batch.setCat">应用分类</button>
+            <button class="btn btn-outline " id="batchClearLoc" data-i18n="mat.batch.clearLoc">清空位置</button>
+            <button class="btn " id="batchDelete" data-i18n="mat.batch.delete">删除选中</button>
+            <button class="btn btn-outline " id="batchCancel" data-i18n="mat.batch.cancel">取消</button>
+        </div>
+
+        <!-- ===== 盒子视图容器 ===== -->
+        <div id="boxCardContainer"></div>
+
+        <!-- ===== 表格视图容器 ===== -->
+        <div id="tableView" class="hidden">
+            <div class="mm-tablewrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:30px;"><input type="checkbox" id="selectAllTable" /></th>
+                            <th data-i18n="mat.th.id">编号</th>
+                            <th data-i18n="mat.th.name">名称</th>
+                            <th data-i18n="mat.th.model">型号</th>
+                            <th data-i18n="mat.th.qty">数量</th>
+                            <th data-i18n="mat.th.cat">分类</th>
+                            <th data-i18n="mat.th.loc">位置</th>
+                            <th data-i18n="mat.th.thr">阈值</th>
+                            <th data-i18n="mat.th.note">备注</th>
+                            <th data-i18n="mat.th.op">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== 物料弹窗 ===== -->
+        <div class="mm-overlay" id="itemModal">
+            <div class="mm-modal">
+                <h3 id="itemModalTitle" data-i18n="mat.item.title.add">添加物料</h3>
+                <input type="hidden" id="editItemId" />
+                <label data-i18n="mat.label.name">名称 *</label>
+                <input id="fName" data-i18n-placeholder="mat.label.name" placeholder="贴片电阻" />
+                <label data-i18n="mat.label.model">型号 *</label>
+                <input id="fModel" data-i18n-placeholder="mat.label.model" placeholder="0603-10kΩ" />
+                <div class="mm-row2">
+                    <div>
+                        <label data-i18n="mat.label.qty">数量 *</label>
+                        <input id="fQty" type="number" value="1" min="0" />
+                    </div>
+                    <div>
+                        <label data-i18n="mat.label.threshold">低库存阈值</label>
+                        <input id="fThreshold" type="number" value="10" min="0" data-i18n-placeholder="mat.label.threshold" placeholder="低于此值预警" />
+                    </div>
+                </div>
+                <label data-i18n="mat.label.category">分类</label>
+                <input id="fCategory" data-i18n-placeholder="mat.label.category" placeholder="如 电阻、电容、IC" list="categoryList" />
+                <datalist id="categoryList"></datalist>
+                <label data-i18n="mat.label.location">位置 (盒号-格号)</label>
+                <input id="fLocation" data-i18n-placeholder="mat.label.location" placeholder="如 A1-3" />
+                <label data-i18n="mat.label.note">备注</label>
+                <textarea id="fNote" rows="2"></textarea>
+                <div class="mm-btngroup">
+                    <button class="btn btn-outline" data-close="itemModal" data-i18n="mat.btn.cancel">取消</button>
+                    <button class="btn" id="saveItemBtn" data-i18n="mat.btn.save">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 盒子弹窗 ===== -->
+        <div class="mm-overlay" id="boxModal">
+            <div class="mm-modal">
+                <h3 id="boxModalTitle" data-i18n="mat.box.title.add">新建物料盒</h3>
+                <input type="hidden" id="editBoxId" />
+                <label data-i18n="mat.label.boxName">盒子名称 *</label>
+                <input id="fBoxName" data-i18n-placeholder="mat.label.boxName" placeholder="例如：A1 主料盒" />
+                <div class="mm-row2">
+                    <div>
+                        <label data-i18n="mat.label.rows">行数 (Rows) *</label>
+                        <input id="fRows" type="number" value="3" min="1" max="10" />
+                    </div>
+                    <div>
+                        <label data-i18n="mat.label.cols">列数 (Cols) *</label>
+                        <input id="fCols" type="number" value="4" min="1" max="10" />
+                    </div>
+                </div>
+                <div class="mm-btngroup">
+                    <button class="btn btn-outline" data-close="boxModal" data-i18n="mat.btn.cancel">取消</button>
+                    <button class="btn" id="saveBoxBtn" data-i18n="mat.btn.save">保存</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="mm-toast"></div>
+
+        <div class="footer-note">
+            <span data-i18n="mat.footer">📦 物料管理 · 嵌入式电子物料的入库、盘点与低库存预警，数据保存在本地浏览器</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <!-- 4. 脚本：theme.js → i18n.js → 页面.js -->
+    <script src="../asset/JavaScript/theme.js"></script>
+    <script src="../asset/JavaScript/i18n.js"></script>
+    <script src="../asset/JavaScript/MaterialManager.js"></script>
+</body>
+</html>

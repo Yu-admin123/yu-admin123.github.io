@@ -1,0 +1,75 @@
+/* ============================================================
+   ADCConverter.html 页面特有样式
+   包含：图表专用变量、结果数值框、分辨率按钮组、
+         自定义可拖拽滑条、Canvas 图表容器、详情网格等
+   （基础变量、全局重置、导航栏、面板、按钮等见 common.css）
+   ============================================================ */
+
+/* ===== 图表专用变量（亮色） ===== */
+:root {
+    --chart-bg: #ffffff;
+    --chart-grid: #e9edf4;
+    --chart-axis: #94a3b8;
+    --chart-label: #64748b;
+    --chart-line: #6366f1;
+    --chart-dot-fill: #6366f1;
+    --chart-dot-stroke: #ffffff;
+    --chart-crosshair: rgba(99, 102, 241, 0.35);
+}
+
+/* ===== 图表专用变量（暗色） ===== */
+[data-theme="dark"] {
+    --chart-bg: #1e1e1e;
+    --chart-grid: #3d3d3d;
+    --chart-axis: #888888;
+    --chart-label: #888888;
+    --chart-line: #7a9eff;
+    --chart-dot-fill: #7a9eff;
+    --chart-dot-stroke: #2c2c2c;
+    --chart-crosshair: rgba(122, 158, 255, 0.3);
+}
+
+/* ===== 全宽面板 ===== */
+.full-width { margin-top: 18px; }
+
+/* ===== 结果数值显示框 ===== */
+.result-box { background: var(--bg-option-grid); border-radius: 12px; padding: 10px 14px; border: 1px solid var(--border-light); transition: background 0.25s, border-color 0.25s; }
+.result-box .result-label { font-size: 0.68rem; color: var(--text-muted); }
+.result-box .result-value { font-size: 1.25rem; font-weight: 700; font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-primary); letter-spacing: -0.02em; }
+.result-box .result-sub { font-size: 0.62rem; color: var(--text-light); font-family: 'SF Mono', 'Fira Code', monospace; margin-top: 2px; }
+
+/* ===== 分辨率按钮组 ===== */
+.resolution-group { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.resolution-group .res-btn { padding: 5px 14px; border-radius: 40px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-secondary); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: all 0.15s; font-family: 'SF Mono', 'Fira Code', monospace; }
+.resolution-group .res-btn:hover { border-color: var(--border-focus); background: var(--bg-panel-accent); }
+.resolution-group .res-btn.active { background: var(--hero-gradient); color: white; border-color: transparent; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3); }
+
+/* ===== 输入 2x2 网格 ===== */
+.input-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 600px) { .input-grid-2x2 { grid-template-columns: 1fr; } }
+
+/* ===== 可拖拽滑条（页面自定义组件，非标准 input[type=range]） ===== */
+.slider-container { margin-top: 12px; }
+.slider-label { display: flex; justify-content: space-between; font-size: 0.62rem; color: var(--text-muted); margin-bottom: 4px; }
+.slider-track { position: relative; width: 100%; height: 12px; background: var(--bg-option-grid); border-radius: 12px; border: 1px solid var(--border-light); cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.slider-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--hero-gradient); border-radius: 12px; pointer-events: none; }
+.slider-thumb { position: absolute; top: 50%; width: 24px; height: 24px; background: white; border: 3px solid var(--accent-blue); border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18); cursor: grab; touch-action: none; z-index: 2; transition: box-shadow 0.15s, transform 0.1s; }
+.slider-thumb:hover { box-shadow: 0 2px 12px rgba(99, 102, 241, 0.35); transform: translate(-50%, -50%) scale(1.15); }
+.slider-thumb.dragging { cursor: grabbing; box-shadow: 0 2px 16px rgba(99, 102, 241, 0.5); transform: translate(-50%, -50%) scale(1.2); }
+
+/* ===== 图表 ===== */
+.chart-wrapper { margin-top: 16px; position: relative; background: var(--chart-bg); border-radius: 14px; border: 1px solid var(--border-light); overflow: hidden; transition: background 0.25s, border-color 0.25s; }
+.chart-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px 0; flex-wrap: wrap; gap: 6px; }
+.chart-toolbar .chart-title { font-size: 0.72rem; font-weight: 600; color: var(--text-secondary); }
+.chart-axis-btns { display: flex; gap: 4px; }
+.chart-axis-btn { padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-muted); font-size: 0.62rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+.chart-axis-btn:hover { border-color: var(--border-focus); }
+.chart-axis-btn.active { background: var(--hero-gradient); color: white; border-color: transparent; }
+#chartCanvas { display: block; width: 100%; cursor: crosshair; touch-action: none; }
+.chart-tooltip { position: absolute; pointer-events: none; background: var(--bg-panel); border: 1px solid var(--border-input); border-radius: 10px; padding: 6px 10px; font-size: 0.62rem; font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-secondary); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); white-space: nowrap; opacity: 0; transition: opacity 0.12s; z-index: 10; line-height: 1.5; }
+.chart-tooltip.visible { opacity: 1; }
+
+/* ===== 详情网格 ===== */
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; font-size: 0.72rem; padding: 6px 0; }
+.detail-grid .key { color: var(--text-muted); }
+.detail-grid .val { font-family: 'SF Mono', 'Fira Code', monospace; color: var(--text-secondary); font-weight: 500; }

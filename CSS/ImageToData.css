@@ -1,0 +1,213 @@
+/* ============================================================
+   ImageToData.html 页面特有样式
+   通用样式（主题变量、导航栏、面板、按钮、输入框、滑块等）
+   由 common.css 提供
+   ============================================================ */
+
+/* ===== 色块行 / 色块 / 颜色信息 / 转换箭头 ===== */
+.swatch-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+.swatch-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    border: 2px solid var(--bg-swatch-border);
+    background: #ccc;
+    flex-shrink: 0;
+    transition: border-color 0.25s ease;
+}
+.color-info-text {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    transition: color 0.25s ease;
+}
+.conv-arrow {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    padding: 0 6px;
+    transition: color 0.25s ease;
+}
+
+/* ===== 状态信息（页面特有） ===== */
+.status-info {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+
+/* ===== 画布预览区 ===== */
+.canvas-wrapper {
+    background: var(--bg-option-grid);
+    border-radius: 14px;
+    padding: 12px;
+    width: 100%;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 140px;
+    border: 1px solid var(--border-light);
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+.canvas-wrapper canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    image-rendering: pixelated;
+    border-radius: 6px;
+    background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%),
+        linear-gradient(-45deg, #ccc 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #ccc 75%),
+        linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0px;
+    background-color: #fff;
+}
+
+/* ===== 取模参数面板（选项网格） ===== */
+.option-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 12px;
+    background: var(--bg-option-grid);
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-top: 4px;
+    transition: background 0.25s ease;
+}
+.option-grid .opt-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    transition: color 0.25s ease;
+}
+.option-grid .opt-item input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--accent-blue);
+    cursor: pointer;
+}
+.option-grid .opt-item select {
+    padding: 3px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    font-size: 0.65rem;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+}
+.option-grid .opt-item input[type="number"] {
+    padding: 3px 6px;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    font-size: 0.65rem;
+    width: 52px;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.option-grid .opt-item input[type="number"]:disabled {
+    background: var(--bg-input-readonly);
+    color: var(--text-light);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* ===== 导入预览 ===== */
+.import-preview {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+.import-preview img {
+    max-height: 48px;
+    max-width: 80px;
+    border-radius: 6px;
+    border: 1px solid var(--border-light);
+    background: var(--bg-option-grid);
+    transition: border-color 0.25s ease;
+}
+
+/* ===== 工具类 ===== */
+.mt-12 {
+    margin-top: 12px;
+}
+
+/* ===== 颜色模式选择框 ===== */
+.color-mode-select {
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    font-size: 0.7rem;
+    background: var(--bg-input);
+    color: var(--text-primary);
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    cursor: pointer;
+}
+
+/* ===== 颜色选择器 ===== */
+.input-row input[type="color"] {
+    width: 36px;
+    height: 36px;
+    padding: 2px;
+    border-radius: 8px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    cursor: pointer;
+    transition: border-color 0.25s ease;
+}
+
+/* ===== 暗色主题页面特有覆盖 ===== */
+[data-theme="dark"] .code-output {
+    border: 1px solid #333;
+}
+[data-theme="dark"] .swatch-box {
+    border-color: #4a4a4a;
+}
+[data-theme="dark"] .input-row input[type="color"] {
+    background: #1e1e1e;
+}
+
+/* ===== 取色按钮特殊状态 ===== */
+#pickColorBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+#pickColorBtn.picking {
+    animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* ===== 取色结果闪烁提示 ===== */
+.color-picked {
+    animation: flash-green 0.6s ease;
+}
+@keyframes flash-green {
+    0%,
+    100% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(34, 197, 94, 0.25);
+    }
+}

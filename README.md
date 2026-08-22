@@ -16,7 +16,7 @@ Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、�
 
 ## 🧰 工具一览
 
-24 个工具，覆盖调试、软件、硬件等场景：
+25 个工具，覆盖调试、软件、硬件等场景：
 
 | 工具 | 一句话说明 |
 |------|-----------|
@@ -44,6 +44,7 @@ Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、�
 | 🖥️ [PCB 走线宽度计算器](./function/PcbTrace.html) | IPC-2152 模型，线宽 / 电流互算 |
 | 🕳️ [PCB 过孔电流计算器](./function/ViaCalc.html) | 单孔载流 / 过孔数量互算 |
 | 🔲 [二维码读写工具](./function/QRCodeTool.html) | 离线生成二维码/条形码，解析图片中的二维码，支持多种格式 |
+| 📦 [物料管理](./function/MaterialManager.html) | 电子物料入库、盘点、低库存预警，支持 CSV/JSON 导入导出 |
 
 另有桌面版 [Yu_Tool 通讯助手](https://gitee.com/Yu_29211/yu_-tool)（基于 Qt，串口 / Modbus / MQTT / TCP）。
 
@@ -106,13 +107,14 @@ Yu_ToolBox/
 │   │   ├── ResDivider.css        # 电阻分压计算器
 │   │   ├── PcbTrace.css          # PCB 走线宽度计算器
 │   │   ├── ViaCalc.css           # PCB 过孔电流计算器
-│   │   └── QRCodeTool.css        # 二维码读写工具
+│   │   ├── QRCodeTool.css        # 二维码读写工具
+│   │   └── MaterialManager.css   # 物料管理
 │   │
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ 共用主题：setTheme + themechange 事件 + 图标同步
 │   │   ├── i18n.js               # ★ 共用语言：I18N 字典 + languagechange 事件 + data-i18n 应用
 │   │   ├── index.js              # 主页脚本：toolsData 注册表 + 分类/搜索/收藏 + 吉祥物彩蛋
-│   │   └── <工具名>.js ×24       # 各工具业务逻辑，与上方 CSS 同名一一对应
+│   │   └── <工具名>.js ×25       # 各工具业务逻辑，与上方 CSS 同名一一对应
 │   │
 │   └── lib/                      # 本地第三方库（离线模式兜底）
 │       ├── mermaid.min.js        # mermaid v11（在线流程图离线渲染）
@@ -147,7 +149,8 @@ Yu_ToolBox/
     ├── ResDivider.html           # 电阻分压计算器
     ├── PcbTrace.html             # PCB 走线宽度计算器
     ├── ViaCalc.html              # PCB 过孔电流计算器
-    └── QRCodeTool.html           # 二维码读写工具
+    ├── QRCodeTool.html           # 二维码读写工具
+    └── MaterialManager.html      # 物料管理
 ```
 
 几个约定，想改代码前先知道：
