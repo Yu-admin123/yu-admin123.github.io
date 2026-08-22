@@ -399,6 +399,14 @@
     object-fit: cover;
     border-radius: 14px;
 }
+/* 图片模式图标：内缩留白、不变形地居中显示，四周露出图标底色 */
+.tool-card-icon img.icon-img {
+    width: 58%;
+    height: 58%;
+    object-fit: contain;   /* 保持原比例，不裁剪不变形 */
+    border-radius: 8px;
+}
+
 .tool-card:hover .tool-card-icon {
     transform: scale(1.08);
 }
@@ -432,6 +440,10 @@
     line-height: 1.5;
     margin: 0 0 16px;
     transition: color 0.25s;
+}
+/* 无描述卡片（如 web 导航外链）：标题区贴底，整体更紧凑 */
+.tool-card.no-desc .tool-card-header {
+    margin-bottom: 0;
 }
 .tool-tag {
     background: var(--bg-tag);
@@ -600,6 +612,76 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     transition: color 0.25s;
+}
+
+/* ===== 可折叠分类（仅 web「导航」分类） ===== */
+/* 分类标题可点击，整行有抓手/悬停反馈 */
+.tool-cat-header.tool-cat-toggleable {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.tool-cat-header.tool-cat-toggleable:hover {
+    background: color-mix(in srgb, var(--bg-option-grid) 70%, transparent);
+}
+/* 展开/收起箭头（放在最右） */
+.tool-cat-toggle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    line-height: 1;
+    transition: color 0.25s, transform 0.2s;
+}
+.tool-cat-toggleable:hover .tool-cat-toggle {
+    color: var(--accent-blue);
+}
+/* 折叠容器：display:contents 让子分类/卡片直接参与外层网格排版；收起时整体隐藏 */
+.tool-cat-collapse {
+    display: contents;
+}
+.tool-cat-collapse.collapsed {
+    display: none;
+}
+
+/* ===== 子分类小标题（仅 web「导航」分类下，按 subCategory 二次分组时出现） ===== */
+.tool-sub-header {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 14px 0 34px;   /* 左缩进，与主分类标题/卡片拉开层级 */
+    margin: 10px 0 -10px;
+    animation: fadeInUp 0.2s ease both;
+}
+/* 子分类前的小蓝线：比主分类 .tool-cat-line（3px）更细 */
+.tool-sub-line {
+    width: 2px;
+    height: 14px;
+    border-radius: 2px;
+    background: var(--hero-gradient);
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+.tool-sub-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    transition: color 0.25s;
+}
+.tool-sub-count {
+    font-size: 0.65rem;
+    color: var(--text-light);
+    background: var(--bg-tag);
+    padding: 1px 8px;
+    border-radius: 40px;
+    font-weight: 600;
+    flex-shrink: 0;
+    transition: background 0.25s, color 0.25s;
+}
+.tool-sub-header:not(:first-child) {
+    margin-top: 18px;
 }
 
 /* ===== 空状态 ===== */

@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'qrcode.gen.title':    { zh: '① 生成二维码 / 条形码', en: '① Generate QR / Barcode' },
     'qrcode.gen.small':    { zh: '完全离线', en: 'Fully offline' },
     'qrcode.rd.title':     { zh: '② 解析图片中的二维码 / 条形码', en: '② Decode QR / Barcode from image' },
-    'qrcode.rd.small':     { zh: '选择图片 · 直接粘贴 (Ctrl+V) · 拖拽', en: 'Choose image · paste directly (Ctrl+V) · drag & drop' },
+    'qrcode.rd.small':     { zh: '识别多格式并标注码类型 · 选择图片 · Ctrl+V 粘贴 · 拖拽', en: 'Decodes multiple formats & shows the code type · choose image · Ctrl+V · drag & drop' },
 
     'qrcode.label.category': { zh: '类别', en: 'Category' },
     'qrcode.label.fmt':    { zh: '格式', en: 'Format' },
@@ -33,6 +33,7 @@ window.I18N_STRINGS = {
     'qrcode.fmt.maxicode': { zh: 'MaxiCode',   en: 'MaxiCode' },
     'qrcode.fmt.code128': { zh: 'CODE128',     en: 'CODE128' },
     'qrcode.fmt.code39':  { zh: 'CODE39',      en: 'CODE39' },
+    'qrcode.fmt.code93':  { zh: 'CODE93',      en: 'CODE93' },
     'qrcode.fmt.ean13':   { zh: 'EAN-13',      en: 'EAN-13' },
     'qrcode.fmt.ean8':    { zh: 'EAN-8',       en: 'EAN-8' },
     'qrcode.fmt.upca':    { zh: 'UPC-A',       en: 'UPC-A' },
@@ -58,7 +59,7 @@ window.I18N_STRINGS = {
     'qrcode.note.title':   { zh: '③ 支持格式说明', en: '③ Supported Formats' },
     'qrcode.note.2d':      { zh: '二维码（2D）：标准 QR / Micro QR / Data Matrix / PDF417 / Aztec / 汉信码 / MaxiCode', en: '2D: Standard QR / Micro QR / Data Matrix / PDF417 / Aztec / Han Xin / MaxiCode' },
     'qrcode.note.1d':      { zh: '条形码（1D）：CODE128 / CODE39 / EAN-13 / EAN-8 / UPC-A / UPC-E / ITF-14 / Codabar', en: '1D: CODE128 / CODE39 / EAN-13 / EAN-8 / UPC-A / UPC-E / ITF-14 / Codabar' },
-    'qrcode.note.decode':  { zh: '解析：优先使用浏览器原生 BarcodeDetector（支持二维码+条形码），无此 API 时回退 jsQR 仅解析二维码', en: 'Decode: prefers native BarcodeDetector (QR + barcode); falls back to jsQR for QR only when unavailable' },
+    'qrcode.note.decode':  { zh: '解析：三级引擎——BarcodeDetector → jsQR → ZXing(本地多格式库)，覆盖二维码 + 各种 1D/2D 条码并标注「码类型」，全程离线', en: 'Decode: three engines — BarcodeDetector → jsQR → ZXing (local multi-format lib), covering QR + many 1D/2D barcodes with "code type" label, fully offline' },
 
     'qrcode.footer': { zh: '🔲 二维码读写工具 · 离线生成二维码/条形码 · 解析图片二维码 · 多格式 · 全程本地', en: '🔲 QR Code Reader/Writer · generate QR/barcode offline · decode QR from image · multi-format · fully local' },
 
@@ -80,12 +81,19 @@ window.I18N_STRINGS = {
     'qrcode.reading':     { zh: '⏳ 正在解析...', en: '⏳ Decoding...' },
     'qrcode.readOk':      { zh: '✅ 解析成功', en: '✅ Decoded' },
     'qrcode.readFail':    { zh: '❌ 未识别到二维码/条形码，请更换更清晰的图片', en: '❌ No QR/barcode found. Try a clearer image.' },
-    'qrcode.detectorUnavailable': { zh: '⚠️ 当前浏览器不支持原生 BarcodeDetector，条形码（1D）无法解析，仅可解析二维码', en: '⚠️ Native BarcodeDetector unsupported; 1D barcodes cannot be decoded, QR only' },
+    'qrcode.detectorUnavailable': { zh: '⚠️ 当前浏览器不支持原生 BarcodeDetector，已自动改用本地 ZXing 库多格式解析', en: '⚠️ Native BarcodeDetector unsupported; using the local ZXing decoder for multi-format parsing' },
     'qrcode.clear.done':  { zh: '已清空', en: 'Cleared' },
     'qrcode.result.placeholder': { zh: '解析结果将显示在这里，可复制', en: 'Decoded result appears here; copyable' },
 
     'qrcode.fname.qr':   { zh: '二维码', en: 'QR' },
-    'qrcode.fname.bar':  { zh: '条形码', en: 'Barcode' }
+    'qrcode.fname.bar':  { zh: '条形码', en: 'Barcode' },
+
+    // 检测到的码类型标注
+    'qrcode.fmtLabel':   { zh: '码类型', en: 'Code Type' },
+    'qrcode.fmt.unknown': { zh: '未知', en: 'Unknown' },
+    'qrcode.decode.unsupportedFormats': { zh: '提示：Micro QR / 汉信码 / MaxiCode 这三种格式本地无解码器，暂无法解析；其余格式已尽力识别', en: 'Note: Micro QR / Han Xin / MaxiCode have no local decoder and cannot be decoded; all other formats are attempted.' },
+    'qrcode.detect.via': { zh: '（识别引擎：', en: ' (engine: ' },
+    'qrcode.detect.via.end': { zh: '）', en: ')' },
 };
 
 (function () {
@@ -115,6 +123,7 @@ window.I18N_STRINGS = {
     const btnClear = document.getElementById('btnClear');
     const btnCopyResult = document.getElementById('btnCopyResult');
     const rdStatus = document.getElementById('rdStatus');
+    const rdFormat = document.getElementById('rdFormat');
     const rdResult = document.getElementById('rdResult');
     const rdNote = document.getElementById('rdNote');
 
@@ -124,6 +133,162 @@ window.I18N_STRINGS = {
     let hasPreview = false;
     // BarcodeDetector 支持检测（缓存）
     let detectorSupported = ('BarcodeDetector' in window);
+
+    // ============================================================
+    //  码类型显示映射（BarcodeDetector.format → i18n 名称 + 图标标注）
+    // ============================================================
+    // key：BarcodeDetector 的 format 值（小写下划线）；value：i18n key、中文简写。
+    // 表格顺序即解析优先级（2D 优先尝试，1D 其次）。
+    const FORMAT_DISPLAY = {
+        'qr_code':       { i18n: 'qrcode.fmt.qr',          badge: 'QR' },
+        'micro_qr_code': { i18n: 'qrcode.fmt.microqr',     badge: 'Micro QR' },
+        'data_matrix':   { i18n: 'qrcode.fmt.datamatrix',  badge: 'DM' },
+        'pdf417':        { i18n: 'qrcode.fmt.pdf417',      badge: 'PDF417' },
+        'aztec':         { i18n: 'qrcode.fmt.aztec',       badge: 'Aztec' },
+        'han_xin':       { i18n: 'qrcode.fmt.hanxin',      badge: '汉信码' },
+        'maxi_code':     { i18n: 'qrcode.fmt.maxicode',    badge: 'Maxi' },
+        'code_128':      { i18n: 'qrcode.fmt.code128',     badge: 'CODE128' },
+        'code_39':       { i18n: 'qrcode.fmt.code39',      badge: 'CODE39' },
+        'code_93':       { i18n: 'qrcode.fmt.code93',      badge: 'CODE93' },
+        'codabar':       { i18n: 'qrcode.fmt.codabar',     badge: 'Codabar' },
+        'ean_13':        { i18n: 'qrcode.fmt.ean13',       badge: 'EAN-13' },
+        'ean_8':         { i18n: 'qrcode.fmt.ean8',        badge: 'EAN-8' },
+        'upc_a':         { i18n: 'qrcode.fmt.upca',        badge: 'UPC-A' },
+        'upc_e':         { i18n: 'qrcode.fmt.upce',        badge: 'UPC-E' },
+        'itf':           { i18n: 'qrcode.fmt.itf14',       badge: 'ITF' }
+    };
+    // BarcodeDetector 的格式规范名（仅取 W3C 规范枚举，保证构建设备时不抛错）
+    const DETECTOR_FORMATS = [
+        'qr_code', 'data_matrix', 'pdf417', 'aztec',
+        'code_128', 'code_39', 'code_93', 'codabar',
+        'ean_13', 'ean_8', 'upc_a', 'upc_e', 'itf'
+    ];
+    // 浏览器实际支持的格式（通过 getSupportedFormats 探测）
+    let supportedDetectorFormats = DETECTOR_FORMATS.slice();
+
+    function detectSupportedFormats() {
+        if (!window.BarcodeDetector || !window.BarcodeDetector.getSupportedFormats) {
+            return DETECTOR_FORMATS.slice();
+        }
+        try {
+            const list = window.BarcodeDetector.getSupportedFormats();
+            if (list && list.length) supportedDetectorFormats = list;
+        } catch (e) { /* 保持默认 */ }
+        // 仅保留我们有显示映射的格式；按 DETECTOR_FORMATS 顺序去重
+        const ordered = DETECTOR_FORMATS.filter(function (f) { return supportedDetectorFormats.indexOf(f) !== -1; });
+        if (ordered.length) supportedDetectorFormats = ordered;
+        return supportedDetectorFormats;
+    }
+    detectSupportedFormats();
+
+    // 把 BarcodeDetector.format 转成友好名称（i18n）
+    function formatName(fmt) {
+        const meta = FORMAT_DISPLAY[fmt];
+        if (meta) return window.I18N.t(meta.i18n);
+        return window.I18N.t('qrcode.fmt.unknown') + (fmt ? ' (' + fmt + ')' : '');
+    }
+
+    // ============================================================
+    //  多格式解析（ZXing 本地库）
+    //  覆盖 PDF417 / Aztec / DataMatrix / 1D 条码等 jsQR 解不了的格式，
+    //  完全离线、图片不上传。加载失败时静默跳过，不影响其他引擎。
+    // ============================================================
+    // ZXing.BarcodeFormat 数值 → 我们的 FORMAT_DISPLAY key
+    const ZXING_FMT = {
+        0: 'aztec',            // AZTEC
+        1: 'codabar',          // CODABAR
+        2: 'code_39',          // CODE_39
+        3: 'code_93',          // CODE_93
+        4: 'code_128',         // CODE_128
+        5: 'data_matrix',      // DATA_MATRIX
+        6: 'ean_8',            // EAN_8
+        7: 'ean_13',           // EAN_13
+        8: 'itf',              // ITF
+        9: 'maxi_code',        // MAXICODE
+        10: 'pdf417',          // PDF_417
+        11: 'qr_code',         // QR_CODE
+        14: 'upc_a',           // UPC_A
+        15: 'upc_e'            // UPC_E
+    };
+    let zxingAvailable = null; // 惰性缓存 ZXing 是否可用
+
+    function zxingReady() {
+        if (zxingAvailable === null) {
+            zxingAvailable = !!(window.ZXing && window.ZXing.MultiFormatReader);
+        }
+        return zxingAvailable;
+    }
+
+    // 把源图转成 ZXing 需要的灰度亮度数组 + 宽高
+    function sourceLuminance(src) {
+        const w = src.naturalWidth || src.width || 0;
+        const h = src.naturalHeight || src.height || 0;
+        if (!w || !h) return null;
+        const tmp = document.createElement('canvas');
+        tmp.width = w; tmp.height = h;
+        const ctx = tmp.getContext('2d', { willReadFrequently: true });
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(src, 0, 0, w, h);
+        let img;
+        try { img = ctx.getImageData(0, 0, w, h); } catch (e) { return null; }
+        const lum = new Uint8ClampedArray(w * h);
+        const d = img.data;
+        for (let i = 0; i < w * h; i++) {
+            const p = i * 4;
+            lum[i] = Math.round(d[p] * 0.299 + d[p + 1] * 0.587 + d[p + 2] * 0.114);
+        }
+        return { lum: lum, width: w, height: h };
+    }
+
+    // 用 ZXing MultiFormatReader 尝试解码。
+    // pass=0 用 HybridBinarizer（偏 2D 矩阵码）；pass=1 用 GlobalHistogram + TryHarder（偏 1D 线性条码）
+    function tryZxingDecode(src, useLinear) {
+        const L = sourceLuminance(src);
+        if (!L) return null;
+        const Z = window.ZXing;
+        try {
+            const srcObj = new Z.RGBLuminanceSource(L.lum, L.width, L.height);
+            const bin = useLinear
+                ? new Z.BinaryBitmap(new Z.GlobalHistogramBinarizer(srcObj))
+                : new Z.BinaryBitmap(new Z.HybridBinarizer(srcObj));
+            const reader = new Z.MultiFormatReader();
+            const hints = new Map();
+            const fmtVals = [];
+            // ZXING_FMT 的 key 是数字（AZTEC=0...QR_CODE=11），通过 BarcodeFormat 反向映射拿到枚举值
+            Object.keys(ZXING_FMT).forEach(function (numKey) {
+                const name = Z.BarcodeFormat[Number(numKey)];   // 数字 → 名称（e.g. 11 → "QR_CODE"）
+                if (name && Z.BarcodeFormat[name] !== undefined) {
+                    fmtVals.push(Z.BarcodeFormat[name]);          // 名称 → 数值
+                }
+            });
+            hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, fmtVals);
+            hints.set(Z.DecodeHintType.TRY_HARDER, true);
+            reader.setHints(hints);
+            const r = reader.decode(bin);
+            const text = r ? r.getText() : null;
+            if (!text) return null;
+            // 取 format：优先字符串名，再看是否是 ZXING_FMT 的 key
+            let key = null;
+            const rawFmt = r.getBarcodeFormat && r.getBarcodeFormat();
+            if (typeof rawFmt === 'string' && FORMAT_DISPLAY[rawFmt]) key = rawFmt;
+            else if (typeof rawFmt === 'number' || typeof rawFmt === 'string') key = ZXING_FMT[rawFmt];
+            return { data: text, fmt: key || null, formatRaw: rawFmt };
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function decodeZxing() {
+        if (!zxingReady() || !decodeSource) return null;
+        // 2D 优先
+        const hit2d = tryZxingDecode(decodeSource, false);
+        if (hit2d) return hit2d;
+        // 1D 次之
+        const hit1d = tryZxingDecode(decodeSource, true);
+        if (hit1d) return hit1d;
+        return null;
+    }
 
     // ============================================================
     //  工具函数
@@ -195,7 +360,7 @@ window.I18N_STRINGS = {
         hanxin:      { example: URL_SAMPLE, canHold: c => c.length > 0 && byteLen(c) <= 4000 },
         maxicode:    { example: 'PM 420 000000000000000000', canHold: c => byteLen(c) <= 80 },
         code128:     { example: URL_SAMPLE, canHold: c => c.length > 0 && /^[\x00-\x7f]*$/.test(c) },
-        code39:      { example: 'YU_TOOLS', canHold: c => c.length > 0 && /^[A-Z0-9 \-\.\$\/\+\%]*$/i.test(c) },
+        code39:      { example: 'YU-TOOLS', canHold: c => c.length > 0 && /^[A-Z0-9 \-\.\$\/\+\%]*$/i.test(c) },
         ean13:       { example: '590123412345', canHold: c => c.length > 0 && /^\d{12}$|^\d{13}$/.test(digitsOnly(c)) },
         ean8:        { example: '9638507', canHold: c => [7, 8].indexOf(digitsOnly(c).length) !== -1 },
         upca:        { example: '03600029145', canHold: c => [11, 12].indexOf(digitsOnly(c).length) !== -1 },
@@ -492,6 +657,7 @@ window.I18N_STRINGS = {
         ctx.drawImage(source, 0, 0, rdCanvas.width, rdCanvas.height);
         rdResult.textContent = window.I18N.t('qrcode.result.placeholder');
         rdStatus.style.display = 'none';
+        if (rdFormat) { rdFormat.style.display = 'none'; rdFormat.removeAttribute('data-fmt'); }
     }
 
     // 从 Image 源解码
@@ -503,14 +669,15 @@ window.I18N_STRINGS = {
         setRdStatus(window.I18N.t('qrcode.reading'), 'warn');
         btnDecode.disabled = true;
 
-        // 策略1：原生 BarcodeDetector（支持二维码 + 条形码）
+        // 策略1：原生 BarcodeDetector（支持二维码 + 1D/2D 多格式，并给出 format）
         if (detectorSupported && window.BarcodeDetector) {
             try {
-                const detector = new BarcodeDetector({ formats: ['qr_code', 'code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'itf', 'codabar'] });
+                const detector = new BarcodeDetector({ formats: supportedDetectorFormats });
                 const results = await detector.detect(decodeSource);
                 if (results && results.length > 0) {
                     const first = results[0];
-                    showResult(first.rawValue, window.I18N.t('qrcode.readOk'), 'ok');
+                    const fmt = first.format || 'qr_code';
+                    showResult(first.rawValue, window.I18N.t('qrcode.readOk'), 'ok', fmt, 'BarcodeDetector');
                     return;
                 }
             } catch (e) {
@@ -518,26 +685,63 @@ window.I18N_STRINGS = {
             }
         }
 
-        // 策略2：jsQR（仅二维码）
+        // 策略2：jsQR（仅标准二维码）
         if (typeof window.jsQR === 'function' && decodeSource) {
             try {
                 const candidate = await extractOrigninalCanvas();
                 if (candidate) {
                     const code = window.jsQR(candidate.data, candidate.width, candidate.height);
                     if (code && code.data) {
-                        showResult(code.data, window.I18N.t('qrcode.readOk'), 'ok');
+                        showResult(code.data, window.I18N.t('qrcode.readOk'), 'ok', 'qr_code', 'jsQR');
                         return;
                     }
                 }
             } catch (e) { /* ignore */ }
         }
 
-        if (!detectorSupported) {
-            rdNote.textContent = window.I18N.t('qrcode.detectorUnavailable');
-        } else {
-            rdNote.textContent = '';
+        // 策略3：ZXing 本地多格式解析（覆盖 PDF417 / Aztec / Data Matrix / 1D 条码等）
+        if (zxingReady() && decodeSource) {
+            try {
+                const hit = await decodeZxing();
+                if (hit && hit.data) {
+                    showResult(hit.data, window.I18N.t('qrcode.readOk'), 'ok', hit.fmt || null, 'ZXing');
+                    return;
+                }
+            } catch (e) { /* ignore */ }
         }
-        showResult(window.I18N.t('qrcode.readFail'), window.I18N.t('qrcode.readFail'), 'error');
+
+        // 本地解析失败：显示说明（按引擎可用性 + 无法本地解析的格式）
+        let note = '';
+        // 仅当连本地 ZXing 库也不可用时，才提示「能力受限、仅二维码」；
+        // 否则 ZXing/BarcodeDetector 已覆盖多格式，无需重复说明引擎。
+        if (!detectorSupported && !zxingReady()) {
+            note += window.I18N.t('qrcode.detectorUnavailable') + ' ';
+        }
+        note += window.I18N.t('qrcode.decode.unsupportedFormats');
+        rdNote.textContent = note.trim();
+        showResult(window.I18N.t('qrcode.readFail'), window.I18N.t('qrcode.readFail'), 'error', null, null);
+    }
+
+    function showResult(content, statusText, statusClass, codeFmt, engine) {
+        rdResult.textContent = content || window.I18N.t('qrcode.readFail');
+        setRdStatus(statusText, statusClass);
+        // 标注识别的码类型
+        if (rdFormat) {
+            if (codeFmt && FORMAT_DISPLAY[codeFmt]) {
+                rdFormat.style.display = '';
+                rdFormat.textContent = window.I18N.t('qrcode.fmtLabel') + ': ' + formatName(codeFmt);
+                rdFormat.className = 'tag';
+                rdFormat.setAttribute('data-fmt', codeFmt);
+            } else {
+                rdFormat.style.display = 'none';
+                rdFormat.removeAttribute('data-fmt');
+            }
+        }
+        // 识别引擎说明（放到底部备注，不占工具栏）
+        if (rdNote && engine) {
+            rdNote.textContent = window.I18N.t('qrcode.detect.via') + engine + window.I18N.t('qrcode.detect.via.end');
+        }
+        btnDecode.disabled = false;
     }
 
     // 从源提取 ARGB 像素数据供 jsQR 使用
@@ -556,12 +760,6 @@ window.I18N_STRINGS = {
             try { data = ctx.getImageData(0, 0, w, h).data; } catch (e) { resolve(null); return; }
             resolve({ data: data, width: w, height: h });
         });
-    }
-
-    function showResult(content, statusText, statusClass) {
-        rdResult.textContent = content || window.I18N.t('qrcode.readFail');
-        setRdStatus(statusText, statusClass);
-        btnDecode.disabled = false;
     }
 
     function setRdStatus(text, cls) {
@@ -585,6 +783,7 @@ window.I18N_STRINGS = {
         rdResult.textContent = window.I18N.t('qrcode.result.placeholder');
         rdStatus.style.display = 'none';
         rdNote.textContent = '';
+        if (rdFormat) { rdFormat.style.display = 'none'; rdFormat.removeAttribute('data-fmt'); }
         btnDecode.disabled = false;
     }
     btnClear.addEventListener('click', clearDecode);
@@ -644,6 +843,9 @@ window.I18N_STRINGS = {
         // 解析面板动态文本
         if (!decodeSource) {
             rdResult.textContent = window.I18N.t('qrcode.result.placeholder');
+        } else if (rdFormat && rdFormat.style.display !== 'none' && rdFormat.getAttribute('data-fmt')) {
+            // 语言切换后重绘「码类型」标注
+            rdFormat.textContent = window.I18N.t('qrcode.fmtLabel') + ': ' + formatName(rdFormat.getAttribute('data-fmt'));
         }
     });
 
@@ -671,7 +873,9 @@ window.I18N_STRINGS = {
     initCtx.clearRect(0, 0, 150, 150);
     genStatus.textContent = window.I18N.t('qrcode.preview.empty');
     rdResult.textContent = window.I18N.t('qrcode.result.placeholder');
-    if (!detectorSupported && typeof window.jsQR === 'function') {
+    // 初始化提示：仅当缺少所有多格式解码能力（原生 BarcodeDetector 与本地 ZXing 都不可用）时，
+    // 才对「仅能解析二维码」做预先说明；否则无需预先警告（能力已由某一引擎覆盖）。
+    if (!detectorSupported && !zxingReady() && typeof window.jsQR === 'function') {
         rdNote.textContent = window.I18N.t('qrcode.detectorUnavailable');
     }
 

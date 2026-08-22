@@ -14,6 +14,7 @@ window.I18N_STRINGS = {
     'index.cat.software':   { zh: '软件',   en: 'Software' },
     'index.cat.doc':        { zh: '文档',   en: 'Docs' },
     'index.cat.other':      { zh: '其他',   en: 'Other' },
+    'index.cat.web':        { zh: '导航', en: 'Navigation' },
     'index.cat.fav':        { zh: '收藏', en: 'Favorites' },
     'index.ad.badge':       { zh: '广告', en: 'Ad' },
     'index.ad.close':       { zh: '关闭广告', en: 'Close ad' },
@@ -81,7 +82,8 @@ const toolsData = [{
     url: 'https://gitee.com/Yu_29211/yu_-tool',
     tagAccent: [true, false, false],
     category: '下载导航', categoryEn: 'Download',
-    categoryType: ['debug','other'],
+    categoryType: ['debug','other','web'],
+    subCategory: 'electronics',   // web 主分类下二次分组；可缺省（缺省归入「其他」）
     isNew: false
 }, {
     id: 'serial-port',
@@ -224,7 +226,7 @@ const toolsData = [{
     url: './function/SignalPlotter.html',
     tagAccent: [true, false, false],
     category: '数据曲线可视化', categoryEn: 'Signal/Plot/FFT',
-    categoryType: 'software',
+    categoryType: ['software','doc'],
     isNew: false
 }, {
     id: 'PIDController',
@@ -312,7 +314,7 @@ const toolsData = [{
     url: './function/TextDiffMerge.html',
     tagAccent: [true, false, false],
     category: '文本对比/Diff/Merge/开发', categoryEn: 'Text/Diff/Merge/Dev',
-    categoryType: ['software', 'doc'],
+    categoryType: ['doc','software'],
     isNew: false
 }, {
     id: 'MermaidDraw',
@@ -323,7 +325,7 @@ const toolsData = [{
     url: './function/MermaidDraw.html',
     tagAccent: [true, false, false],
     category: '流程图/Mermaid/图表/绘制/可视化', categoryEn: 'Flowchart/Mermaid/Diagram/Draw/Visualize',
-    categoryType: ['software', 'doc'],
+    categoryType: ['doc','software'],
     isNew: true
 }, {
     id: 'MarkdownEditor',
@@ -334,7 +336,7 @@ const toolsData = [{
     url: './function/MarkdownEditor.html',
     tagAccent: [true, false, false],
     category: 'Markdown/编辑器/文档/预览/笔记', categoryEn: 'Markdown/Editor/Document/Preview/Note',
-    categoryType: ['software', 'doc'],
+    categoryType: ['doc','software'],
     isNew: true
 }, {
     id: 'QRCodeTool',
@@ -345,9 +347,203 @@ const toolsData = [{
     url: './function/QRCodeTool.html',
     tagAccent: [true, false, false],
     category: '二维码/条形码/生成/解析/图像/文档', categoryEn: 'QR/Barcode/Generate/Decode/Image/Docs',
-    categoryType: 'doc',
+    categoryType: ['doc','other'],
     isNew: true
-}, ];
+}, {
+    id: 'lceda-pro',
+    title: '立创EDA专业版', titleEn: 'LCEDA Pro',
+    icon: './asset/Logo/web_Logo/pro-lceda.png',
+    iconClass: 'icon-blue',
+    url: 'https://pro.lceda.cn/editor',
+    tagAccent: [false, false, false],
+    category: 'EDA/PCB/电子/导航', categoryEn: 'EDA/PCB/Electronics/Nav',
+    categoryType: ['web','hardware'],
+    subCategory: 'electronics',
+    isNew: false
+},
+{
+    id: 'oshwhub',
+    title: '立创开源广场', titleEn: 'OSHWHub',
+    icon: './asset/Logo/web_Logo/oshwhub.png',
+    iconClass: 'icon-blue',
+    url: 'https://oshwhub.com/',
+    tagAccent: [false, false, false],
+    category: '开源广场/电子/导航', categoryEn: 'Open Source/OSHWHub/Nav',
+    categoryType: ['web','software','hardware'],
+    subCategory: 'electronics',
+    isNew: false
+}, 
+{
+    id: 'szlcsc',
+    title: '立创商城', titleEn: 'LCSC Electronics',
+    icon: './asset/Logo/web_Logo/szlcsc.png',
+    iconClass: 'icon-blue',
+    url: 'https://www.szlcsc.com/',
+    tagAccent: [false, false, false],
+    category: '立创商城/电子/导航', categoryEn: 'LCSC Electronics/Nav',
+    categoryType: ['web','hardware'],
+    subCategory: 'electronics',
+    isNew: false
+}, 
+{
+    id: 'member-jlc',
+    title: '立创下单助手', titleEn: 'JLC Order Assistant',
+    icon: './asset/Logo/web_Logo/member-jlc.png',
+    iconClass: 'icon-blue',
+    url: 'https://member.jlc.com/',
+    tagAccent: [false, false, false],
+    category: '立创下单助手/客户中心/电子/导航', categoryEn: 'JLC Order Assistant/Client Center/Nav',
+    categoryType: ['web','hardware'],
+    subCategory: 'electronics',
+    isNew: false
+}, 
+{
+    id: 'jlc-dfm',
+    title: '立创FDM', titleEn: 'JLC FDM',
+    icon: './asset/Logo/web_Logo/member-jlc.png',
+    iconClass: 'icon-blue',
+    url: 'https://www.jlc-dfm.com/',
+    tagAccent: [false, false, false],
+    category: '立创下单助手/客户中心/电子/导航', categoryEn: 'JLC Order Assistant/Client Center/Nav',
+    categoryType: ['web','hardware'],
+    subCategory: 'electronics',
+    isNew: false
+}, 
+{
+    id: 'wokwi',
+    title: 'Arduino开发仿真平台', titleEn: 'Wokwi',
+    icon: './asset/Logo/web_Logo/wokwi.png',
+    iconClass: 'icon-blue',
+    url: 'https://wokwi.com/',
+    tagAccent: [false, false, false],
+    category: 'Arduino开发仿真平台/导航', categoryEn: 'Wokwi/Nav',
+    categoryType: ['web','hardware','software'],
+    subCategory: 'electronics',
+    isNew: false
+},
+{
+    id: 'jlc-cad',
+    title: '立创云CAD · Solidworks', titleEn: 'JLC CAD',
+    icon: './asset/Logo/web_Logo/jlc-cad.png',
+    iconClass: 'icon-blue',
+    url: 'https://cad.jlc-cad.com/',
+    tagAccent: [false, false, false],
+    category: '立创云CAD/机械/Solidworks', categoryEn: 'JLC ECAD/Solidworks',
+    categoryType: ['web'],
+    subCategory: 'mechanics',
+    isNew: false
+},
+{
+    id: '3d-viewer-jlc',
+    title: '立创3D文件查看器', titleEn: 'JLC 3D',
+    icon: './asset/Logo/web_Logo/3d-viewer-jlc.png',
+    iconClass: 'icon-blue',
+    url: 'https://3d-viewer.jlc.com/',
+    tagAccent: [false, false, false],
+    category: '立创3D模型查看器/机械/Solidworks', categoryEn: 'JLC 3D/Solidworks',
+    categoryType: ['web'],
+    subCategory: 'mechanics',
+    isNew: false
+},
+{
+    id: 'jlc-ecad',
+    title: '立创ECAD · Eplan', titleEn: 'JLC ECAD',
+    icon: './asset/Logo/web_Logo/jlc-ecad.png',
+    iconClass: 'icon-blue',
+    url: 'https://www.jlc-ecad.com/',
+    tagAccent: [false, false, false],
+    category: '立创ECAD/电气CAD/Eplan', categoryEn: 'JLC ECAD/Eplan',
+    categoryType: ['web'],
+    subCategory: 'industrial',
+    isNew: false
+},
+{
+    id: 'iconfont',
+    title: 'iconfont图标库', titleEn: 'iconfont',
+    icon: './asset/Logo/web_Logo/iconfont.png',
+    iconClass: 'icon-blue',
+    url: 'https://www.iconfont.cn/',
+    tagAccent: [false, false, false],
+    category: '阿里图标库/矢量图/iconfont', categoryEn: 'iconfont',
+    categoryType: ['web'],
+    subCategory: 'ui',
+    isNew: false
+},
+{
+    id: 'figma',
+    title: 'figma', titleEn: 'figma',
+    icon: './asset/Logo/web_Logo/figma.png',
+    iconClass: 'icon-blue',
+    url: 'https://www.figma.com/',
+    tagAccent: [false, false, false],
+    category: 'UI设计/图标设计/矢量图/figma', categoryEn: 'figma',
+    categoryType: ['web'],
+    subCategory: 'ui',
+    isNew: false
+},
+{
+    id: 'lottiefiles',
+    title: 'lottiefiles', titleEn: 'lottiefiles',
+    icon: './asset/Logo/web_Logo/lottiefiles.png',
+    iconClass: 'icon-blue',
+    url: 'https://lottiefiles.com/',
+    tagAccent: [false, false, false],
+    category: 'UI动画设计/Gif设计/lottiefiles', categoryEn: 'lottiefiles',
+    categoryType: ['web'],
+    subCategory: 'ui',
+    isNew: false
+},
+{
+    id: 'deepseek',
+    title: 'deepseek', titleEn: 'deepseek',
+    icon: './asset/Logo/web_Logo/deepseek.png',
+    iconClass: 'icon-blue',
+    url: 'https://chat.deepseek.com/',
+    tagAccent: [false, false, false],
+    category: 'ai/deepseek', categoryEn: 'deepseek',
+    categoryType: ['web'],
+    subCategory: 'ai',
+    isNew: false
+},
+{
+    id: 'doubao',
+    title: '豆包', titleEn: 'doubao',
+    icon: './asset/Logo/web_Logo/doubao.png',
+    iconClass: 'icon-blue',
+    url: 'https://doubao.com/',
+    tagAccent: [false, false, false],
+    category: 'ai/doubao', categoryEn: 'doubao',
+    categoryType: ['web'],
+    subCategory: 'ai',
+    isNew: false
+},
+{
+    id: 'kimi',
+    title: 'kimi', titleEn: 'kimi',
+    icon: './asset/Logo/web_Logo/kimi.png',
+    iconClass: 'icon-blue',
+    url: 'https://www.kimi.com/',
+    tagAccent: [false, false, false],
+    category: 'ai/kimi', categoryEn: 'kimi',
+    categoryType: ['web'],
+    subCategory: 'ai',
+    isNew: false
+},
+{
+    id: 'chatgpt',
+    title: 'chatgpt', titleEn: 'chatgpt',
+    icon: './asset/Logo/web_Logo/chatgpt.png',
+    iconClass: 'icon-blue',
+    url: 'https://chatgpt.com/',
+    tagAccent: [false, false, false],
+    category: 'ai/chatgpt', categoryEn: 'chatgpt',
+    categoryType: ['web'],
+    subCategory: 'ai',
+    isNew: false
+},
+];
+
+
 
 // 根据当前语言获取工具的标题/描述/分类
 function getToolTitle(tool) { return (window.I18N && window.I18N.getLang() === 'en') ? (tool.titleEn || tool.title) : tool.title; }
@@ -421,13 +617,10 @@ searchInput.addEventListener('input', function() {
 });
 
 // "全部"模式下，为每个工具确定唯一主分类（用于分组显示）
-// 优先级： debug > hardware > doc > software > other（software 最宽泛，作兜底）
+// 分组主分类直接取 categoryType 数组的第一个元素：数组模式即以第一个分类为主，
+// 字符串模式即该分类本身。优先顺序完全由注册顺序决定。
 function getPrimaryCategoryType(tool) {
     var types = Array.isArray(tool.categoryType) ? tool.categoryType : [tool.categoryType];
-    var priority = ['debug', 'hardware', 'doc', 'software','other'];
-    for (var i = 0; i < priority.length; i++) {
-        if (types.indexOf(priority[i]) !== -1) return priority[i];
-    }
     return types[0];
 }
 
@@ -440,7 +633,8 @@ function getCatName(catType) {
         hardware: { zh: '硬件',   en: 'Hardware' },
         software: { zh: '软件',   en: 'Software' },
         doc:      { zh: '文档',   en: 'Docs' },
-        other:    { zh: '其他',   en: 'Other' }
+        other:    { zh: '其他',   en: 'Other' },
+        web:      { zh: '导航',   en: 'Navigation' }
     };
     var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
     return fallbacks[catType] ? fallbacks[catType][lang] : catType;
@@ -452,13 +646,30 @@ var CAT_DESCS = {
     hardware: { zh: '功耗、PCB、电阻、ADC 等硬件设计与计算工具。', en: 'Power, PCB, resistor, ADC and other hardware design & calculation tools.' },
     software: { zh: '进制转换、CRC、PID、FFT 等嵌入式软件开发常用工具。', en: 'Radix, CRC, PID, FFT and other embedded software development tools.' },
     doc:      { zh: '文本对比、流程图、Markdown 等文档与协作工具。', en: 'Diff, flowchart, Markdown and other documentation & collaboration tools.' },
-    other:    { zh: '其他未分类的实用工具与资源。', en: 'Other uncategorized tools and resources.' }
+    other:    { zh: '其他未分类的实用工具与资源。', en: 'Other uncategorized tools and resources.' },
+    web:      { zh: '外部网站与资源导航，精选常用工具直达入口。', en: 'External websites & resources — curated quick links to handy tools.' }
 };
 
 function getCatDesc(catType) {
     var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
     var desc = CAT_DESCS[catType];
     return desc ? desc[lang] : '';
+}
+
+// 子分类映射：web「导航」主分类下，按 subCategory 二次分组时显示的标题。
+// key 为 toolsData 里 subCategory 字段值；显示名不依赖 I18N_STRINGS（避免缺 key 出 null）。
+var SUB_CATEGORIES = {
+    electronics: { zh: '电子', en: 'Electronics'},
+    mechanics:   { zh: '机械', en: 'Mechanics'},
+    ui:          { zh: 'UI', en: 'UI'},
+    ai:          { zh: 'AI', en: 'AI'},
+    industrial:  { zh: '工业', en: 'Industrial'},
+    other:       { zh: '其他', en: 'Other'}
+};
+function getSubCatName(key) {
+    var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
+    var meta = SUB_CATEGORIES[key];
+    return meta ? meta[lang] : null;
 }
 
 // 创建单个工具卡片元素（提取为公共函数，分组/平铺两种渲染复用）
@@ -471,17 +682,20 @@ function createToolCard(tool, index) {
     card.style.animationDelay = (index * 0.02) + 's';
 
     var title = getToolTitle(tool);
-    var desc = getToolDesc(tool);
+    var desc = getToolDesc(tool) || '';   // 无描述 → 空串，不渲染描述行
+    var hasDesc = (desc.length > 0);
     var faved = isFav(tool.id);
     var favTitle = window.I18N ? window.I18N.t(faved ? 'index.fav.remove' : 'index.fav.add') : (faved ? '取消收藏' : '收藏');
 
     var iconHtml;
+    // 图片模式（.png/.jpg/.svg）：四周留白、不变形地居中显示，露出图标底色更好看
     if (tool.icon && (tool.icon.endsWith('.png') || tool.icon.endsWith('.jpg') || tool.icon
             .endsWith('.svg'))) {
         iconHtml =
-            '<img src="' + tool.icon + '" alt="' + title + '" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">';
+            '<img src="' + tool.icon + '" alt="' + title + '" loading="lazy" class="icon-img">';
     } else {
-        iconHtml = tool.icon;
+        // emoji 图标包一层 span，便于通过容器染色类对 emoji 单独应用 CSS filter
+        iconHtml = '<span class="tool-icon-emoji">' + tool.icon + '</span>';
     }
 
     card.innerHTML =
@@ -494,9 +708,12 @@ function createToolCard(tool, index) {
                 '</div>' +
             '</div>' +
         '</div>' +
-        '<p class="tool-card-desc">' + desc + '</p>' +
+        (hasDesc ? '<p class="tool-card-desc">' + desc + '</p>' : '') +
         '<span class="tool-fav ' + (faved ? 'active' : '') + '" title="' + favTitle + '" data-fav-id="' + tool.id + '" role="button" tabindex="0">' + (faved ? '★' : '☆') + '</span>' +
         '<span class="tool-card-arrow">→</span>';
+
+    // 无描述卡片：标题区已占满空间，去掉 header 的下边距，整体更紧凑
+    if (!hasDesc) card.classList.add('no-desc');
 
     return card;
 }
@@ -520,11 +737,12 @@ function renderTools() {
         }
         // 关键词筛选（同时匹配中英文，提升搜索体验）
         if (keyword) {
-            const title = getToolTitle(tool).toLowerCase();
-            const desc = getToolDesc(tool).toLowerCase();
-            const cat = getToolCategory(tool).toLowerCase();
-            const titleAlt = (lang === 'en' ? tool.title : (tool.titleEn || '')).toLowerCase();
-            const descAlt = (lang === 'en' ? tool.desc : (tool.descEn || '')).toLowerCase();
+            // 用 || '' 兜底，兼容未声明 desc/category/titleEn 等的工具（如无描述的导航外链卡）
+            const title = (getToolTitle(tool) || '').toLowerCase();
+            const desc = (getToolDesc(tool) || '').toLowerCase();
+            const cat = (getToolCategory(tool) || '').toLowerCase();
+            const titleAlt = ((lang === 'en' ? tool.title : (tool.titleEn || '')) || '').toLowerCase();
+            const descAlt = ((lang === 'en' ? tool.desc : (tool.descEn || '')) || '').toLowerCase();
             if (!title.includes(keyword) && !desc.includes(keyword) && !cat.includes(keyword)
                 && !titleAlt.includes(keyword) && !descAlt.includes(keyword)) {
                 return false;
@@ -550,7 +768,7 @@ function renderTools() {
     // ===== 渲染：全部模式按分类分组，其他模式平铺 =====
     if (currentCategory === 'all') {
         // 分类显示顺序（与导航栏一致，排除 all / fav）
-        var catOrder = ['debug', 'hardware', 'software', 'doc', 'other'];
+        var catOrder = ['debug', 'hardware', 'software', 'doc', 'other', 'web'];
         var cardIndex = 0;   // 动画延迟计数器，跨分类连续递增
         var groupIndex = 0;  // 分类序号，用于判断是否需要细横线
 
@@ -560,21 +778,74 @@ function renderTools() {
             });
             if (catTools.length === 0) return;
 
-            // 分类标题（渐变蓝竖线 + 分类名 + 数量徽章 + 描述，动画延迟与同组第一张卡片一致）
+            // 每个分类都支持整体收起/展开（默认展开，状态按分类分别存 localStorage）
+            // 读状态：旧「导航」key 兼容，其余用 toolbox-cat-collapsed-<catType>
+            var catCollapsed = (catType === 'web')
+                ? (localStorage.getItem('toolbox-cat-collapsed-web') === '1'
+                    || (localStorage.getItem('toolbox-nav-collapsed') === '1' && localStorage.getItem('toolbox-cat-collapsed-web') === null))
+                : (localStorage.getItem('toolbox-cat-collapsed-' + catType) === '1');
+
+            // 分类标题（渐变蓝竖线 + 分类名 + 数量徽章 + 描述 + 展开箭头，动画延迟与同组第一张卡片一致）
             var header = document.createElement('div');
-            header.className = 'tool-cat-header' + (groupIndex > 0 ? ' has-divider' : '');
+            header.className = 'tool-cat-header' + (groupIndex > 0 ? ' has-divider' : '') + ' tool-cat-toggleable';
             header.style.animationDelay = (cardIndex * 0.02) + 's';
             header.innerHTML =
                 '<span class="tool-cat-line"></span>' +
                 '<span class="tool-cat-title">' + getCatName(catType) + '</span>' +
                 '<span class="tool-cat-count">' + catTools.length + '</span>' +
-                '<span class="tool-cat-desc">' + getCatDesc(catType) + '</span>';
+                '<span class="tool-cat-desc">' + getCatDesc(catType) + '</span>' +
+                '<span class="tool-cat-toggle">' + (catCollapsed ? '▸' : '▾') + '</span>';
             toolsGrid.appendChild(header);
 
-            // 该分类下的工具卡片
-            catTools.forEach(function (tool) {
-                toolsGrid.appendChild(createToolCard(tool, cardIndex));
-                cardIndex++;
+            // 该分类的内容（子分类/卡片）统一放进可折叠容器
+            var collapseWrap = document.createElement('div');
+            collapseWrap.className = 'tool-cat-collapse' + (catCollapsed ? ' collapsed' : '');
+
+            // web「导航」分类：再按 subCategory 二次分组渲染子分类小标题
+            if (catType === 'web') {
+                var SUB_ORDER = ['electronics', 'ai', 'ui','mechanics','industrial','other'];
+                var subGroups = {};
+                catTools.forEach(function (tool) {
+                    // 未声明 subCategory 或声明非已知项 → 归入「其他」
+                    var key = (tool.subCategory && SUB_CATEGORIES[tool.subCategory]) ? tool.subCategory : 'other';
+                    (subGroups[key] = subGroups[key] || []).push(tool);
+                });
+                SUB_ORDER.forEach(function (key) {
+                    var list = subGroups[key];
+                    if (!list || !list.length) return;
+
+                    var subHeader = document.createElement('div');
+                    subHeader.className = 'tool-sub-header';
+                    subHeader.style.animationDelay = (cardIndex * 0.02) + 's';
+                    subHeader.innerHTML =
+                        '<span class="tool-sub-line"></span>' +
+                        '<span class="tool-sub-title">' + getSubCatName(key) + '</span>' +
+                        '<span class="tool-sub-count">' + list.length + '</span>';
+                    collapseWrap.appendChild(subHeader);
+
+                    list.forEach(function (tool) {
+                        collapseWrap.appendChild(createToolCard(tool, cardIndex));
+                        cardIndex++;
+                    });
+                });
+            } else {
+                // 普通分类：平铺卡片
+                catTools.forEach(function (tool) {
+                    collapseWrap.appendChild(createToolCard(tool, cardIndex));
+                    cardIndex++;
+                });
+            }
+
+            toolsGrid.appendChild(collapseWrap);
+
+            // 点击分类标题可展开/收起
+            header.addEventListener('click', function () {
+                var isCollapsed = collapseWrap.classList.toggle('collapsed');
+                var storeKey = (catType === 'web') ? 'toolbox-cat-collapsed-web' : ('toolbox-cat-collapsed-' + catType);
+                localStorage.setItem(storeKey, isCollapsed ? '1' : '0');
+                // 写下新 key 后，旧「导航」key 不再生效
+                if (catType === 'web') localStorage.removeItem('toolbox-nav-collapsed');
+                this.querySelector('.tool-cat-toggle').textContent = isCollapsed ? '▸' : '▾';
             });
 
             groupIndex++;
