@@ -54,7 +54,7 @@ There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu
 
 ## ✨ Nice touches
 
-- **Categories + search**: filter by debug / hardware / software / docs / other — a tool can live in several categories; search matches names, descriptions and category keywords
+- **Categories + search**: filter by debug / hardware / software / docs / other / navigation — a tool can live in several categories; links in the navigation category are grouped again by sub-category (Electronics / Mechanics / Industrial / UI); search matches names, descriptions and category keywords
 - **中文 / English**: switch in one click — even chart axis labels and tooltips follow along
 - **Light / dark theme**: your choice, remembered across pages
 - **Favorites**: star the tools you use often, filter by them in one click, stored locally
