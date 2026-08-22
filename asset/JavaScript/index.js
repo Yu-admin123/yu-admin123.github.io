@@ -541,6 +541,18 @@ const toolsData = [{
     subCategory: 'ai',
     isNew: false
 },
+{
+    id: 'MaterialManager',
+    title: '物料管理', titleEn: 'Material Manager',
+    desc: '电子物料入库、盘点、低库存预警与 CSV/JSON 导入导出', descEn: 'Track components, stocktake, low-stock alerts, CSV/JSON import & export.',
+    icon: '📦',
+    iconClass: 'icon-blue',
+    url: './function/MaterialManager.html',
+    tagAccent: [true, false, false],
+    category: '物料/库存/管理/盘点/嵌入式', categoryEn: 'Material/Inventory/Manage/Stock/Embedded',
+    categoryType: 'hardware',
+    isNew: true
+},
 ];
 
 
