@@ -12,11 +12,12 @@
         const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
         document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
-    <!-- 2. 本地离线库：标准QR生成(qrcode) + 多格式二维码/条形码生成(bwip-js) + QR解析(jsQR) -->
+    <!-- 2. 本地离线库：标准QR生成(qrcode) + 多格式二维码/条形码生成(bwip-js) + QR解析(jsQR) + 多格式解析(zxing) -->
     <script src="../asset/lib/qrcode.min.js"></script>
     <script src="../asset/lib/qrcode_UTF8.js"></script>
     <script src="../asset/lib/bwip-js.js"></script>
     <script src="../asset/lib/jsQR.js"></script>
+    <script src="../asset/lib/zxing_library.min.js"></script>
     <!-- 3. 样式：common.css → 页面.css -->
     <link rel="stylesheet" href="../asset/CSS/common.css">
     <link rel="stylesheet" href="../asset/CSS/QRCodeTool.css">
@@ -123,6 +124,7 @@
                 <div style="margin-top:14px;">
                     <div class="panel-title" style="margin-bottom:8px;"><span data-i18n="qrcode.result.title">解析结果</span></div>
                     <div class="result-toolbar">
+                        <span class="tag" id="rdFormat" style="display:none;"></span>
                         <span class="status-ok" id="rdStatus" style="display:none;">—</span>
                         <button class="btn btn-outline btn-sm" id="btnCopyResult" data-i18n="qrcode.btn.copyResult">📋 复制结果</button>
                     </div>
