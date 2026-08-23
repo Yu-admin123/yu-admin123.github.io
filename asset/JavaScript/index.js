@@ -56,6 +56,8 @@ window.I18N_STRINGS = {
     'index.hw.storageCookie':  { zh: '🟡 localStorage 不可用，已改用 Cookie 保存，刷新页面不会重置', en: '🟡 localStorage unavailable, using Cookie — refresh keeps countdown' },
     'index.hw.storageNone':    { zh: '🔴 当前环境无法持久化数据，刷新页面会重置计时', en: '🔴 Storage unavailable — timers reset on refresh' },
     'index.hw.minutes':        { zh: '分钟', en: 'min' },
+    'index.hw.hourElapsed':    { zh: '时辰已过', en: 'Hour elapsed' },
+    'index.hw.remain':         { zh: '还剩', en: 'left' },
     'index.hw.notifGranted':   { zh: '✅ 已授权，提醒会弹出系统通知', en: '✅ Granted — reminders will show system notifications' },
     'index.hw.notifPending':   { zh: '⏳ 尚未授权，点击下方开关即可弹出授权请求', en: '⏳ Not granted — click the toggle to request permission' },
     'index.hw.notifDenied':    { zh: '❌ 浏览器已阻止通知：请点击地址栏左侧的 🔒 图标 → 网站设置 → 允许通知', en: '❌ Blocked by browser: click the 🔒 icon in the address bar → Site settings → Allow notifications' },
@@ -953,6 +955,8 @@ renderTools();
     function cacheDom() {
         el.clock       = document.getElementById('hwClock');
         el.date        = document.getElementById('hwDate');
+        el.lunarGz     = document.getElementById('hwLunarGz');
+        el.lunarBarFill = document.getElementById('hwLunarBarFill');
         el.progressFill= document.getElementById('hwProgressFill');
         el.progressText= document.getElementById('hwProgressText');
         el.countdown   = document.getElementById('hwCountdown');
@@ -1126,6 +1130,139 @@ renderTools();
         return n < 10 ? '0' + n : '' + n;
     }
 
+    // ===== 农历 / 干支 / 时辰 转换（1900–2100 自包含算法，零外部依赖） =====
+    var GAN   = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+    var ZHI   = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+    var ZODIAC= ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+    // 每年是否闰月、闰几月、各月天数（仅取低 4 bit 与 0x10000 位）
+    var LUNAR_INFO = [
+        0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+        0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+        0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+        0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+        0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+        0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+        0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+        0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b5a0,0x195a6,
+        0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+        0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,
+        0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+        0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+        0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+        0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+        0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+        0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,
+        0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,
+        0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0xA4E0,0x0aba4,0x0a5b0,0x052b0,
+        0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,
+        0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,
+        0x0d520];
+    // 五虎遁：年干 → 正月（寅月）天干索引
+    var MONTH_GAN_START = [2,4,6,8,0,2,4,6,8,0];
+    // 五鼠遁：日干 → 子时天干索引
+    var HOUR_GAN_START  = [0,2,4,6,8,0,2,4,6,8];
+
+    function lYearDays(y) { var sum = 348; for (var i = 0x8000; i > 0x8; i >>= 1) sum += (LUNAR_INFO[y-1900] & i) ? 1 : 0; return sum + leapDays(y); }
+    function leapMonth(y) { return LUNAR_INFO[y-1900] & 0xf; }
+    function leapDays(y)  { return leapMonth(y) ? ((LUNAR_INFO[y-1900] & 0x10000) ? 30 : 29) : 0; }
+    function monthDays(y, m) { return ((LUNAR_INFO[y-1900] & (0x10000 >> m)) ? 30 : 29); }
+
+    // 公历 → 农历（返回农历月、日、是否闰月）
+    function solar2lunar(y, m, d) {
+        var baseDate = new Date(1900, 0, 31);
+        var objDate  = new Date(y, m - 1, d);
+        var offset   = Math.round((objDate - baseDate) / 86400000);
+        var temp = 0, i;
+        for (i = 1900; i < 2101 && offset > 0; i++) { temp = lYearDays(i); offset -= temp; }
+        if (offset < 0) { offset += temp; i--; }
+        var isLeap = false;
+        var leap = leapMonth(i);
+        var j;
+        for (j = 1; j < 13 && offset > 0; j++) {
+            if (leap > 0 && j === (leap + 1) && !isLeap) { --j; isLeap = true; temp = leapDays(i); }
+            else { temp = monthDays(i, j); }
+            if (isLeap && j === (leap + 1)) isLeap = false;
+            offset -= temp;
+        }
+        if (offset === 0 && leap > 0 && j === leap + 1) {
+            if (isLeap) isLeap = false; else { isLeap = true; --j; }
+        }
+        if (offset < 0) { offset += temp; --j; }
+        return { month: j, day: offset + 1, isLeap: isLeap };
+    }
+
+    var NSTR1 = ['日','一','二','三','四','五','六','七','八','九','十'];
+    function lunarDayName(d) {
+        if (d === 10) return '初十';
+        if (d === 20) return '二十';
+        if (d === 30) return '三十';
+        var t = ['','初','十','廿','卅'][Math.floor(d / 10)];
+        return t + NSTR1[d % 10];
+    }
+    var LUNAR_MONTHS = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+    function lunarMonthName(m, isLeap) { return (isLeap ? '闰' : '') + LUNAR_MONTHS[m - 1] + '月'; }
+
+    // 当前时辰（子=0 … 亥=11）与起始时刻
+    function getShiChen(h) {
+        if (h >= 23) return 0;
+        if (h >= 21) return 11;
+        if (h >= 19) return 10;
+        if (h >= 17) return 9;
+        if (h >= 15) return 8;
+        if (h >= 13) return 7;
+        if (h >= 11) return 6;
+        if (h >= 9)  return 5;
+        if (h >= 7)  return 4;
+        if (h >= 5)  return 3;
+        if (h >= 3)  return 2;
+        if (h >= 1)  return 1;
+        return 0;
+    }
+
+    // ===== 刷新农历信息 =====
+    function updateLunar() {
+        if (!el.date || !el.lunarGz) return;
+        var d = new Date();
+        var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
+
+        // 农历月日：并入日期行（去掉“农历”前缀）
+        var L = solar2lunar(y, m, day);
+        el.date.textContent += ' · ' + lunarMonthName(L.month, L.isLeap) + lunarDayName(L.day);
+
+        // 年 / 月 / 日 干支
+        var yGan = (y - 4) % 10, yZhi = (y - 4) % 12;
+        // 月干支：基于农历月（正月=寅）
+        var mZhi = (L.month + 1) % 12;
+        var mGan = (MONTH_GAN_START[((y - 4) % 10 + 10) % 10] + (L.month - 1)) % 10;
+        // 日干支
+        var dayCyclical = Math.round(Date.UTC(y, m - 1, 1) / 86400000) + 25577 + (day - 1);
+        var dGan = ((dayCyclical % 10) + 10) % 10;
+        var dZhi = ((dayCyclical % 12) + 12) % 12;
+
+        el.lunarGz.textContent =
+            GAN[yGan] + ZHI[yZhi] + '[' + ZODIAC[yZhi] + ']年 ' +
+            GAN[mGan] + ZHI[mZhi] + '月 ' +
+            GAN[dGan] + ZHI[dZhi] + '日 ';
+
+        // 时辰与进度
+        var h = d.getHours(), min = d.getMinutes(), sec = d.getSeconds();
+        var hz = getShiChen(h);
+        var startMin = (hz === 0) ? ((h >= 23) ? 1380 : -60) : ((hz - 1) * 2 + 1) * 60;
+        var nowMin = h * 60 + min + sec / 60;
+        var elapsed = nowMin - startMin;
+        if (elapsed < 0) elapsed += 1440;
+        var pct = (elapsed / 120) * 100;
+        var remain = Math.max(0, 120 - elapsed);
+
+        var hGan = (HOUR_GAN_START[dGan] + hz) % 10;
+        var hzText = GAN[hGan] + ZHI[hz] + '时';
+
+        el.lunarGz.textContent += hzText;
+        if (el.lunarBarFill) {
+            el.lunarBarFill.style.width = pct.toFixed(1) + '%';
+        }
+    }
+
     // ===== 时钟更新 =====
     function updateClock() {
         var d = new Date();
@@ -1136,6 +1273,8 @@ renderTools();
         var month = d.getMonth() + 1;
         var date = d.getDate();
         el.date.textContent = month + '/' + date + ' ' + dayStr;
+
+        updateLunar();
     }
 
     // ===== 下班进度 =====
@@ -1413,24 +1552,10 @@ renderTools();
         el.storageStatus.className = 'hw-storage-status ' + cls;
     }
 
-    // ===== 提示音 =====
-    var audioCtx = null;
+    // ===== 提示音（已关闭：保留调用点，函数置空以避免页面发声） =====
     function playBeep(freq) {
-        try {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            var osc = audioCtx.createOscillator();
-            var gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = 'sine';
-            osc.frequency.value = freq || 800;
-            gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.3);
-        } catch (e) {}
+        // 提示音已按要求移除。如需恢复，将下方 return 删除即可重新启用蜂鸣。
+        return;
     }
 
     // ===== 设置弹窗 =====
@@ -1707,12 +1832,16 @@ renderTools();
         if (inputEl) inputEl.value = '';
     }
 
-    // 与左侧时间小组件保持等高：右侧高度 = heroWidget 高度，蓝条严格对称
+    // 左右两侧（时间 / 待办）强制等高，蓝条严格对称：
+    // 取两者中较高的一方，两个容器都设为该高度，避免任一侧内容变化后错位
     function syncHeight() {
         var w = document.getElementById('heroWidget');
         var t = document.getElementById('heroTodo');
-        if (w && t && w.offsetHeight > 0) {
-            t.style.height = w.offsetHeight + 'px';
+        if (!w || !t) return;
+        var h = Math.max(w.offsetHeight, t.offsetHeight);
+        if (h > 0) {
+            w.style.height = h + 'px';
+            t.style.height = h + 'px';
         }
     }
 
@@ -1721,7 +1850,20 @@ renderTools();
         cacheDom();
         render();
         syncHeight();
-        window.addEventListener('resize', syncHeight);
+        // 实时跟随任意一侧尺寸变化（字体加载、待办增减等），保证始终等高
+        if (window.ResizeObserver) {
+            var _hw = document.getElementById('heroWidget');
+            if (_hw) new ResizeObserver(syncHeight).observe(_hw);
+            var _ht = document.getElementById('heroTodo');
+            if (_ht) new ResizeObserver(syncHeight).observe(_ht);
+        } else {
+            window.addEventListener('resize', syncHeight);
+        }
+        // 首屏字体/布局稳定后再校准一次，消除加载瞬间的高度偏差
+        window.addEventListener('load', syncHeight);
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(syncHeight);
+        }
         if (inputEl) {
             inputEl.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
