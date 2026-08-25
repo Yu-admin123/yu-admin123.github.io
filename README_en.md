@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Yu-admin123/yu-admin123.github.io)
 
-> Last updated: 2026-08-21 · [中文](./README.md)
+> Last updated: 2026-08-25 · [中文](./README.md)
 
 Ever been mid-project and needed to compute a CRC, convert a radix, check an NTC thermistor, or estimate how much current a PCB trace can carry? You end up hunting for yet another little tool every single time.
 
@@ -59,9 +59,27 @@ There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu
 - **中文 / English**: switch in one click — even chart axis labels and tooltips follow along
 - **Light / dark theme**: your choice, remembered across pages
 - **Favorites**: star the tools you use often, filter by them in one click, stored locally
+- **Custom search engine**: open "Page Settings" via the ⚙ button at the bottom-right; below the search engine dropdown you can freely add / delete engines (10 built-in ones are locked), supporting both `?q=` and `%s` address formats — newly added engines appear in the dropdown right away and survive a page refresh
+- **Custom background**: the same settings modal lets you upload up to 9 images / videos as the page background (images and videos combined, max 9), click a thumbnail to switch or hover to delete it individually; plus appearance tweaks like card opacity / blur and background transparency
 - **Works on any screen**: phone, tablet, desktop
 - **A hidden easter egg**: the mascot's eyes follow your cursor, blink, and fall asleep when idle — click them ten times and see what happens
 - **One-click community**: jump straight to the QQ group (453705020) from the navbar
+
+---
+
+## ⚙️ Config Backup (Export / Import)
+
+Open the "Page Settings" modal via the ⚙ floating button at the bottom-right; the **"Config Backup" area on the right** offers **Export Config / Import Config** buttons to back up or restore the whole site (home page + every tool page) in one go. Old single-file JSON backups can also be imported.
+
+- **Export**: produces a `yu-toolbox-config-<timestamp>.zip` archive with this layout:
+  - `manifest.json` — metadata (app name, version, export time)
+  - `background/` — real background image / video files under `media/`, plus `background.json` recording the selected item and the media list (up to 9)
+  - `cards/` — one JSON per tool that has independent persisted config (e.g. serialPortTool, HttpTool, ModbusRTU, MaterialManager, MermaidDraw)
+  - `site/` — home page config (theme, language, search engine **and custom engines**, favorites, appearance, category collapse, etc.)
+  - `_raw/` — redundancy backup: `localStorage.json` (raw values of every key) and `background-raw.json`; **import uses this as the source of truth** so no key is ever lost
+- **Import**: a second confirmation appears after you pick a backup file; all config is written back and the page reloads.
+
+> Backgrounds are stored mainly in IndexedDB, with `localStorage` as a fallback. When you open the page directly via `file://` (double-click), the browser disables IndexedDB and backgrounds easily exceed the `localStorage` quota, so backgrounds may disappear on refresh. Run a local server as described in "Run locally" below.
 
 ---
 
@@ -114,7 +132,8 @@ Yu_ToolBox/
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ Shared theming: setTheme + themechange event + icon sync
 │   │   ├── i18n.js               # ★ Shared i18n: I18N dictionary + languagechange event + data-i18n
-│   │   ├── index.js              # Home scripts: toolsData registry + categories/search/favorites + mascot
+│   │   ├── index.js              # Home scripts: toolsData registry + categories/search/favorites + mascot + page settings modal (search engine / appearance / background / config backup)
+│   │   ├── zip-util.js           # Zero-dependency zip read/write (CompressionStream/DecompressionStream + CRC32), used by config backup
 │   │   └── <tool>.js ×25         # Per-tool logic, one-to-one with the CSS files above
 │   │
 │   └── lib/                      # Local third-party libs (offline fallback)

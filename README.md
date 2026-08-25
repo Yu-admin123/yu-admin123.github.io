@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](./LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/Yu-admin123/yu-admin123.github.io)
 
-> 更新于 2026-08-21 · [English](./README_en.md)
+> 更新于 2026-08-25 · [English](./README_en.md)
 
 做嵌入式开发，总有那么些反复要用的小工具：算个 CRC、换个进制、查 NTC 温度、估 PCB 走线能过多少电流……每次都要临时找、临时装，挺烦的。
 
@@ -58,9 +58,27 @@ Yu_ToolBox 把这些高频需求攒进一个网页。**纯前端、零依赖、�
 - **中英文界面**：右上角一键切换，连图表轴标签、提示语都会跟着换
 - **浅色 / 深色主题**：随你喜欢，选择会被记住，跨页面不丢
 - **收藏夹**：常用工具打星，分类栏「收藏」一键筛选，本地保存
+- **自定义搜索引擎**：右下角 ⚙ 打开「页面设置」，搜索引擎下拉下方可自由添加 / 删除引擎（内置 10 个不可删），支持 `?q=` 与 `%s` 两种地址写法，添加后自动出现在下拉里，刷新不丢
+- **自定义背景**：同一设置弹窗可上传最多 9 张图片 / 视频作为页面背景（图片、视频合计 9 个），点击缩略图切换、悬浮可单独删除；另有卡片透明度 / 模糊度、背景通透度等外观微调
 - **多端适配**：手机、平板、电脑都排版正常
 - **吉祥物彩蛋**：导航栏的眼睛会追着鼠标看、随机眨眼、长时间不动就睡觉；连点十下会触发一个 10 阶段的小彩蛋
 - **一键加群**：右上角直达 QQ 交流群（453705020）
+
+---
+
+## ⚙️ 配置备份（导出 / 导入）
+
+右下角 ⚙ 悬浮按钮打开「页面设置」弹窗，**右侧「配置备份」区**提供**导出配置 / 导入配置**两个按钮，可一键备份或恢复整站配置（主页 + 全部工具页），旧版单个 JSON 备份也可兼容导入。
+
+- **导出**：生成 `yu-toolbox-config-<时间戳>.zip` 压缩包，结构如下：
+  - `manifest.json` — 元信息（应用名、版本、导出时间）
+  - `background/` — `media/` 下为拆出的背景图片 / 视频真实文件，`background.json` 记录当前选中项与媒体清单（最多 9 个）
+  - `cards/` — 有独立持久配置的工具各占一个 JSON（如 serialPortTool、HttpTool、ModbusRTU、MaterialManager、MermaidDraw）
+  - `site/` — 主页配置（主题、语言、搜索引擎 **及自定义引擎**、收藏、外观、分类折叠等）
+  - `_raw/` — 冗余备份：`localStorage.json`（全部键的原始值）与 `background-raw.json`；**导入时以此为准**，确保任何键都不会丢失
+- **导入**：选择备份文件后二次确认，自动写回全部配置并刷新页面。
+
+> 背景主存于 IndexedDB、并以 `localStorage` 兜底。直接用 `file://` 双击打开时浏览器会禁用 IndexedDB 且背景易超 `localStorage` 配额，背景刷新可能丢失；建议按下方「本地运行」章节用本地服务器访问。
 
 ---
 
@@ -113,7 +131,8 @@ Yu_ToolBox/
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ 共用主题：setTheme + themechange 事件 + 图标同步
 │   │   ├── i18n.js               # ★ 共用语言：I18N 字典 + languagechange 事件 + data-i18n 应用
-│   │   ├── index.js              # 主页脚本：toolsData 注册表 + 分类/搜索/收藏 + 吉祥物彩蛋
+│   │   ├── index.js              # 主页脚本：toolsData 注册表 + 分类/搜索/收藏 + 吉祥物彩蛋 + 页面设置弹窗（搜索引擎/外观/背景/配置备份）
+│   │   ├── zip-util.js           # 零依赖 zip 读写（CompressionStream/DecompressionStream + CRC32），配置备份导出/导入用
 │   │   └── <工具名>.js ×25       # 各工具业务逻辑，与上方 CSS 同名一一对应
 │   │
 │   └── lib/                      # 本地第三方库（离线模式兜底）

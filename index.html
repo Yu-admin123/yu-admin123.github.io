@@ -11,8 +11,8 @@
         const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
         document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
-    <link rel="stylesheet" href="./asset/CSS/common.css">
-    <link rel="stylesheet" href="./asset/CSS/index.css">
+    <link rel="stylesheet" href="./asset/CSS/common.css?v=20260825a">
+    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260825i">
 </head>
 <body>
     <!-- ===== 导航栏 ===== -->
@@ -139,16 +139,41 @@
             </div>
         </div>
 
-        <!-- 中间：主标题 -->
+        <!-- 中间：主标题（左右可切换：① 原版布局 ② 搜索） -->
         <div class="hero-center">
-            <h1><span class="gradient-text">Yu</span> <span class="gradient-text">_ToolBox</span></h1>
-            <p data-i18n="index.hero.desc">专为嵌入式开发者打造的在线工具集合。一站式解决开发中的高频需求。</p>
-            <a class="btn-join-group" href="https://qm.qq.com/cgi-bin/qm/qr?k=__pVkxOENE6E-Rll9Uq7HLs7Sur6er4X&jump_from=webapi&authKey=Gl3MgNARFJux2krmlTEBydeUmr/AjgskqqqovGnVCh5ytrtiRopdBpmkU1Y9hYQZ" target="_blank" rel="noopener noreferrer">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
-                </svg>
-                <span data-i18n="index.hero.join">加入交流群：453705020</span>
-            </a>
+            <div class="hero-carousel" id="heroCarousel">
+                <div class="hero-carousel-viewport">
+                    <div class="hero-carousel-track" id="heroCarouselTrack">
+                        <!-- 第 1 页：原版布局（与最初完全一致） -->
+                        <div class="hero-slide">
+                            <h1><span class="gradient-text">Yu</span> <span class="gradient-text">_ToolBox</span></h1>
+                            <p data-i18n="index.hero.desc">专为嵌入式开发者打造的在线工具集合。一站式解决开发中的高频需求。</p>
+                            <a class="btn-join-group" href="https://qm.qq.com/cgi-bin/qm/qr?k=__pVkxOENE6E-Rll9Uq7HLs7Sur6er4X&jump_from=webapi&authKey=Gl3MgNARFJux2krmlTEBydeUmr/AjgskqqqovGnVCh5ytrtiRopdBpmkU1Y9hYQZ" target="_blank" rel="noopener noreferrer">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" />
+                                </svg>
+                                <span data-i18n="index.hero.join">加入交流群：453705020</span>
+                            </a>
+                        </div>
+                        <!-- 第 2 页：搜索 -->
+                        <div class="hero-slide hero-slide-search">
+                            <h2 class="search-title" data-i18n="index.hero.search.title">搜一下</h2>
+                            <p class="search-tip" id="heroSearchTip"></p>
+                            <div class="hero-search-box">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8" />
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                </svg>
+                                <input type="text" id="heroSearchInput" placeholder="搜索互联网..." data-i18n-placeholder="index.search.web.placeholder">
+                                <button class="hero-search-btn" id="heroSearchBtn" type="button" data-i18n="index.hero.search.go">搜索</button>
+                            </div>
+                            </div>
+                    </div>
+                </div>
+                <button class="hero-carousel-arrow hero-carousel-prev" id="heroCarouselPrev" type="button" aria-label="上一项">‹</button>
+                <button class="hero-carousel-arrow hero-carousel-next" id="heroCarouselNext" type="button" aria-label="下一项">›</button>
+                <div class="hero-carousel-dots" id="heroCarouselDots"></div>
+            </div>
         </div>
 
         <!-- 右侧：今日待办清单（与左侧小组件对称，窄屏自动隐藏） -->
@@ -157,7 +182,6 @@
                 <span class="hw-label" data-i18n="index.todo.title">今日待办</span>
                 <input type="text" class="todo-input" id="todoInput" maxlength="60" autocomplete="off"
                        placeholder="输入待办，回车添加" data-i18n-placeholder="index.todo.inputPlaceholder">
-                       
                 <button class="hw-settings-btn" id="todoClearBtn" title="清除已完成" data-i18n-title="index.todo.clearDone">⇄</button>
             </div>
             <ul class="todo-list" id="todoList"></ul>
@@ -240,8 +264,125 @@
 
     <!-- 待办添加：改为标题行内嵌输入框，回车即添加，无需弹窗 -->
 
-    <script src="./asset/JavaScript/theme.js"></script>
-    <script src="./asset/JavaScript/i18n.js"></script>
-    <script src="./asset/JavaScript/index.js"></script>
+    <!-- 右下角悬浮按钮：返回顶部（上） + 搜索引擎设置（下） -->
+    <div class="hero-fab" id="heroFab">
+        <button class="hero-fab-btn hero-fab-totop" id="heroFabTop" type="button" title="返回顶部" data-i18n-title="index.fab.top" aria-label="返回顶部">↑</button>
+        <button class="hero-fab-btn hero-fab-settings" id="heroFabSettings" type="button" title="页面设置" data-i18n-title="index.fab.settings" aria-label="页面设置">⚙</button>
+    </div>
+
+    <!-- 页面设置弹窗（搜索引擎 + 外观：背景图 / 卡片透明度 / 卡片模糊度） -->
+    <div class="hw-modal-overlay" id="engineModalOverlay">
+        <div class="hw-modal engine-modal">
+            <h3 class="hw-modal-title">⚙ <span data-i18n="index.engine.title">页面设置</span></h3>
+            <p class="engine-modal-tip" data-i18n="index.engine.tip">调整搜索引擎与页面外观，所有改动会保存在本地。</p>
+            <div class="engine-body">
+                <div class="engine-cols">
+                    <!-- 左列：搜索引擎 + 外观（透明度 / 模糊度） -->
+                    <div class="engine-col engine-col-left">
+                        <div class="engine-field">
+                            <label for="engineSelect" data-i18n="index.engine.label">搜索引擎</label>
+                            <select id="engineSelect" class="engine-select">
+                                <option value="https://www.bing.com/search?q=">必应</option>
+                                <option value="https://search.bilibili.com/all?keyword=">哔哩哔哩</option>
+                                <option value="https://www.baidu.com/s?wd=">百度</option>
+                                <option value="https://www.google.com/search?q=">谷歌</option>
+                                <option value="https://metaso.cn/?q=">秘塔AI</option>
+                                <option value="https://www.sogou.com/web?query=">搜狗</option>
+                                <option value="https://so.toutiao.com/search?keyword=">头条</option>
+                                <option value="https://www.sm.cn/s?q=">神马</option>
+                                <option value="https://www.so.com/s?q=">360搜索</option>
+                                <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+                            </select>
+                        </div>
+
+                        <div class="engine-field">
+                            <label data-i18n="index.engine.custom">自定义搜索引擎</label>
+                            <div class="engine-custom-add">
+                                <input type="text" id="customEngineName" class="engine-input" data-i18n-placeholder="index.engine.customName" placeholder="名称" maxlength="30" />
+                                <input type="text" id="customEngineUrl" class="engine-input" data-i18n-placeholder="index.engine.customUrl" placeholder="地址（末尾接 ?q=）" maxlength="500" />
+                                <button type="button" id="customEngineAdd" class="engine-clear-btn" data-i18n="index.engine.customAdd">添加</button>
+                            </div>
+                            <div class="engine-custom-list" id="customEngineList"></div>
+                            <div class="engine-bg-notice" id="engineCustomNotice"></div>
+                        </div>
+
+                        <div class="engine-section-title" data-i18n="index.appear.title">外观</div>
+
+                        <div class="engine-field engine-field-inline">
+                            <label for="pageBgDim" data-i18n="index.appear.bgDim">页面背景通透度</label>
+                            <div class="engine-row">
+                                <input type="range" id="pageBgDim" class="engine-range" min="0" max="100" step="1" />
+                                <span class="engine-range-val" id="pageBgDimVal">70%</span>
+                            </div>
+                        </div>
+
+                        <div class="engine-slider-grid">
+                            <div class="engine-slider-cell">
+                                <label for="cardOpacity" data-i18n="index.appear.opacity">工具卡片透明度</label>
+                                <div class="engine-row">
+                                    <input type="range" id="cardOpacity" class="engine-range" min="0" max="100" step="1" />
+                                    <span class="engine-range-val" id="cardOpacityVal">100%</span>
+                                </div>
+                            </div>
+                            <div class="engine-slider-cell">
+                                <label for="cardBlur" data-i18n="index.appear.blur">工具卡片模糊度</label>
+                                <div class="engine-row">
+                                    <input type="range" id="cardBlur" class="engine-range" min="0" max="20" step="1" />
+                                    <span class="engine-range-val" id="cardBlurVal">0px</span>
+                                </div>
+                            </div>
+                            <div class="engine-slider-cell">
+                                <label for="cardOpacityHover" data-i18n="index.appear.opacityHover">工具卡片透明度（悬浮）</label>
+                                <div class="engine-row">
+                                    <input type="range" id="cardOpacityHover" class="engine-range" min="0" max="100" step="1" />
+                                    <span class="engine-range-val" id="cardOpacityHoverVal">100%</span>
+                                </div>
+                            </div>
+                            <div class="engine-slider-cell">
+                                <label for="cardBlurHover" data-i18n="index.appear.blurHover">工具卡片模糊度（悬浮）</label>
+                                <div class="engine-row">
+                                    <input type="range" id="cardBlurHover" class="engine-range" min="0" max="20" step="1" />
+                                    <span class="engine-range-val" id="cardBlurHoverVal">0px</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右列：背景图 / 预览 + 配置备份 -->
+                    <div class="engine-col engine-col-right">
+                        <div class="engine-field">
+                            <label data-i18n="index.appear.bg">页面背景（图片 / 视频，最多 9 个，点击切换）</label>
+                            <div class="engine-bg-notice engine-bg-filetip" id="bgFileModeTip" style="display:none"></div>
+                            <div class="engine-row">
+                                <input type="file" id="pageBgInput" class="engine-file" accept="image/*,video/*" multiple />
+                                <button type="button" id="pageBgClear" class="engine-clear-btn" data-i18n="index.appear.clear">清除全部</button>
+                            </div>
+                            <div class="engine-bg-grid" id="pageBgGrid"></div>
+                            <div class="engine-bg-count" id="pageBgCount"></div>
+                            <div class="engine-bg-notice" id="pageBgNotice"></div>
+                        </div>
+
+                        <div class="engine-section-title" data-i18n="index.config.title">配置备份</div>
+                        <div class="engine-config-row">
+                            <button type="button" id="configExportBtn" class="hw-modal-btn hw-modal-btn-reset" data-i18n="index.config.export">导出配置</button>
+                            <button type="button" id="configImportBtn" class="hw-modal-btn hw-modal-btn-reset" data-i18n="index.config.import">导入配置</button>
+                            <input type="file" id="configImportInput" accept="application/zip,.zip,application/json,.json" hidden />
+                        </div>
+                        <div class="engine-bg-notice" id="configNotice"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="hw-modal-actions">
+                <button class="hw-modal-btn hw-modal-btn-reset" id="engineModalReset" type="button" data-i18n="index.engine.reset">恢复默认</button>
+                <button class="hw-modal-btn hw-modal-btn-cancel" id="engineModalCancel" type="button" data-i18n="index.hw.cancel">取消</button>
+                <button class="hw-modal-btn hw-modal-btn-save" id="engineModalSave" type="button" data-i18n="index.engine.save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./asset/JavaScript/theme.js?v=20260825a"></script>
+    <script src="./asset/JavaScript/i18n.js?v=20260825a"></script>
+    <script src="./asset/JavaScript/zip-util.js?v=20260825f"></script>
+    <script src="./asset/JavaScript/index.js?v=20260825l"></script>
 </body>
 </html>
