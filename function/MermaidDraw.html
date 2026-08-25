@@ -89,6 +89,7 @@
                 <div class="toolbar-group">
                     <button class="btn btn-outline " id="exportPngBtn" data-i18n="flowchart.btn.exportPng">🖼 导出 PNG</button>
                     <button class="btn btn-outline " id="exportSvgBtn" data-i18n="flowchart.btn.exportSvg">📐 导出 SVG</button>
+                    <button class="btn btn-outline " id="exportPdfBtn" data-i18n="flowchart.btn.exportPdf">📑 导出 PDF</button>
                     <button class="btn btn-outline " id="copyBtn" data-i18n="flowchart.btn.copy">📋 复制代码</button>
                 </div>
             </div>
@@ -128,6 +129,8 @@
                     <div class="flowchart-hscroll" id="flowchartHScroll">
                         <div class="flowchart-hscroll-thumb" id="flowchartHScrollThumb"></div>
                     </div>
+                    <!-- 拖入文件导入提示（默认隐藏，拖拽悬停时显示） -->
+                    <div class="flowchart-drop-hint" id="dropHint" data-i18n="flowchart.drop.hint">拖入 .mmd/.md/.txt 文件以导入</div>
                 </div>
             </div>
 
@@ -153,6 +156,9 @@
                 </div>
             </div>
         </div>
+
+        <!-- 底部高度调整把手：拖动调整编辑/预览框整体高度 -->
+        <div class="flowchart-vresizer" id="flowchartVResizer" title="拖动调整编辑/预览框高度" data-i18n-title="flowchart.vresizer.title"></div>
 
         <!-- 页脚 -->
         <div class="footer-note">
