@@ -28,9 +28,49 @@ window.I18N_STRINGS = {
 //    'index.nav.eye':        { zh: '我在看你 👀', en: 'Watching you 👀' },
     'index.hero.desc':      { zh: '专为嵌入式开发者打造的在线工具集合。一站式解决开发中的高频需求。', en: 'An online toolset built for embedded developers. One-stop solution for high-frequency needs.' },
     'index.hero.join':      { zh: '加入交流群：453705020', en: 'Join QQ Group: 453705020' },
+    'index.hero.search.title':  { zh: '搜一下', en: 'Search the Web' },
+    'index.hero.search.tipSuffix': { zh: '· 随手搜点资料', en: '· search anything' },
+    'index.hero.search.go':     { zh: '搜索', en: 'Search' },
+    'index.search.web.placeholder': { zh: '搜索互联网...', en: 'Search the web...' },
     'index.footer.line1':   { zh: '嵌入式开发者工具箱', en: 'Embedded Developer Toolbox' },
     'index.footer.line2':   { zh: '一站式解决开发中的高频需求 · 欢迎加入技术交流群：', en: 'One-stop solution for high-frequency needs · Join our tech group: ' },
     'index.empty.text':     { zh: '没有找到匹配的工具，试试其他关键词或分类？', en: 'No matching tools found. Try other keywords or categories?' },
+    'index.engine.title':   { zh: '页面设置', en: 'Page Settings' },
+    'index.engine.tip':     { zh: '调整搜索引擎与页面外观，所有改动会保存在本地。', en: 'Adjust the search engine and page appearance; changes are saved locally.' },
+    'index.engine.label':   { zh: '搜索引擎', en: 'Search Engine' },
+    'index.engine.reset':   { zh: '恢复默认', en: 'Reset' },
+    'index.engine.save':    { zh: '保存', en: 'Save' },
+    'index.engine.custom':      { zh: '自定义搜索引擎', en: 'Custom Search Engines' },
+    'index.engine.customName':  { zh: '名称', en: 'Name' },
+    'index.engine.customUrl':   { zh: '搜索地址（末尾接查询词，如 https://example.com/search?q=，或含 %s 占位符）', en: 'Search URL (query appended, e.g. https://example.com/search?q=, or use %s placeholder)' },
+    'index.engine.customAdd':   { zh: '添加', en: 'Add' },
+    'index.engine.customEmpty': { zh: '暂无自定义搜索引擎', en: 'No custom search engines yet' },
+    'index.engine.customDelete':{ zh: '删除该搜索引擎', en: 'Delete this search engine' },
+    'index.engine.customAdded': { zh: '已添加自定义搜索引擎', en: 'Custom search engine added' },
+    'index.engine.customDeleted': { zh: '已删除自定义搜索引擎', en: 'Custom search engine deleted' },
+    'index.engine.customInvalid': { zh: '名称和地址不能为空，且地址须以 http:// 或 https:// 开头', en: 'Name and URL are required; URL must start with http:// or https://' },
+    'index.engine.customDup':   { zh: '已存在同名或同地址的搜索引擎', en: 'A search engine with that name or URL already exists' },
+    'index.fab.top':        { zh: '返回顶部', en: 'Back to top' },
+    'index.fab.settings':   { zh: '页面设置', en: 'Page settings' },
+    'index.appear.title':   { zh: '外观', en: 'Appearance' },
+    'index.appear.bg':      { zh: '页面背景（图片 / 视频，最多 9 个，点击切换）', en: 'Page Background (image / video, up to 9, click to switch)' },
+    'index.appear.clear':   { zh: '清除', en: 'Clear' },
+    'index.appear.opacity': { zh: '工具卡片透明度', en: 'Card Opacity' },
+    'index.appear.blur':    { zh: '工具卡片模糊度', en: 'Card Blur' },
+    'index.appear.bgCount':   { zh: '已选 {n} / 9', en: '{n} / 9 selected' },
+    'index.appear.bgFull':    { zh: '已达上限：最多上传 9 个背景（图片或视频合计）', en: 'Limit reached: up to 9 backgrounds (images or videos combined)' },
+    'index.appear.bgSkipped': { zh: '已达上限，{n} 个文件被忽略（最多 9 个）', en: '{n} files were skipped (max 9)' },
+    'index.appear.bgDelete':  { zh: '删除该背景', en: 'Remove this background' },
+    'index.appear.bgFileModeTip': { zh: '当前为本地文件模式：浏览器禁用了 IndexedDB 且背景体积易超 localStorage 配额，背景刷新后可能丢失。建议使用本地服务器访问。', en: 'Local file mode: IndexedDB is disabled and backgrounds may exceed the localStorage quota, so they can be lost on refresh. Run it via a local server instead.' },
+    'index.config.title':       { zh: '配置备份', en: 'Config Backup' },
+    'index.config.export':      { zh: '导出配置', en: 'Export Config' },
+    'index.config.import':      { zh: '导入配置', en: 'Import Config' },
+    'index.config.exportDone':  { zh: '配置已导出为压缩包', en: 'Config exported as zip' },
+    'index.config.importConfirm': { zh: '导入将覆盖当前所有配置（含主页与全部工具页），确定继续？', en: 'Importing overwrites ALL current settings (homepage and every tool page). Continue?' },
+    'index.config.importDone':  { zh: '配置已导入，正在重新加载…', en: 'Config imported, reloading…' },
+    'index.config.importError': { zh: '导入失败：文件无法解析', en: 'Import failed: cannot parse file' },
+    'index.config.importZipError': { zh: '压缩包解析失败，请确认文件完整', en: 'Failed to parse the zip, please check the file is intact' },
+    'index.config.importInvalid': { zh: '文件格式不正确', en: 'Invalid file format' },
 
     /* Hero 小组件 */
     'index.hw.offProgress':    { zh: '下班进度', en: 'Off-Work Progress' },
@@ -2536,3 +2576,1165 @@ renderTools();
     show();
     startRotate();
 })();
+
+// ============================================================
+//  Hero 轮播（① 介绍 ② 交流群 ③ 搜索）+ 右下角悬浮按钮（返回顶部 / 搜索引擎设置）
+//  可左右箭头 / 指示点 / 键盘 ←→ / 触摸滑动切换
+// ============================================================
+(function () {
+    'use strict';
+
+    // ---- 搜索引擎：下拉选择（存 localStorage 的引擎 id，默认必应） ----
+    var ENGINE_KEY = 'toolbox-search-engine';
+    var DEFAULT_ENGINE = 'bing';
+    // 下拉选项的 value 即搜索地址模板（与 HTML 中 <option> 保持一致）
+    var ENGINES = {
+        bing:     'https://www.bing.com/search?q=',
+        bilibili: 'https://search.bilibili.com/all?keyword=',
+        baidu:    'https://www.baidu.com/s?wd=',
+        google:   'https://www.google.com/search?q=',
+        metaso:   'https://metaso.cn/?q=',
+        sogou:    'https://www.sogou.com/web?query=',
+        toutiao:  'https://so.toutiao.com/search?keyword=',
+        sm:       'https://www.sm.cn/s?q=',
+        so360:    'https://www.so.com/s?q=',
+        duckduck: 'https://duckduckgo.com/?q='
+    };
+    // 内置引擎显示名（下拉 option 文案与之对应，用于未渲染下拉时兜底取名字）
+    var ENGINE_NAMES = {
+        bing: '必应', bilibili: '哔哩哔哩', baidu: '百度', google: '谷歌', metaso: '秘塔AI',
+        sogou: '搜狗', toutiao: '头条', sm: '神马', so360: '360搜索', duckduck: 'DuckDuckGo'
+    };
+    // 自定义搜索引擎：存 localStorage（小数据，刷新不丢），结构 [{id,name,url}]
+    var CUSTOM_ENGINES_KEY = 'toolbox-search-engines-custom';
+    // 旧版以完整 URL 存储的数据兼容映射（反向查找 id）
+    function urlToId(url) {
+        for (var k in ENGINES) {
+            if (ENGINES.hasOwnProperty(k) && ENGINES[k] === url) return k;
+        }
+        return null;
+    }
+    // 读取自定义引擎列表（容错：坏数据回退空数组）
+    function loadCustomEngines() {
+        try {
+            var raw = localStorage.getItem(CUSTOM_ENGINES_KEY);
+            if (!raw) return [];
+            var arr = JSON.parse(raw);
+            if (!Array.isArray(arr)) return [];
+            return arr.filter(function (e) {
+                return e && typeof e.id === 'string' && typeof e.url === 'string' && typeof e.name === 'string';
+            });
+        } catch (e) { return []; }
+    }
+    function saveCustomEngines(list) {
+        try { localStorage.setItem(CUSTOM_ENGINES_KEY, JSON.stringify(list)); } catch (e) {}
+    }
+    // 同时查内置与自定义引擎，按「存储的 id（内置）或完整 URL（自定义）」解析出搜索地址
+    function getEngineUrl() {
+        var raw = localStorage.getItem(ENGINE_KEY) || DEFAULT_ENGINE;
+        // 兼容旧版：存的是完整 URL 时反查 id；否则按 id 取
+        if (ENGINES.hasOwnProperty(raw)) return ENGINES[raw];
+        var id = urlToId(raw);
+        if (id) return ENGINES[id];
+        // 自定义引擎：存储值即其完整 URL
+        var customs = loadCustomEngines();
+        for (var i = 0; i < customs.length; i++) {
+            if (customs[i].url === raw || customs[i].id === raw) return customs[i].url;
+        }
+        return ENGINES[DEFAULT_ENGINE];
+    }
+    // 取当前引擎的显示名：优先下拉框 option 文案，其次内置名/自定义名兜底
+    function getEngineName() {
+        var url = getEngineUrl();
+        if (engineSelect) {
+            for (var i = 0; i < engineSelect.options.length; i++) {
+                if (engineSelect.options[i].value === url) {
+                    return engineSelect.options[i].text;
+                }
+            }
+        }
+        if (ENGINE_NAMES.hasOwnProperty(rawEngineId())) return ENGINE_NAMES[rawEngineId()];
+        var customs = loadCustomEngines();
+        for (var j = 0; j < customs.length; j++) {
+            if (customs[j].url === url) return customs[j].name;
+        }
+        return ENGINE_NAMES[DEFAULT_ENGINE] || '必应';
+    }
+    // 取存储的原始值（内置 id / 完整 URL），用于从名字映射兜底
+    function rawEngineId() {
+        var raw = localStorage.getItem(ENGINE_KEY) || DEFAULT_ENGINE;
+        if (ENGINES.hasOwnProperty(raw)) return raw;
+        return urlToId(raw) || '';
+    }
+    // 重建下拉选项：内置引擎 + 自定义引擎（保持内置顺序在前，自定义追加在后）
+    function renderEngineOptions() {
+        if (!engineSelect) return;
+        var sel = engineSelect;
+        var cur = getEngineUrl();
+        sel.innerHTML = '';
+        for (var k in ENGINES) {
+            if (!ENGINES.hasOwnProperty(k)) continue;
+            var o = document.createElement('option');
+            o.value = ENGINES[k];
+            o.textContent = ENGINE_NAMES.hasOwnProperty(k) ? ENGINE_NAMES[k] : k;
+            sel.appendChild(o);
+        }
+        var customs = loadCustomEngines();
+        customs.forEach(function (e) {
+            var o = document.createElement('option');
+            o.value = e.url;
+            o.textContent = e.name;
+            sel.appendChild(o);
+        });
+        sel.value = cur;
+    }
+    // 渲染自定义引擎列表（含删除按钮）；空时显示占位文案
+    function renderCustomEngineList() {
+        if (!customEngineList) return;
+        var list = loadCustomEngines();
+        customEngineList.innerHTML = '';
+        if (!list.length) {
+            var empty = document.createElement('div');
+            empty.className = 'engine-custom-empty';
+            empty.textContent = I18N.t('index.engine.customEmpty');
+            customEngineList.appendChild(empty);
+            return;
+        }
+        list.forEach(function (e) {
+            var item = document.createElement('div');
+            item.className = 'engine-custom-item';
+            var nm = document.createElement('span');
+            nm.className = 'engine-custom-item-name';
+            nm.textContent = e.name;
+            nm.title = e.name;
+            var u = document.createElement('span');
+            u.className = 'engine-custom-item-url';
+            u.textContent = e.url;
+            u.title = e.url;
+            var del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'engine-custom-del';
+            del.textContent = '✕';
+            del.title = I18N.t('index.engine.customDelete');
+            del.setAttribute('data-i18n-title', 'index.engine.customDelete');
+            del.addEventListener('click', function () { deleteCustomEngine(e.id, e.url); });
+            item.appendChild(nm);
+            item.appendChild(u);
+            item.appendChild(del);
+            customEngineList.appendChild(item);
+        });
+    }
+    // 添加自定义引擎：校验名称/地址合法性 + 去重，写入后重建下拉与列表并选中
+    function addCustomEngine() {
+        if (!customEngineName || !customEngineUrl) return;
+        var name = customEngineName.value.trim();
+        var url = customEngineUrl.value.trim();
+        if (!name || !url || !/^https?:\/\//i.test(url)) {
+            showEngineCustomNotice(I18N.t('index.engine.customInvalid'));
+            return;
+        }
+        var list = loadCustomEngines();
+        var dup = list.some(function (e) {
+            return e.name.toLowerCase() === name.toLowerCase() || e.url === url;
+        });
+        if (dup) {
+            showEngineCustomNotice(I18N.t('index.engine.customDup'));
+            return;
+        }
+        list.push({ id: 'custom-' + Date.now() + '-' + Math.floor(Math.random() * 1e4), name: name, url: url });
+        saveCustomEngines(list);
+        renderEngineOptions();
+        renderCustomEngineList();
+        if (engineSelect) engineSelect.value = url;
+        customEngineName.value = '';
+        customEngineUrl.value = '';
+        showEngineCustomNotice(I18N.t('index.engine.customAdded'));
+    }
+    // 删除自定义引擎：从存储移除；若其正被选用则回退默认
+    function deleteCustomEngine(id, url) {
+        var list = loadCustomEngines();
+        var next = list.filter(function (e) { return e.id !== id; });
+        if (next.length === list.length) return;   // 未找到，忽略
+        saveCustomEngines(next);
+        var curUrl = getEngineUrl();
+        if (curUrl === url) setEngineUrl(ENGINES[DEFAULT_ENGINE]);
+        renderEngineOptions();
+        renderCustomEngineList();
+        updateSearchTip();
+        showEngineCustomNotice(I18N.t('index.engine.customDeleted'));
+    }
+    // 自定义引擎提示条（复用 .engine-bg-notice 的淡入淡出）
+    var engineCustomNoticeTimer = null;
+    function showEngineCustomNotice(msg) {
+        if (!engineCustomNotice) return;
+        engineCustomNotice.textContent = msg;
+        engineCustomNotice.classList.add('show');
+        if (engineCustomNoticeTimer) clearTimeout(engineCustomNoticeTimer);
+        engineCustomNoticeTimer = setTimeout(function () { engineCustomNotice.classList.remove('show'); }, 3000);
+    }
+    // 刷新搜索页提示：<引擎名> · 随手搜点资料
+    function updateSearchTip() {
+        if (!searchTip) return;
+        var suffix = window.I18N ? window.I18N.t('index.hero.search.tipSuffix') : '· 随手搜点资料';
+        searchTip.textContent = getEngineName() + ' ' + suffix;
+    }
+    // 保存：value 即搜索地址模板，直接存储（兼容旧版存的完整 URL）
+    function setEngineUrl(url) {
+        localStorage.setItem(ENGINE_KEY, url);
+    }
+
+    // ---- 轮播元素 ----
+    var track = document.getElementById('heroCarouselTrack');
+    var dotsWrap = document.getElementById('heroCarouselDots');
+    var prevBtn = document.getElementById('heroCarouselPrev');
+    var nextBtn = document.getElementById('heroCarouselNext');
+    var carouselEl = document.getElementById('heroCarousel');
+    if (!track || !dotsWrap || !prevBtn || !nextBtn || !carouselEl) return;  // 结构缺失则安全退出
+
+    var slides = track.children;
+    var total = slides.length;
+    var SLIDE_KEY = 'hero-carousel-slide';
+    var savedSlide = 0;
+    try { savedSlide = parseInt(localStorage.getItem(SLIDE_KEY), 10); } catch (e) {}
+    var index = (!isNaN(savedSlide) && savedSlide >= 0 && savedSlide < total) ? savedSlide : 0;
+    var dots = [];
+
+    // 生成指示点
+    for (var i = 0; i < total; i++) {
+        (function (idx) {
+            var d = document.createElement('button');
+            d.type = 'button';
+            d.className = 'hero-dot' + (idx === index ? ' active' : '');
+            d.setAttribute('aria-label', (idx + 1) + ' / ' + total);
+            d.addEventListener('click', function () { goTo(idx); });
+            dotsWrap.appendChild(d);
+            dots.push(d);
+        })(i);
+    }
+
+    function render(animate) {
+        if (animate === false) {
+            // 刷新后恢复页码：直接定位，不要滑动动画
+            track.style.transition = 'none';
+        } else {
+            track.style.transition = '';
+        }
+        track.style.transform = 'translateX(' + (-index * 100) + '%)';
+        for (var k = 0; k < dots.length; k++) {
+            dots[k].classList.toggle('active', k === index);
+        }
+        if (animate === false) {
+            // 下一帧恢复过渡，保证之后手动切换仍有动画
+            requestAnimationFrame(function () { track.style.transition = ''; });
+        }
+    }
+    function goTo(i) {
+        index = (i + total) % total;
+        try { localStorage.setItem(SLIDE_KEY, String(index)); } catch (e) {}
+        render(true);
+    }
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+
+    prevBtn.addEventListener('click', prev);
+    nextBtn.addEventListener('click', next);
+
+    // 键盘左右键（输入框聚焦时不拦截）
+    document.addEventListener('keydown', function (e) {
+        if (e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+        if (e.key === 'ArrowLeft') prev();
+        else if (e.key === 'ArrowRight') next();
+    });
+
+    // 触摸滑动切换
+    var startX = 0, swiping = false;
+    track.addEventListener('touchstart', function (e) {
+        startX = e.touches[0].clientX;
+        swiping = true;
+    }, { passive: true });
+    track.addEventListener('touchend', function (e) {
+        if (!swiping) return;
+        swiping = false;
+        var dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) > 40) { if (dx < 0) next(); else prev(); }
+    });
+
+    render(false);
+
+    // ---- 搜索页逻辑 ----
+    var searchInput = document.getElementById('heroSearchInput');
+    var searchBtn = document.getElementById('heroSearchBtn');
+    var searchTip = document.getElementById('heroSearchTip');
+    function doSearch() {
+        if (!searchInput) return;
+        var q = searchInput.value.trim();
+        if (!q) { searchInput.focus(); return; }
+        var url = getEngineUrl();
+        // 支持 %s 占位符（用户粘贴的搜索地址常含 ?q=%s）；否则在地址后直接拼接查询词
+        var target = (url.indexOf('%s') !== -1) ? url.replace('%s', encodeURIComponent(q)) : (url + encodeURIComponent(q));
+        window.open(target, '_blank', 'noopener');
+    }
+    if (searchBtn) searchBtn.addEventListener('click', doSearch);
+    if (searchInput) {
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') doSearch();
+        });
+    }
+    updateSearchTip();
+
+    // 注：外观初始化应用放到本 IIFE 末尾（appearDraft 赋值之后）执行，见文件下方 initAppearanceOnLoad()
+
+    // ---- 右下角悬浮按钮：返回顶部 + 搜索引擎设置 ----
+    var fabTop = document.getElementById('heroFabTop');
+    var fabSettings = document.getElementById('heroFabSettings');
+    var engineOverlay = document.getElementById('engineModalOverlay');
+    var engineSelect = document.getElementById('engineSelect');
+    var engineSave = document.getElementById('engineModalSave');
+    var engineReset = document.getElementById('engineModalReset');
+    var engineCancel = document.getElementById('engineModalCancel');
+    // 自定义搜索引擎相关元素
+    var customEngineName = document.getElementById('customEngineName');
+    var customEngineUrl = document.getElementById('customEngineUrl');
+    var customEngineAdd = document.getElementById('customEngineAdd');
+    var customEngineList = document.getElementById('customEngineList');
+    var engineCustomNotice = document.getElementById('engineCustomNotice');
+
+    // ---- 外观设置元素（页面背景 / 卡片透明度 / 卡片模糊度） ----
+    // 注意：背景图 dataURL 可能很大，localStorage 放不下（配额 ~5MB 会抛异常）。
+    // 因此小数据（透明度/模糊度）存 localStorage，背景图列表单独存 IndexedDB。
+    var APPEAR_KEY = 'hero-page-appearance';
+    var BG_DB_NAME = 'yu-toolbox-bg';
+    var BG_DB_STORE = 'bg';
+    var BG_META_ID = '__meta__';   // 存 {id:'__meta__', currentId}
+    var DEFAULT_APPEAR = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0 };
+    // 内存中的当前外观草稿：跨弹窗打开保持，不被 localStorage 的空值覆盖
+    var appearDraft = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0 };
+    // 背景列表与当前选中（图片 / 视频均可，可切换）
+    var bgImages = [];        // [{id, type:'image'|'video', dataURL}]
+    var bgCurrentId = null;
+    var bgLoaded = false;     // 背景列表是否已完成首次（页面加载时）加载；之后打开设置不再用存储覆盖内存
+    var MAX_BG_ITEMS = 9;     // 背景图/视频合计上限：图片和视频都算在内，最多 9 个
+    var pageBgInput = document.getElementById('pageBgInput');
+    var pageBgClear = document.getElementById('pageBgClear');
+    var pageBgGrid = document.getElementById('pageBgGrid');
+    var pageBgCount = document.getElementById('pageBgCount');
+    var pageBgNotice = document.getElementById('pageBgNotice');
+    var bgFileModeTip = document.getElementById('bgFileModeTip');
+    var cardOpacity = document.getElementById('cardOpacity');
+    var cardOpacityVal = document.getElementById('cardOpacityVal');
+    var cardBlur = document.getElementById('cardBlur');
+    var cardBlurVal = document.getElementById('cardBlurVal');
+    var cardOpacityHover = document.getElementById('cardOpacityHover');
+    var cardOpacityHoverVal = document.getElementById('cardOpacityHoverVal');
+    var cardBlurHover = document.getElementById('cardBlurHover');
+    var cardBlurHoverVal = document.getElementById('cardBlurHoverVal');
+    var pageBgDim = document.getElementById('pageBgDim');
+    var pageBgDimVal = document.getElementById('pageBgDimVal');
+
+    // 读取透明度/模糊度（小数据，存 localStorage）；背景图由 IndexedDB 异步载入
+    function loadAppearance() {
+        try {
+            var raw = localStorage.getItem(APPEAR_KEY);
+            if (raw) {
+                var obj = JSON.parse(raw);
+                appearDraft.opacity = (typeof obj.opacity === 'number' && obj.opacity >= 0 && obj.opacity <= 100) ? obj.opacity : 100;
+                appearDraft.blur = (typeof obj.blur === 'number' && obj.blur >= 0 && obj.blur <= 20) ? obj.blur : 0;
+                appearDraft.bgClarity = (typeof obj.bgClarity === 'number' && obj.bgClarity >= 0 && obj.bgClarity <= 100) ? obj.bgClarity : 70;
+                appearDraft.opacityHover = (typeof obj.opacityHover === 'number' && obj.opacityHover >= 0 && obj.opacityHover <= 100) ? obj.opacityHover : 100;
+                appearDraft.blurHover = (typeof obj.blurHover === 'number' && obj.blurHover >= 0 && obj.blurHover <= 20) ? obj.blurHover : 0;
+            }
+        } catch (e) {}
+    }
+    // ---- IndexedDB 存取背景图列表（大数据，规避 localStorage 配额） ----
+    function openBgDB(cb) {
+        if (!window.indexedDB) { cb(null); return; }
+        var req;
+        try { req = window.indexedDB.open(BG_DB_NAME, 1); }
+        catch (e) { cb(null); return; }
+        req.onupgradeneeded = function (e) {
+            var db = e.target.result;
+            if (!db.objectStoreNames.contains(BG_DB_STORE)) db.createObjectStore(BG_DB_STORE, { keyPath: 'id' });
+        };
+        req.onsuccess = function (e) { cb(e.target.result); };
+        req.onerror = function () { cb(null); };
+    }
+    // ---- 双保险持久化：IndexedDB 为主（大文件/多文件/视频），localStorage 兜底 ----
+    // 很多环境（如直接 file:// 打开、隐私模式、浏览器策略）下 IndexedDB 不可用，
+    // 此时仅靠 IndexedDB 会导致背景永远存不住；localStorage 兜底可覆盖绝大多数环境。
+    var BG_LS_KEY = 'hero-page-bg-list';
+    function persistBgLS(list, currentId) {
+        try {
+            var payload = JSON.stringify({
+                list: list.map(function (i) { return { id: i.id, type: i.type, dataURL: i.dataURL }; }),
+                currentId: currentId
+            });
+            localStorage.setItem(BG_LS_KEY, payload);
+        } catch (e) { /* 超出配额（视频过大）则仅依赖 IndexedDB，忽略 */ }
+    }
+    function loadBgLS(cb) {
+        try {
+            var raw = localStorage.getItem(BG_LS_KEY);
+            if (!raw) { cb([], null); return; }
+            var obj = JSON.parse(raw);
+            var list = (obj.list || []).map(function (i) {
+                return { id: i.id, type: i.type === 'video' ? 'video' : 'image', dataURL: i.dataURL };
+            });
+            var cur = (obj.currentId && list.some(function (x) { return x.id === obj.currentId; })) ? obj.currentId : (list[0] ? list[0].id : null);
+            cb(list, cur);
+        } catch (e) { cb([], null); }
+    }
+    // 载入全部背景图 + 当前选中 id：
+    // 同时读 IndexedDB 与 localStorage，取「数量更多且非空」的那份，
+    // 避免某个后端只落了部分记录（如 clear+put 竞态、配额超限）时丢数据。
+    function loadBgList(cb) {
+        var idbList = null, idbCur = null, idbDone = false;
+        var lsList = null, lsCur = null, lsDone = false;
+        function settle() {
+            if (!idbDone || !lsDone) return;
+            var idbN = idbList ? idbList.length : 0;
+            var lsN = lsList ? lsList.length : 0;
+            // 优先用数量更多的源；若数量相同则 IndexedDB 优先
+            var useIDB = idbN > 0 && (lsN === 0 || idbN >= lsN);
+            var chosen = useIDB ? idbList : (lsList || []);
+            var cur = useIDB ? idbCur : lsCur;
+            cb(chosen, cur);
+        }
+        openBgDB(function (db) {
+            if (!db) { idbList = []; idbCur = null; idbDone = true; settle(); return; }
+            try {
+                var tx = db.transaction(BG_DB_STORE, 'readonly');
+                var store = tx.objectStore(BG_DB_STORE);
+                var out = [];
+                var metaId = null;
+                var req = store.openCursor();
+                req.onsuccess = function (ev) {
+                    var cur = ev.target.result;
+                    if (cur) {
+                        if (cur.value && cur.value.id === BG_META_ID) metaId = cur.value.currentId;
+                        else if (cur.value && cur.value.dataURL) {
+                            var tp = cur.value.type;
+                            if (tp !== 'video' && tp !== 'image') tp = (cur.value.dataURL.indexOf('data:video/') === 0) ? 'video' : 'image';
+                            out.push({ id: cur.value.id, dataURL: cur.value.dataURL, type: tp });
+                        }
+                        cur.continue();
+                    } else { idbList = out; idbCur = metaId; idbDone = true; settle(); }
+                };
+                req.onerror = function () { idbList = []; idbCur = null; idbDone = true; settle(); };
+            } catch (e) { idbList = []; idbCur = null; idbDone = true; settle(); }
+        });
+        loadBgLS(function (list, currentId) { lsList = list || []; lsCur = currentId; lsDone = true; settle(); });
+    }
+    // 持久化整个背景列表 + 当前选中：始终写 localStorage 兜底，并写 IndexedDB（大文件）
+    // IndexedDB 写入改用「先 clear()（独立事务），其 oncomplete 后再开新事务 put」的规范写法，
+    // 彻底排除「clear 与 put 同一事务」在某些浏览器下的竞态（只落部分记录）。
+    function saveBgList() {
+        persistBgLS(bgImages, bgCurrentId);   // 先兜底，保证任何环境都不丢
+        openBgDB(function (db) {
+            if (!db) { console.warn('[Yu_ToolBox] IndexedDB 不可用，已回退 localStorage 兜底'); return; }
+            try {
+                var tx1 = db.transaction(BG_DB_STORE, 'readwrite');
+                tx1.objectStore(BG_DB_STORE).clear();
+                tx1.onerror = function (e) { console.error('[Yu_ToolBox] 清空背景失败', e); };
+                tx1.oncomplete = function () {
+                    try {
+                        var tx2 = db.transaction(BG_DB_STORE, 'readwrite');
+                        var s2 = tx2.objectStore(BG_DB_STORE);
+                        bgImages.forEach(function (img) {
+                            s2.put({ id: img.id, type: img.type === 'video' ? 'video' : 'image', dataURL: img.dataURL });
+                        });
+                        s2.put({ id: BG_META_ID, currentId: bgCurrentId });
+                        tx2.onerror = function (e) { console.error('[Yu_ToolBox] 保存背景到 IndexedDB 失败', e); };
+                        tx2.onabort = function (e) { console.error('[Yu_ToolBox] 保存背景事务被中止', e); };
+                    } catch (e) { console.error('[Yu_ToolBox] 保存背景失败', e); }
+                };
+            } catch (e) { console.error('[Yu_ToolBox] 保存背景失败', e); }
+        });
+    }
+
+    // 把 dataURL 转成 Blob（视频用 URL.createObjectURL 播放，避免 url() 不支持）
+    function dataURLtoBlob(dataURL) {
+        var parts = String(dataURL).split(',');
+        var mimeMatch = parts[0].match(/:(.*?);/);
+        var mime = mimeMatch ? mimeMatch[1] : 'video/mp4';
+        var bstr = atob(parts[1] || '');
+        var n = bstr.length;
+        var u8 = new Uint8Array(n);
+        for (var i = 0; i < n; i++) u8[i] = bstr.charCodeAt(i);
+        return new Blob([u8], { type: mime });
+    }
+    // 取背景层（懒创建）；并取/建其内的视频元素
+    function getBgLayer() {
+        var layer = document.getElementById('pageBgLayer');
+        if (!layer) {
+            layer = document.createElement('div');
+            layer.id = 'pageBgLayer';
+            document.body.appendChild(layer);
+        }
+        return layer;
+    }
+    function getBgVideo(layer) {
+        var v = layer.querySelector('video.page-bg-video');
+        if (!v) {
+            v = document.createElement('video');
+            v.className = 'page-bg-video';
+            v.muted = true;
+            v.loop = true;
+            v.autoplay = true;
+            v.playsInline = true;
+            v.setAttribute('playsinline', '');
+            v.setAttribute('muted', '');
+            layer.insertBefore(v, layer.firstChild);
+        }
+        return v;
+    }
+    // 解析当前背景项为可用的展示 URL：图片直接用 dataURL，视频转 objectURL（带缓存避免重复创建）
+    function resolveBgUrl(item) {
+        if (!item) return '';
+        if (item.type === 'video') {
+            if (!item._url) item._url = URL.createObjectURL(dataURLtoBlob(item.dataURL));
+            return item._url;
+        }
+        return item.dataURL;
+    }
+
+    function applyAppearance(a) {
+        if (!a) return;
+        // 卡片背景不透明度（alpha）→ CSS 变量；模糊度 → CSS 变量
+        // 雾面效果需要卡片半透明，backdrop-filter 才能糊化背后的内容；
+        // 因此开启模糊时若 alpha 仍为 1（不透明），自动降到 0.82，保证雾面可见
+        var alpha = a.opacity / 100;
+        if (a.blur > 0 && alpha >= 1) alpha = 0.82;
+        document.documentElement.style.setProperty('--tool-card-alpha', String(alpha));
+        document.documentElement.style.setProperty('--tool-card-blur', a.blur + 'px');
+        // 悬停态独立外观：鼠标移到卡片上时使用（聚焦高亮）；同样在开启模糊且 alpha=1 时自动降到 0.82 保证雾面可见
+        var hAlpha = (typeof a.opacityHover === 'number') ? a.opacityHover / 100 : alpha;
+        var hBlur = (typeof a.blurHover === 'number') ? a.blurHover : a.blur;
+        if (hBlur > 0 && hAlpha >= 1) hAlpha = 0.82;
+        document.documentElement.style.setProperty('--tool-card-alpha-hover', String(hAlpha));
+        document.documentElement.style.setProperty('--tool-card-blur-hover', hBlur + 'px');
+        // 页面背景压暗层透明度：bgClarity 越高背景越通透（压暗越少）。颜色由主题决定，这里只控百分比
+        var clarity = (typeof a.bgClarity === 'number') ? a.bgClarity : 70;
+        var dimPct = 100 - clarity;
+        document.documentElement.style.setProperty('--page-bg-dim', dimPct + '%');
+        // 页面背景 → 独立全屏层（图片用 backgroundImage，视频用 <video> 元素，避免与主题脚本的 body 背景互相覆盖）
+        var bgLayer = getBgLayer();
+        var vid = getBgVideo(bgLayer);
+        var cur = bgImages.filter(function (x) { return x.id === bgCurrentId; })[0];
+        if (cur && cur.type === 'video') {
+            var vurl = resolveBgUrl(cur);
+            if (vid.getAttribute('src') !== vurl) vid.setAttribute('src', vurl);
+            bgLayer.style.backgroundImage = '';
+            bgLayer.classList.add('show');
+            var p = vid.play && vid.play();
+            if (p && p.catch) p.catch(function () {});
+        } else if (cur) {
+            bgLayer.style.backgroundImage = 'url("' + cur.dataURL + '")';
+            bgLayer.classList.add('show');
+            vid.removeAttribute('src');
+            if (vid.pause) vid.pause();
+        } else {
+            bgLayer.style.backgroundImage = '';
+            bgLayer.classList.remove('show');
+            vid.removeAttribute('src');
+            if (vid.pause) vid.pause();
+        }
+    }
+    // 透明度/模糊度（小）存 localStorage；背景图列表（大）存 IndexedDB
+    function saveAppearance(a) {
+        try {
+            localStorage.setItem(APPEAR_KEY, JSON.stringify({ opacity: a.opacity, blur: a.blur, bgClarity: a.bgClarity, opacityHover: a.opacityHover, blurHover: a.blurHover }));
+        } catch (e) {}
+        saveBgList();
+    }
+    // 当前（未保存）外观草稿：appearDraft 已在上方声明并初始化；
+    // 透明度/模糊度在打开/初始化时由 loadAppearance() 同步填入，背景图列表由 loadBgList() 异步填入
+
+    // 页面加载时应用已保存的外观（此处 appearDraft 已赋值，避免初始化顺序导致的崩溃）
+    loadAppearance();              // 同步载入透明度/模糊度到 appearDraft
+    loadBgList(function (list, currentId) {  // 异步载入背景图列表（IndexedDB，支持多张大图）
+        bgImages = list || [];
+        bgCurrentId = (currentId && bgImages.some(function (x) { return x.id === currentId; })) ? currentId : (bgImages[0] ? bgImages[0].id : null);
+        var cur = bgImages.filter(function (x) { return x.id === bgCurrentId; })[0];
+        appearDraft.bg = cur ? cur.dataURL : '';
+        bgLoaded = true;   // 首次（页面加载）加载完成，之后打开设置不再用存储覆盖内存
+        applyAppearance(appearDraft);
+        if (engineOverlay && engineOverlay.classList.contains('active')) renderBgGrid();
+    });
+
+    // 双语提示：把 "{n}" 占位符替换为实际数字，遵循项目规范用 I18N.t 取文案
+    function bgMsg(key, n) {
+        var s = I18N.t(key);
+        return s ? String(s).replace('{n}', n) : '';
+    }
+    // 更新「已选 N / 9」计数显示，并在达上限时高亮
+    function updateBgCount() {
+        if (!pageBgCount) return;
+        var n = bgImages.length;
+        pageBgCount.textContent = bgMsg('index.appear.bgCount', n);
+        if (n >= MAX_BG_ITEMS) pageBgCount.classList.add('full');
+        else pageBgCount.classList.remove('full');
+    }
+    // 短暂提示（已达上限 / 文件被忽略）：显示在计数下方的提示条，3 秒后淡出
+    var bgNoticeTimer = null;
+    function showBgNotice(msg) {
+        if (!pageBgNotice) return;
+        pageBgNotice.textContent = msg;
+        pageBgNotice.classList.add('show');
+        if (bgNoticeTimer) clearTimeout(bgNoticeTimer);
+        bgNoticeTimer = setTimeout(function () { pageBgNotice.classList.remove('show'); }, 3000);
+    }
+    // 配置备份：导出 / 导入整站所有配置（localStorage 全部键 + IndexedDB 背景库），覆盖主页与全部工具页
+    var configExportBtn = document.getElementById('configExportBtn');
+    var configImportBtn = document.getElementById('configImportBtn');
+    var configImportInput = document.getElementById('configImportInput');
+    var configNotice = document.getElementById('configNotice');
+    var configNoticeTimer = null;
+    function showConfigNotice(msg) {
+        if (!configNotice) return;
+        configNotice.textContent = msg;
+        configNotice.classList.add('show');
+        if (configNoticeTimer) clearTimeout(configNoticeTimer);
+        configNoticeTimer = setTimeout(function () { configNotice.classList.remove('show'); }, 3000);
+    }
+    // 读取 IndexedDB 背景库的全部记录（含 __meta__）
+    function readBgStore(cb) {
+        openBgDB(function (db) {
+            if (!db) { cb([]); return; }
+            try {
+                var tx = db.transaction(BG_DB_STORE, 'readonly');
+                var store = tx.objectStore(BG_DB_STORE);
+                var out = [];
+                var req = store.openCursor();
+                req.onsuccess = function (ev) {
+                    var cur = ev.target.result;
+                    if (cur) { out.push(cur.value); cur.continue(); }
+                    else cb(out);
+                };
+                req.onerror = function () { cb([]); };
+            } catch (e) { cb([]); }
+        });
+    }
+    // 覆盖写入 IndexedDB 背景库（先 clear 再逐条 put）
+    function writeBgStore(records, cb) {
+        cb = cb || function () {};
+        openBgDB(function (db) {
+            if (!db) { cb(); return; }
+            try {
+                var tx = db.transaction(BG_DB_STORE, 'readwrite');
+                tx.objectStore(BG_DB_STORE).clear();
+                tx.oncomplete = function () {
+                    try {
+                        var tx2 = db.transaction(BG_DB_STORE, 'readwrite');
+                        records.forEach(function (r) { tx2.objectStore(BG_DB_STORE).put(r); });
+                        tx2.oncomplete = function () { cb(); };
+                        tx2.onerror = function () { cb(); };
+                    } catch (e) { cb(); }
+                };
+                tx.onerror = function () { cb(); };
+            } catch (e) { cb(); }
+        });
+    }
+    // 把「原始 IndexedDB 记录（含 __meta__）」转换为规范化的 {list, currentId}
+    function bgRecordsToPayload(records) {
+        var list = [];
+        var currentId = null;
+        (records || []).forEach(function (r) {
+            if (r && r.id === BG_META_ID) currentId = r.currentId;
+            else if (r && r.dataURL) list.push({ id: r.id, type: r.type === 'video' ? 'video' : 'image', dataURL: r.dataURL });
+        });
+        return { list: list, currentId: currentId };
+    }
+    // 把规范化的 {list, currentId} 还原成 IndexedDB 记录数组（含 __meta__）
+    function bgPayloadToRecords(payload) {
+        var recs = (payload && payload.list || []).map(function (i) {
+            return { id: i.id, type: i.type === 'video' ? 'video' : 'image', dataURL: i.dataURL };
+        });
+        if (payload && payload.currentId) recs.push({ id: BG_META_ID, currentId: payload.currentId });
+        return recs;
+    }
+    // ---- 配置导出/导入：压缩包（zip）方式，背景拆真实媒体、每个卡片独立文件 ----
+    // 精选映射：仅列出「确有独立持久配置」的工具；其余无落盘的工具不生成卡片文件。
+    // 通用/共享键（SPLIT_KEY、MAIN_H_KEY、STORAGE_KEY 等）归入 site；全量兜底见 _raw/。
+    var TOOL_CONFIG = {
+        'serialPortTool': ['serial_cmds2', 'auto_reply_rules'],
+        'HttpTool':       ['http_cmds', 'http_history'],
+        'ModbusRTU':      ['modbus_cmds'],
+        'MaterialManager':['STORAGE_KEY'],
+        'MermaidDraw':    ['flowchart-main-h', 'MAIN_H_KEY']
+    };
+    var SITE_KEYS = ['toolbox-theme', 'toolbox-lang', 'toolbox-unit', 'toolbox-cat-collapsed-web',
+        'toolbox-nav-collapsed', 'ENGINE_KEY', 'FAV_KEY', 'APPEAR_KEY',
+        'SLIDE_KEY', 'MAIN_H_KEY', 'STORAGE_KEY', 'SPLIT_KEY', '__hw_test__'];
+    function isCatCollapse(k) { return String(k).indexOf('toolbox-cat-collapsed-') === 0; }
+    function toBytes(s) { return new TextEncoder().encode(s); }
+    function tsStamp() { return new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-'); }
+    function downloadBlob(blob, name) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.download = name; a.href = url;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    }
+    // dataURL → {mime, bytes}（用于把背景拆成真实媒体文件）
+    function dataURLToBytes(dataURL) {
+        var s = String(dataURL);
+        var comma = s.indexOf(',');
+        var m = s.slice(0, comma).match(/data:([^;]+)/);
+        var mime = m ? m[1] : 'application/octet-stream';
+        var bin = atob(s.slice(comma + 1));
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return { mime: mime, bytes: bytes };
+    }
+    // bytes + mime → dataURL（导入时由媒体文件重建背景）
+    function bytesToDataURL(mime, bytes) {
+        var bin = '', chunk = 0x8000;
+        for (var i = 0; i < bytes.length; i += chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+        return 'data:' + mime + ';base64,' + btoa(bin);
+    }
+    function extForMime(mime, type) {
+        var map = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/jpg': 'jpg', 'image/webp': 'webp',
+            'image/gif': 'gif', 'image/bmp': 'bmp', 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/ogg': 'ogv' };
+        return map[mime] || (type === 'video' ? 'mp4' : 'png');
+    }
+
+    // 导出：构建结构化 zip（manifest + 背景媒体 + 各卡片 + 站点 + 全量兜底）
+    // 背景直接用内存中「当前显示」的 bgImages / bgCurrentId：
+    // 它始终与界面一致（页面加载时由 loadBgList 填充、上传/删除时实时更新），
+    // 不再二次读存储，避免「背景仅存在于内存、尚未落盘（如大视频超配额）」时被漏导出。
+    function exportConfig() {
+        var all = {};
+        for (var i = 0; i < localStorage.length; i++) { var k = localStorage.key(i); all[k] = localStorage.getItem(k); }
+        var recs = bgImages.map(function (img) {
+            return { id: img.id, type: img.type === 'video' ? 'video' : 'image', dataURL: img.dataURL };
+        });
+        if (bgCurrentId) recs.push({ id: BG_META_ID, currentId: bgCurrentId });
+        finishExportZip(all, recs);
+    }
+    function finishExportZip(all, bgRecs) {
+        var ts = tsStamp();
+        var fallback = function () {
+            var data = { meta: { app: 'Yu_ToolBox', version: 2, exportedAt: new Date().toISOString() }, localStorage: all, indexedDB: {}, background: bgRecordsToPayload(bgRecs) };
+            data.indexedDB[BG_DB_NAME] = bgRecs;
+            downloadBlob(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), 'yu-toolbox-config-' + ts + '.json');
+            showConfigNotice(I18N.t('index.config.exportDone') || '配置已导出');
+        };
+        if (!window.ZipUtil) { fallback(); return; }
+        var bgPayload = bgRecordsToPayload(bgRecs);
+        var files = [];
+        files.push({ name: 'manifest.json', data: toBytes(JSON.stringify({
+            app: 'Yu_ToolBox', version: 2, exportedAt: new Date().toISOString()
+        }, null, 2)) });
+        // 背景：拆成真实媒体文件 + 索引 json
+        var mediaMeta = [];
+        (bgPayload.list || []).forEach(function (it) {
+            var info = dataURLToBytes(it.dataURL);
+            var ext = extForMime(info.mime, it.type);
+            var fname = 'background/media/' + it.id + '.' + ext;
+            files.push({ name: fname, data: info.bytes });
+            mediaMeta.push({ id: it.id, type: it.type, mime: info.mime, file: fname });
+        });
+        files.push({ name: 'background/background.json', data: toBytes(JSON.stringify({ currentId: bgPayload.currentId, media: mediaMeta }, null, 2)) });
+        // 卡片：每个工具独立一个 json
+        Object.keys(TOOL_CONFIG).forEach(function (tool) {
+            var cfg = {}; var has = false;
+            TOOL_CONFIG[tool].forEach(function (key) { if (Object.prototype.hasOwnProperty.call(all, key)) { cfg[key] = all[key]; has = true; } });
+            if (has) files.push({ name: 'cards/' + tool + '.json', data: toBytes(JSON.stringify(cfg, null, 2)) });
+        });
+        // 站点（主页）配置
+        var site = {};
+        Object.keys(all).forEach(function (k) {
+            if (k === BG_LS_KEY) return;
+            if (SITE_KEYS.indexOf(k) >= 0 || isCatCollapse(k)) site[k] = all[k];
+        });
+        files.push({ name: 'site/site.json', data: toBytes(JSON.stringify(site, null, 2)) });
+        // 全量兜底（保证导入时不遗漏任何键）
+        files.push({ name: '_raw/localStorage.json', data: toBytes(JSON.stringify(all, null, 2)) });
+        files.push({ name: '_raw/background-raw.json', data: toBytes(JSON.stringify({ indexedDB: bgRecs }, null, 2)) });
+
+        ZipUtil.createZip(files).then(function (blob) {
+            downloadBlob(blob, 'yu-toolbox-config-' + ts + '.zip');
+            showConfigNotice(I18N.t('index.config.exportDone') || '配置已导出为压缩包');
+        }).catch(function () { fallback(); });
+    }
+    // 导入：检测 zip 魔数 → 解析压缩包；否则按旧版 JSON 处理（兼容旧备份）
+    function importConfig(file) {
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+            var buf = ev.target.result;   // ArrayBuffer
+            var dv = new DataView(buf);
+            var isZip = buf.byteLength >= 4 && dv.getUint32(0, true) === 0x04034b50;
+            if (isZip) { importZip(buf); return; }
+            var text; try { text = new TextDecoder().decode(new Uint8Array(buf)); } catch (e) { text = ''; }
+            var data; try { data = JSON.parse(text); } catch (e) { showConfigNotice(I18N.t('index.config.importError') || '导入失败'); return; }
+            importLegacyConfig(data);
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    function importLegacyConfig(data) {
+        if (!data || typeof data.localStorage !== 'object') { showConfigNotice(I18N.t('index.config.importInvalid') || '文件格式不正确'); return; }
+        if (!window.confirm(I18N.t('index.config.importConfirm') || '导入将覆盖当前所有配置，确定继续？')) return;
+        Object.keys(data.localStorage).forEach(function (k) { try { localStorage.setItem(k, data.localStorage[k]); } catch (e) {} });
+        var idbRecs = (data.indexedDB && data.indexedDB[BG_DB_NAME]) || [];
+        var payload = (data.background && data.background.list) ? data.background : bgRecordsToPayload(idbRecs);
+        var records = idbRecs.length ? idbRecs : bgPayloadToRecords(payload);
+        try { persistBgLS(payload.list || [], payload.currentId || null); } catch (e) {}
+        writeBgStore(records, function () {
+            showConfigNotice(I18N.t('index.config.importDone') || '配置已导入，正在重新加载…');
+            setTimeout(function () { location.reload(); }, 600);
+        });
+    }
+    function importZip(buf) {
+        if (!window.ZipUtil) { showConfigNotice(I18N.t('index.config.importZipError') || '压缩组件缺失'); return; }
+        ZipUtil.parseZip(buf).then(function (entries) {
+            var map = {}; entries.forEach(function (e) { map[e.name] = e.bytes; });
+            if (!window.confirm(I18N.t('index.config.importConfirm') || '导入将覆盖当前所有配置，确定继续？')) return;
+            // ① 全量兜底恢复（保证完整，不被精选映射遗漏）
+            var raw = map['_raw/localStorage.json'];
+            if (raw) {
+                try {
+                    var obj = JSON.parse(new TextDecoder().decode(raw));
+                    Object.keys(obj).forEach(function (k) { try { localStorage.setItem(k, obj[k]); } catch (e) {} });
+                } catch (e) {}
+            }
+            // ② 背景：由 media 重建 dataURL → 写回 IndexedDB（主，可存大文件/视频）+ localStorage 兜底
+            //    关键修复：必须等 IndexedDB 真正写完再 reload，否则大视频写入未完成就被刷新打断而丢失。
+            var doReload = function () {
+                showConfigNotice(I18N.t('index.config.importDone') || '配置已导入，正在重新加载…');
+                setTimeout(function () { location.reload(); }, 300);
+            };
+            var bgJson = map['background/background.json'];
+            if (bgJson) {
+                try {
+                    var bg = JSON.parse(new TextDecoder().decode(bgJson));
+                    var list = (bg.media || []).map(function (m) {
+                        var mb = map[m.file]; if (!mb) return null;
+                        try { return { id: m.id, type: m.type, dataURL: bytesToDataURL(m.mime, mb) }; } catch (e) { return null; }
+                    }).filter(Boolean);
+                    var payload = { list: list, currentId: bg.currentId };
+                    try { persistBgLS(payload.list, payload.currentId); } catch (e) {}  // 兜底；大文件会超配额被忽略，以 IndexedDB 为准
+                    writeBgStore(bgPayloadToRecords(payload), function () { doReload(); });
+                } catch (e) { doReload(); }
+            } else {
+                doReload();
+            }
+        }).catch(function () {
+            showConfigNotice(I18N.t('index.config.importZipError') || '压缩包解析失败，请确认文件完整');
+        });
+    }
+    if (configExportBtn) {
+        configExportBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            exportConfig();
+        });
+    }
+    if (configImportBtn && configImportInput) {
+        configImportBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            configImportInput.value = '';   // 允许重复选择同一文件
+            configImportInput.click();
+        });
+        configImportInput.addEventListener('change', function () {
+            var f = configImportInput.files && configImportInput.files[0];
+            if (f) importConfig(f);
+        });
+    }
+    // 渲染背景缩略图网格（图片用背景图，视频用 <video> 预览；点击切换当前背景）
+    function renderBgGrid() {
+        if (!pageBgGrid) return;
+        pageBgGrid.innerHTML = '';
+        bgImages.forEach(function (img) {
+            var t;
+            if (img.type === 'video') {
+                t = document.createElement('div');
+                t.className = 'engine-bg-thumb engine-bg-video' + (img.id === bgCurrentId ? ' active' : '');
+                var vt = document.createElement('video');
+                vt.src = img.dataURL;
+                vt.muted = true;
+                vt.loop = true;
+                vt.autoplay = true;
+                vt.playsInline = true;
+                vt.setAttribute('muted', '');
+                vt.setAttribute('autoplay', '');
+                vt.setAttribute('loop', '');
+                vt.setAttribute('playsinline', '');
+                vt.preload = 'auto';
+                t.appendChild(vt);
+            } else {
+                t = document.createElement('div');
+                t.className = 'engine-bg-thumb' + (img.id === bgCurrentId ? ' active' : '');
+                t.style.backgroundImage = 'url("' + img.dataURL + '")';
+            }
+            t.title = '点击设为背景';
+            t.addEventListener('click', function () {
+                bgCurrentId = img.id;
+                var cur = bgImages.filter(function (x) { return x.id === bgCurrentId; })[0];
+                appearDraft.bg = cur ? cur.dataURL : '';
+                applyAppearance(appearDraft);
+                renderBgGrid();
+            });
+            // 单个背景删除按钮（右上角 ✕）：只删当前这一项，不是全部清除
+            var del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'engine-bg-del';
+            del.textContent = '✕';
+            del.title = I18N.t('index.appear.bgDelete') || '删除';
+            del.setAttribute('aria-label', del.title);
+            del.addEventListener('click', function (e) {
+                e.stopPropagation();   // 阻止冒泡到缩略图（否则会先被设为背景）
+                bgImages = bgImages.filter(function (x) { return x.id !== img.id; });
+                if (bgCurrentId === img.id) {
+                    bgCurrentId = bgImages.length ? bgImages[0].id : null;
+                }
+                var cur = bgImages.filter(function (x) { return x.id === bgCurrentId; })[0];
+                appearDraft.bg = cur ? cur.dataURL : '';
+                saveBgList();                 // 立即持久化
+                syncAppearanceUI();           // 重渲染网格 + 刷新计数
+                applyAppearance(appearDraft);
+            });
+            t.appendChild(del);
+            pageBgGrid.appendChild(t);
+        });
+    }
+
+    function syncAppearanceUI() {
+        // 本地文件模式（file://）提示：背景依赖 IndexedDB + localStorage 兜底，
+        // 而 file:// 下 IndexedDB 通常被禁用、且背景体积易超 localStorage 配额，故背景刷新可能丢失。
+        if (bgFileModeTip) {
+            if (location.protocol === 'file:') {
+                bgFileModeTip.textContent = I18N.t('index.appear.bgFileModeTip') || '';
+                bgFileModeTip.style.display = '';
+            } else {
+                bgFileModeTip.style.display = 'none';
+            }
+        }
+        if (cardOpacity) {
+            cardOpacity.value = String(appearDraft.opacity);
+            if (cardOpacityVal) cardOpacityVal.textContent = appearDraft.opacity + '%';
+        }
+        if (cardBlur) {
+            cardBlur.value = String(appearDraft.blur);
+            if (cardBlurVal) cardBlurVal.textContent = appearDraft.blur + 'px';
+        }
+        if (cardOpacityHover) {
+            cardOpacityHover.value = String(appearDraft.opacityHover);
+            if (cardOpacityHoverVal) cardOpacityHoverVal.textContent = appearDraft.opacityHover + '%';
+        }
+        if (cardBlurHover) {
+            cardBlurHover.value = String(appearDraft.blurHover);
+            if (cardBlurHoverVal) cardBlurHoverVal.textContent = appearDraft.blurHover + 'px';
+        }
+        if (pageBgDim) {
+            pageBgDim.value = String(appearDraft.bgClarity);
+            if (pageBgDimVal) pageBgDimVal.textContent = appearDraft.bgClarity + '%';
+        }
+        renderBgGrid();
+        updateBgCount();
+        if (pageBgInput) pageBgInput.value = '';
+    }
+    // 实时预览：拖动滑块立即反映到页面
+    if (cardOpacity) {
+        cardOpacity.addEventListener('input', function () {
+            var v = parseInt(cardOpacity.value, 10);
+            appearDraft.opacity = isNaN(v) ? 100 : v;
+            if (cardOpacityVal) cardOpacityVal.textContent = appearDraft.opacity + '%';
+            applyAppearance(appearDraft);
+        });
+    }
+    if (cardBlur) {
+        cardBlur.addEventListener('input', function () {
+            appearDraft.blur = parseInt(cardBlur.value, 10) || 0;
+            if (cardBlurVal) cardBlurVal.textContent = appearDraft.blur + 'px';
+            applyAppearance(appearDraft);
+        });
+    }
+    // 悬停态卡片透明度（鼠标移到卡片上时使用）
+    if (cardOpacityHover) {
+        cardOpacityHover.addEventListener('input', function () {
+            var v = parseInt(cardOpacityHover.value, 10);
+            appearDraft.opacityHover = isNaN(v) ? 100 : v;
+            if (cardOpacityHoverVal) cardOpacityHoverVal.textContent = appearDraft.opacityHover + '%';
+            applyAppearance(appearDraft);
+        });
+    }
+    // 悬停态卡片模糊度（鼠标移到卡片上时使用）
+    if (cardBlurHover) {
+        cardBlurHover.addEventListener('input', function () {
+            appearDraft.blurHover = parseInt(cardBlurHover.value, 10) || 0;
+            if (cardBlurHoverVal) cardBlurHoverVal.textContent = appearDraft.blurHover + 'px';
+            applyAppearance(appearDraft);
+        });
+    }
+    // 页面背景通透度（控制压暗层透明度，与卡片透明度互不影响）
+    if (pageBgDim) {
+        pageBgDim.addEventListener('input', function () {
+            appearDraft.bgClarity = parseInt(pageBgDim.value, 10) || 0;
+            if (pageBgDimVal) pageBgDimVal.textContent = appearDraft.bgClarity + '%';
+            applyAppearance(appearDraft);
+        });
+    }
+    // 上传背景图（可多选）→ 逐张转 dataURL 加入列表，最后一张自动设为当前并立即持久化
+    // 限制：图片 + 视频合计最多 MAX_BG_ITEMS（9）个；超出部分被忽略并提示
+    if (pageBgInput) {
+        pageBgInput.addEventListener('change', function () {
+            var files = pageBgInput.files;
+            if (!files || !files.length) return;
+            // 先复制文件列表到普通数组，再清空 value：input.files 是实时引用，
+            // 一旦清空 FileList 会立即变空，必须在复制之后再 value=''
+            var slice = Array.prototype.slice.call(files, 0);
+            pageBgInput.value = '';   // 允许重复选择同一文件
+            // 只保留图片 / 视频类型
+            var media = slice.filter(function (file) {
+                var t = file.type || '';
+                return t.indexOf('video/') === 0 || t.indexOf('image/') === 0;
+            });
+            var remaining = MAX_BG_ITEMS - bgImages.length;   // 当前还能再加入的数量
+            if (remaining <= 0) {
+                if (media.length) showBgNotice(bgMsg('index.appear.bgFull', media.length));
+                updateBgCount();
+                return;
+            }
+            var allowed = media.slice(0, remaining);          // 本次实际能加入的文件
+            var overLimit = media.length - allowed.length;    // 因达上限被忽略的数量
+            if (overLimit > 0) showBgNotice(bgMsg('index.appear.bgSkipped', overLimit));
+            if (!allowed.length) { updateBgCount(); return; }
+            var pending = allowed.length;
+            allowed.forEach(function (file) {
+                var isVideo = file.type && file.type.indexOf('video/') === 0;
+                var reader = new FileReader();
+                reader.onload = function (ev) {
+                    var id = 'bg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+                    bgImages.push({ id: id, type: isVideo ? 'video' : 'image', dataURL: ev.target.result });
+                    bgCurrentId = id;
+                    if (--pending === 0) finish();
+                };
+                reader.onerror = function () { if (--pending === 0) finish(); };
+                reader.readAsDataURL(file);
+            });
+            function finish() {
+                var cur = bgImages.filter(function (x) { return x.id === bgCurrentId; })[0];
+                appearDraft.bg = cur ? cur.dataURL : '';
+                saveBgList();                 // 立即持久化，重开弹窗/刷新都不丢
+                syncAppearanceUI();
+                applyAppearance(appearDraft);
+            }
+        });
+    }
+    if (pageBgClear) {
+        pageBgClear.addEventListener('click', function () {
+            bgImages = [];
+            bgCurrentId = null;
+            appearDraft.bg = '';
+            saveBgList();                     // 同步清除持久化
+            syncAppearanceUI();
+            applyAppearance(appearDraft);
+            renderBgGrid();
+        });
+    }
+
+    // 返回顶部（滚动超过一屏后显示）
+    function onScroll() {
+        if (!fabTop) return;
+        if (window.scrollY > 300) fabTop.classList.add('show');
+        else fabTop.classList.remove('show');
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    if (fabTop) {
+        fabTop.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    // 保存 / 恢复默认
+    function saveEngine() {
+        if (!engineSelect) return;
+        setEngineUrl(engineSelect.value);
+        saveAppearance(appearDraft);
+        applyAppearance(appearDraft);
+        updateSearchTip();
+        if (engineOverlay) engineOverlay.classList.remove('active');
+    }
+
+    // 打开 / 关闭设置弹窗
+    if (fabSettings && engineOverlay) {
+        fabSettings.addEventListener('click', function () {
+            // 重建下拉（含自定义引擎）并选中当前引擎；刷新自定义列表
+            renderEngineOptions();
+            renderCustomEngineList();
+            appearDraft.opacity = (typeof appearDraft.opacity === 'number') ? appearDraft.opacity : 100;
+            appearDraft.blur = (typeof appearDraft.blur === 'number') ? appearDraft.blur : 0;
+            // 透明/模糊度以小数据 localStorage 为准；背景图保留内存中当前值（避免被覆盖丢失）
+            loadAppearance();
+            // 背景图：页面加载时已完成首次读取（bgLoaded=true），内存列表即权威，
+            // 打开设置时**不再用存储快照覆盖**，否则延迟回调会清掉本次会话刚上传的数据。
+            function renderBgUI() {
+                var c = bgImages.filter(function (x) { return x.id === bgCurrentId; })[0];
+                appearDraft.bg = c ? c.dataURL : '';
+                applyAppearance(appearDraft);
+                syncAppearanceUI();
+                renderBgGrid();
+            }
+            if (!bgLoaded) {
+                // 极少数情况：首次打开设置时页面加载的读取尚未完成，等其完成再渲染
+                loadBgList(function (list, currentId) {
+                    bgImages = list || [];
+                    bgCurrentId = (currentId && bgImages.some(function (x) { return x.id === currentId; })) ? currentId : (bgImages[0] ? bgImages[0].id : null);
+                    renderBgUI();
+                });
+            } else {
+                renderBgUI();
+            }
+            engineOverlay.classList.add('active');
+        });
+    }
+    if (engineSave) engineSave.addEventListener('click', saveEngine);
+    if (engineReset) {
+        engineReset.addEventListener('click', function () {
+            setEngineUrl(ENGINES[DEFAULT_ENGINE]);
+            appearDraft = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0 };
+            bgImages = [];
+            bgCurrentId = null;
+            saveAppearance(appearDraft);
+            applyAppearance(appearDraft);
+            updateBgCount();
+            renderBgGrid();
+            if (engineOverlay) engineOverlay.classList.remove('active');
+        });
+    }
+    if (engineCancel) {
+        engineCancel.addEventListener('click', function () {
+            if (engineOverlay) engineOverlay.classList.remove('active');
+        });
+    }
+    if (engineOverlay) {
+        engineOverlay.addEventListener('click', function (e) {
+            if (e.target === engineOverlay) engineOverlay.classList.remove('active');
+        });
+    }
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && engineOverlay && engineOverlay.classList.contains('active')) {
+            engineOverlay.classList.remove('active');
+        }
+    });
+
+    // 语言切换时刷新搜索页提示与背景计数文案
+    document.addEventListener('languagechange', updateSearchTip);
+    document.addEventListener('languagechange', updateBgCount);
+    // 语言切换时同步自定义引擎列表的文案（空占位 / 删除按钮 title）
+    document.addEventListener('languagechange', function () {
+        renderCustomEngineList();
+    });
+
+    // 添加自定义搜索引擎
+    if (customEngineAdd) customEngineAdd.addEventListener('click', addCustomEngine);
+    // 回车快捷添加（名称或地址框内回车即添加）
+    if (customEngineName) customEngineName.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addCustomEngine(); } });
+    if (customEngineUrl) customEngineUrl.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); addCustomEngine(); } });
+
+    // 初次进入即渲染下拉与自定义列表（保证搜索页提示、弹窗内容正确）
+    renderEngineOptions();
+    renderCustomEngineList();
+
+    })();

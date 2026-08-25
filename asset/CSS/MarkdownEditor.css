@@ -384,6 +384,30 @@ body.md-resizing .md-resizer {
     opacity: 1;
 }
 
+/* 拖拽文件导入遮罩层（覆盖编辑区，悬停拖拽时显示提示） */
+.md-drop-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: var(--md-editor-bg);
+    color: var(--accent-blue);
+    border: 2px dashed var(--accent-blue);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 20px;
+    opacity: 0.92;
+    pointer-events: none;          /* 透传拖拽事件到编辑区，不拦截 drop */
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.md-drop-overlay.show { display: flex; }
+
 /* 高亮层：textarea 下层，实时渲染语法着色
    注意1：不能用 bottom:0 锁定高度为可视区高度。
          必须让该层高度等于文本内容真实高度，滚动时才不会被循环平移

@@ -44,6 +44,7 @@ window.I18N_STRINGS = {
 
     // 分栏：拖动分隔条 + 全屏
     'flowchart.resizer.title':    { zh: '拖动调整编辑/预览宽度', en: 'Drag to resize editor/preview' },
+    'flowchart.vresizer.title':   { zh: '拖动调整编辑/预览框高度', en: 'Drag to resize editor/preview height' },
     'flowchart.fs.editor':        { zh: '编辑器全屏', en: 'Editor fullscreen' },
     'flowchart.fs.preview':       { zh: '预览全屏', en: 'Preview fullscreen' },
     'flowchart.fs.editor.restore':{ zh: '退出编辑器全屏', en: 'Exit editor fullscreen' },
@@ -51,12 +52,14 @@ window.I18N_STRINGS = {
     'flowchart.btn.copy':        { zh: '📋 复制代码', en: '📋 Copy code' },
     'flowchart.btn.exportPng':   { zh: '🖼 导出 PNG', en: '🖼 Export PNG' },
     'flowchart.btn.exportSvg':   { zh: '📐 导出 SVG', en: '📐 Export SVG' },
+    'flowchart.btn.exportPdf':   { zh: '📑 导出 PDF', en: '📑 Export PDF' },
     'flowchart.btn.render':      { zh: '▶ 渲染', en: '▶ Render' },
 
     // 面板
     'flowchart.panel.code':      { zh: '📝 代码编辑', en: '📝 Code Editor' },
     'flowchart.panel.preview':   { zh: '📊 渲染预览', en: '📊 Preview' },
     'flowchart.editor.ph':       { zh: 'flowchart LR\n    A[开始] --> B[结束]', en: 'flowchart LR\n    A[Start] --> B[End]' },
+    'flowchart.drop.hint':       { zh: '拖入 .mmd/.md/.txt 文件以导入', en: 'Drop .mmd/.md/.txt file to import' },
 
     // 状态
     'flowchart.status.ready':    { zh: '就绪', en: 'Ready' },
@@ -74,6 +77,9 @@ window.I18N_STRINGS = {
     'flowchart.msg.loadFail':    { zh: 'Mermaid 加载失败，请检查网络或切换到离线模式', en: 'Mermaid load failed. Check network or switch to offline mode.' },
     'flowchart.msg.renderErr':   { zh: '渲染错误', en: 'Render error' },
     'flowchart.msg.noMermaid':   { zh: 'Mermaid 尚未加载', en: 'Mermaid not loaded yet' },
+    'flowchart.msg.pdfHint':     { zh: '已打开打印窗口，选择“另存为 PDF”即可', en: 'Print dialog opened — choose "Save as PDF"' },
+    'flowchart.msg.imported':    { zh: '✓ 已导入文件', en: '✓ File imported' },
+    'flowchart.msg.loadFail':    { zh: '文件读取失败', en: 'Failed to read file' },
     'flowchart.msg.offlineFallback': { zh: '离线模式使用本地 Mermaid 库', en: 'Offline mode using local Mermaid library' },
 
     // 模板名称
@@ -969,6 +975,7 @@ function tt(key, vars) {
     var zoomLevel    = document.getElementById('zoomLevel');
     var exportPngBtn = document.getElementById('exportPngBtn');
     var exportSvgBtn = document.getElementById('exportSvgBtn');
+    var exportPdfBtn = document.getElementById('exportPdfBtn');
     var copyBtn      = document.getElementById('copyBtn');
     var codeGutter   = document.getElementById('codeGutter');
     var codeHighlight = document.getElementById('codeHighlight');
@@ -980,6 +987,7 @@ function tt(key, vars) {
     // 分栏：拖动分隔条 + 全屏
     var flowchartMain    = document.querySelector('.flowchart-main');
     var flowchartResizer = document.getElementById('flowchartResizer');
+    var flowchartVResizer = document.getElementById('flowchartVResizer');
     var editorPanel      = document.querySelector('.flowchart-editor-panel');
     var previewPanel     = document.querySelector('.flowchart-preview-panel');
     var fsEditorBtn      = document.getElementById('fsEditorBtn');
@@ -1201,6 +1209,21 @@ function tt(key, vars) {
     function setStatus(cls, key) {
         renderStatus.className = 'status-badge ' + cls;
         renderStatus.textContent = window.I18N.t(key) || '';
+    }
+
+    // 短暂提示（如导出 PDF 已打开打印窗口），2.5s 后恢复原有状态
+    var hintTimer = null;
+    function flashHint(key) {
+        var cls = renderStatus.className.replace('status-badge ', '');
+        var prevKey = cls === 'ready' ? 'flowchart.status.ready'
+                    : cls === 'error' ? 'flowchart.status.error'
+                    : cls === 'rendering' ? 'flowchart.status.rendering'
+                    : '';
+        setStatus('ready', key);
+        if (hintTimer) clearTimeout(hintTimer);
+        hintTimer = setTimeout(function() {
+            if (prevKey) setStatus(cls, prevKey);
+        }, 2500);
     }
 
     function escapeHtml(str) {
@@ -1698,6 +1721,92 @@ function tt(key, vars) {
     }
 
     // ============================================================
+    //  PDF 导出（通过浏览器打印对话框另存为 PDF，纯前端离线实现）
+    //  把当前 SVG 单独装进隐藏 iframe 打印，避免整页打印与弹窗拦截
+    // ============================================================
+    function exportPdf() {
+        var svg = previewInner.querySelector('svg');
+        if (!svg) {
+            alert(window.I18N.t('flowchart.msg.noMermaid'));
+            return;
+        }
+
+        try {
+            // 准备可独立渲染的 SVG 副本
+            var clone = svg.cloneNode(true);
+            clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+
+            // 移除主题覆盖样式，避免内联样式干扰打印配色
+            var override = clone.querySelector('#mermaid-theme-override');
+            if (override) override.remove();
+
+            // 从 viewBox 取出明确宽高写回根节点，保证打印尺寸正确
+            var imgW = 800, imgH = 600;
+            var vb = clone.getAttribute('viewBox');
+            if (vb) {
+                var parts = vb.trim().split(/[\s,]+/).map(parseFloat);
+                if (parts.length === 4 && parts[2] > 0 && parts[3] > 0) {
+                    imgW = parts[2];
+                    imgH = parts[3];
+                }
+            }
+            clone.setAttribute('width', imgW);
+            clone.setAttribute('height', imgH);
+            clone.removeAttribute('style');   // 去掉 max-width 等内联样式
+
+            var svgStr = new XMLSerializer().serializeToString(clone);
+            var theme = document.documentElement.getAttribute('data-theme');
+            var bg = theme === 'dark' ? '#2c2c2c' : '#ffffff';
+
+            var printHtml =
+                '<!DOCTYPE html><html><head><meta charset="utf-8"><title>flowchart</title>' +
+                '<style>@page{margin:12mm;}html,body{margin:0;padding:0;}' +
+                'body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:' + bg + ';}' +
+                'svg{max-width:100%;max-height:95vh;height:auto;}</style></head>' +
+                '<body>' + svgStr + '</body></html>';
+
+            // 隐藏 iframe 打印：比 window.open 更不易被弹窗拦截
+            var iframe = document.createElement('iframe');
+            iframe.setAttribute('aria-hidden', 'true');
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            document.body.appendChild(iframe);
+
+            var printed = false;
+            function doPrint() {
+                if (printed) return;
+                printed = true;
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (e) { /* 部分环境打印 API 差异，忽略 */ }
+                // 打印结束后移除 iframe
+                setTimeout(function() {
+                    if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+                }, 1000);
+            }
+
+            iframe.onload = doPrint;
+            var doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(printHtml);
+            doc.close();
+
+            // 兜底：个别浏览器 onload 不触发时延迟触发
+            setTimeout(doPrint, 600);
+
+            flashHint('flowchart.msg.pdfHint');
+        } catch (e) {
+            console.error('[MermaidDraw] PDF 导出失败:', e);
+            alert(window.I18N.t('flowchart.msg.pngFail'));
+        }
+    }
+
+    // ============================================================
     //  复制代码
     // ============================================================
     function copyCode() {
@@ -1920,12 +2029,55 @@ function tt(key, vars) {
         autoRender();
         syncHScroll();   // 内容变化后更新底部横向滚动条
     });
+
+    // ============================================================
+    //  拖入文件导入代码（支持 .mmd/.md/.txt 等文本文件）
+    // ============================================================
+    var editorWrap = codeEditor ? codeEditor.closest('.flowchart-editor-wrap') : null;
+    if (editorWrap && codeEditor) {
+        var dragDepth = 0;
+        function preventDrop(e) { e.preventDefault(); e.stopPropagation(); }
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(function(evt) {
+            editorWrap.addEventListener(evt, preventDrop, false);
+        });
+        // 用计数器处理子元素冒泡，避免移入子元素时误判“离开”
+        editorWrap.addEventListener('dragenter', function() {
+            dragDepth++;
+            editorWrap.classList.add('drag-over');
+        });
+        editorWrap.addEventListener('dragleave', function() {
+            dragDepth--;
+            if (dragDepth <= 0) { dragDepth = 0; editorWrap.classList.remove('drag-over'); }
+        });
+        editorWrap.addEventListener('drop', function(e) {
+            dragDepth = 0;
+            editorWrap.classList.remove('drag-over');
+            var dt = e.dataTransfer;
+            if (!dt || !dt.files || !dt.files.length) return;
+            var file = dt.files[0];
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                codeEditor.value = ev.target.result || '';
+                renderHighlight();
+                autoRender();
+                syncHScroll();
+                codeEditor.scrollTop = 0;
+                try { codeEditor.setSelectionRange(0, 0); } catch (_) { /* 忽略 */ }
+                flashHint('flowchart.msg.imported');
+            };
+            reader.onerror = function() {
+                alert(window.I18N.t('flowchart.msg.loadFail'));
+            };
+            reader.readAsText(file);
+        });
+    }
     // 滚动时同步高亮层与行号栏
     codeEditor.addEventListener('scroll', syncEditorScroll);
     // 缩放：+/- 按钮已移除，滚轮缩放不变；点击百分比徽章重置为 100%
     zoomLevel.addEventListener('click', zoomReset);
     exportPngBtn.addEventListener('click', exportPng);
     exportSvgBtn.addEventListener('click', exportSvg);
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', exportPdf);
     copyBtn.addEventListener('click', copyCode);
 
     // 预览区滚轮缩放：滚动量 → 平滑动画，以鼠标位置为中心缩放
@@ -2075,6 +2227,52 @@ function tt(key, vars) {
     }
 
     // ============================================================
+    //  底部高度调整（拖动把手调整编辑/预览框整体高度，持久化到 localStorage）
+    // ============================================================
+    var MAIN_H_KEY = 'flowchart-main-h';
+    var MAIN_H_MIN = 360;     // 最小高度（低于此值编辑区最小高度会溢出）
+    var MAIN_H_MAX = 1200;    // 最大高度
+
+    if (flowchartVResizer && flowchartMain) {
+        var vDragging = false;
+        var startY = 0, startH = 0;
+
+        flowchartVResizer.addEventListener('pointerdown', function (e) {
+            e.preventDefault();
+            vDragging = true;
+            flowchartVResizer.classList.add('active');
+            document.body.classList.add('flowchart-vresizing');
+            startY = e.clientY;
+            startH = flowchartMain.getBoundingClientRect().height;
+            if (flowchartVResizer.setPointerCapture) {
+                try { flowchartVResizer.setPointerCapture(e.pointerId); } catch (err) { /* 忽略 */ }
+            }
+        });
+
+        window.addEventListener('pointermove', function (e) {
+            if (!vDragging) return;
+            var delta = e.clientY - startY;
+            var newH = Math.max(MAIN_H_MIN, Math.min(MAIN_H_MAX, startH + delta));
+            flowchartMain.style.height = newH + 'px';
+        });
+
+        window.addEventListener('pointerup', function () {
+            if (!vDragging) return;
+            vDragging = false;
+            flowchartVResizer.classList.remove('active');
+            document.body.classList.remove('flowchart-vresizing');
+            var h = parseFloat(flowchartMain.getBoundingClientRect().height);
+            if (!isNaN(h)) localStorage.setItem(MAIN_H_KEY, h);
+        });
+
+        // 双击把手：恢复自适应默认高度
+        flowchartVResizer.addEventListener('dblclick', function () {
+            flowchartMain.style.height = '';
+            localStorage.removeItem(MAIN_H_KEY);
+        });
+    }
+
+    // ============================================================
     //  全屏切换（某一框占满 / 再次点击复原对称布局）
     // ============================================================
     var fsState = 'none';   // 'none' | 'editor' | 'preview'
@@ -2100,8 +2298,14 @@ function tt(key, vars) {
         editorPanel.style.flexBasis = '';
         previewPanel.style.flexBasis = '';
         if (target === 'none') {
+            // 常规态：清除内联高度，恢复之前自适应高度效果
+            flowchartMain.style.height = '';
             applySplit(50);                 // 复原两边对称布局
             localStorage.setItem(SPLIT_KEY, 50);
+        } else {
+            // 全屏态：应用已保存高度（无则保持 CSS 默认），此时底部把手可用
+            var savedH = parseFloat(localStorage.getItem('flowchart-main-h'));
+            if (!isNaN(savedH)) flowchartMain.style.height = savedH + 'px';
         }
         updateFsButtons();
     }

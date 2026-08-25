@@ -85,6 +85,12 @@ window.I18N_STRINGS = {
     'markdown.msg.tocEmpty':     { zh: '没有可生成目录的标题', en: 'No headings found for TOC' },
     'markdown.msg.tocDone':      { zh: '✓ 已插入目录', en: '✓ TOC inserted' },
 
+    // 拖拽导入
+    'markdown.drop.hint':       { zh: '📂 拖放文件到此处以导入', en: '📂 Drop files here to import' },
+    'markdown.msg.imported':    { zh: '✓ 已导入 {n} 个文件', en: '✓ Imported {n} file(s)' },
+    'markdown.msg.importFail':  { zh: '读取文件失败', en: 'Failed to read file' },
+    'markdown.msg.fileSkipped': { zh: '仅支持文本文件（.md/.txt/.json 等）', en: 'Only text files supported (.md/.txt/.json, etc.)' },
+
     'markdown.footer': { zh: '📝 Markdown 编辑器 · 实时预览 · VSCode 风格代码高亮 · 在线(CDN)/离线(本地)双模式', en: '📝 Markdown Editor · live preview · VSCode-style code highlight · online(CDN)/offline(local) modes' }
 };
 
@@ -126,6 +132,8 @@ function tt(key) { return window.I18N.t(key) || ''; }
     var exportPdfBtn  = document.getElementById('exportPdfBtn');
     var tocBtn        = document.getElementById('tocBtn');
     var wordCount     = document.getElementById('wordCount');
+    var dropOverlay   = document.getElementById('dropOverlay');
+    var editorWrap    = document.querySelector('.md-editor-wrap');
 
     // ============================================================
     //  状态
@@ -587,12 +595,27 @@ function tt(key) { return window.I18N.t(key) || ''; }
 
     // 临时提示后恢复渲染状态
     var statusTimer = null;
-    function flashStatus(cls, key) {
-        setStatus(cls, key);
+    function showMsg(cls, text) {
+        if (!renderStatus) return;
+        renderStatus.className = 'status-badge ' + cls;
+        renderStatus.textContent = text;
+    }
+    function scheduleStatusReset() {
         clearTimeout(statusTimer);
         statusTimer = setTimeout(function () {
-            setStatus('ready', currentMode === 'offline' ? 'markdown.msg.offlineReady' : 'markdown.msg.loaded');
+            showMsg('ready', tt(currentMode === 'offline' ? 'markdown.msg.offlineReady' : 'markdown.msg.loaded'));
         }, 1600);
+    }
+    function flashStatus(cls, key) {
+        showMsg(cls, tt(key));
+        scheduleStatusReset();
+    }
+    function flashStatusText(cls, text) {
+        showMsg(cls, text);
+        clearTimeout(statusTimer);
+        statusTimer = setTimeout(function () {
+            showMsg('ready', tt(currentMode === 'offline' ? 'markdown.msg.offlineReady' : 'markdown.msg.loaded'));
+        }, 2200);
     }
 
     function downloadFile(filename, content, mime) {
@@ -846,6 +869,98 @@ function tt(key) { return window.I18N.t(key) || ''; }
             setFullscreen(fsState === 'preview' ? 'none' : 'preview');
         });
     }
+
+    // ============================================================
+    //  拖拽文件导入（将文件内容导入编辑器）
+    // ============================================================
+    var dragDepth = 0;   // 计数处理子元素 enter/leave，避免遮罩闪烁
+
+    // 仅接受文本类文件（含常见标记语言/数据格式扩展名兜底）
+    function isTextFile(file) {
+        if (file.type && file.type.indexOf('text/') === 0) return true;
+        return /\.(md|markdown|mdx?|txt|json|csv|tsv|yml|yaml|tex|rst|adoc|org|html?|xml)$/i.test(file.name);
+    }
+
+    function readFileText(file) {
+        return new Promise(function (resolve, reject) {
+            var reader = new FileReader();
+            reader.onload = function () {
+                resolve({ name: file.name, text: String(reader.result || '') });
+            };
+            reader.onerror = function () { reject(file.name); };
+            reader.readAsText(file);
+        });
+    }
+
+    // 将导入文本写入编辑器：当前为空则直接放置，否则追加并空行分隔
+    function insertImported(text) {
+        if (!editor) return;
+        var cur = editor.value;
+        if (!cur.trim()) {
+            editor.value = text;
+        } else {
+            editor.value = cur.replace(/\s+$/, '') + '\n\n' + text;
+        }
+        editor.selectionStart = editor.selectionEnd = editor.value.length;
+        editor.focus();
+        onEditorInput();
+    }
+
+    async function handleDrop(e) {
+        e.preventDefault();
+        dragDepth = 0;
+        if (dropOverlay) dropOverlay.classList.remove('show');
+        var files = e.dataTransfer && e.dataTransfer.files;
+        if (!files || !files.length) return;
+        var list = Array.prototype.slice.call(files);
+        var textFiles = list.filter(isTextFile);
+        if (!textFiles.length) {
+            flashStatus('error', 'markdown.msg.fileSkipped');
+            return;
+        }
+        try {
+            var results = await Promise.all(textFiles.map(readFileText));
+            // 多个文件用空行分隔拼接
+            var importText = results.map(function (r) { return r.text; }).join('\n\n');
+            insertImported(importText);
+            var label = tt('markdown.msg.imported').replace(/\{n\}/g, String(results.length));
+            flashStatusText('ready', label);
+        } catch (err) {
+            flashStatus('error', 'markdown.msg.importFail');
+        }
+    }
+
+    function bindDragImport() {
+        if (!editorWrap) return;
+        var hasFiles = function (dt) {
+            return dt && Array.prototype.indexOf.call(dt.types || [], 'Files') !== -1;
+        };
+        editorWrap.addEventListener('dragenter', function (e) {
+            if (!hasFiles(e.dataTransfer)) return;
+            e.preventDefault();
+            dragDepth++;
+            if (dropOverlay) dropOverlay.classList.add('show');
+        });
+        editorWrap.addEventListener('dragover', function (e) {
+            if (!hasFiles(e.dataTransfer)) return;
+            e.preventDefault();
+            if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+        });
+        editorWrap.addEventListener('dragleave', function () {
+            dragDepth = Math.max(0, dragDepth - 1);
+            if (dragDepth === 0 && dropOverlay) dropOverlay.classList.remove('show');
+        });
+        editorWrap.addEventListener('drop', handleDrop);
+    }
+    bindDragImport();
+
+    // 阻止在页面其它区域误拖文件时浏览器直接打开文件（仅对文件拖拽生效）
+    document.addEventListener('dragover', function (e) {
+        if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') !== -1) e.preventDefault();
+    });
+    document.addEventListener('drop', function (e) {
+        if (e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types || [], 'Files') !== -1) e.preventDefault();
+    });
 
     // ============================================================
     //  事件绑定
