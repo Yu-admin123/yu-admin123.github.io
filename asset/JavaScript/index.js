@@ -2411,6 +2411,7 @@ renderTools();
         'MermaidDraw': { zh: 'Mermaid 在手，图表不愁 📊', en: 'with Mermaid, diagrams are a breeze 📊' },
         'MarkdownEditor': { zh: '写文档也能很爽，VSCode 配色实时预览 ✍️', en: 'Docs made easy — VSCode colors with live preview ✍️' },
         'QRCodeTool': { zh: '扫一扫 / 生成二维码都交给我，离线也照跑 🔲', en: 'Scan or generate QR & barcodes — works offline, no excuses 🔲' },
+        'MaterialManager': { zh: '物料进进出出，库存清清楚楚 — 低库存我替你盯着 📦', en: 'Parts in and out, stock all tidy — I watch the low-stock for you 📦' },
 
         // 分类标签 / 语言 / 主题按钮悬浮
         'cat-all':      { zh: '全部工具都在这，挑一个顺眼的用吧 ✨', en: 'All tools in one place — pick your favorite ✨' },

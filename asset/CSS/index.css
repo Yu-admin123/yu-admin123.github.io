@@ -143,7 +143,7 @@
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
     background: var(--bg-panel);
     color: var(--text-secondary);
     transition: all 0.25s;
@@ -191,7 +191,7 @@
     padding: 6px 38px 6px 14px;
     border-radius: 40px;
     background: var(--bg-panel);
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
     transition: background 0.25s, border-color 0.25s, transform 0.15s;
     box-sizing: border-box;
@@ -434,7 +434,7 @@
 .tool-card {
     /* 背景按 alpha 混合透明，backdrop-filter 才能透过半透明背景糊化后面的内容（雾面效果） */
     background: color-mix(in srgb, var(--bg-container) calc(var(--tool-card-alpha) * 100%), transparent);
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
     border-radius: 18px;
     padding: 24px;
     cursor: pointer;
@@ -659,7 +659,7 @@
 }
 /* 非首个分类 */
 .tool-cat-header.has-divider {
-    margin-top: -9px;
+    margin-top: -6px;
 }
 /* 渐变蓝色竖线 */
 .tool-cat-line {
@@ -995,37 +995,47 @@
     position: relative;
     flex-shrink: 0;
     width: 300px;
-    padding: 4px 16px 4px 0;
-    background: transparent;
-    border: none;
+    /* 与工具卡片一致的半透明磨砂底色，参数随「页面设置」的卡片透明度/模糊度同步 */
+    padding: 16px 18px 16px 16px;
+    background: color-mix(in srgb, var(--bg-container) calc(var(--tool-card-alpha) * 100%), transparent);
+    border: 1px solid transparent;
+    border-radius: 16px;
+    backdrop-filter: blur(var(--tool-card-blur));
+    -webkit-backdrop-filter: blur(var(--tool-card-blur));
+    box-shadow: var(--shadow-tool-card);
     font-size: 0.8rem;
     z-index: 10;
     display: flex;
     flex-direction: column;
     animation: todoFadeIn 0.6s ease 0.15s backwards;
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s, backdrop-filter 0.25s, -webkit-backdrop-filter 0.25s;
 }
 
-/* ===== 主容器：参与布局、透明、无卡片背景 ===== */
+/* ===== 主容器：与工具卡片一致的半透明磨砂卡片 ===== */
 .hero-widget {
     position: relative;
     flex-shrink: 0;
     width: 300px;
-    padding: 4px 0 4px 16px;
-    background: transparent;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+    /* 与工具卡片一致的半透明磨砂底色，参数随「页面设置」的卡片透明度/模糊度同步 */
+    padding: 16px 16px 16px 18px;
+    background: color-mix(in srgb, var(--bg-container) calc(var(--tool-card-alpha) * 100%), transparent);
+    border: 1px solid transparent;
+    border-radius: 16px;
+    backdrop-filter: blur(var(--tool-card-blur));
+    -webkit-backdrop-filter: blur(var(--tool-card-blur));
+    box-shadow: var(--shadow-tool-card);
     z-index: 10;
     animation: hwFadeIn 0.6s ease;
     font-size: 0.8rem;
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s, backdrop-filter 0.25s, -webkit-backdrop-filter 0.25s;
 }
-/* 左侧渐变装饰竖线，让组件与 Hero 融为一体 */
+/* 左侧渐变装饰竖线，收进圆角卡片内做左侧强调条 */
 .hero-widget::before {
     content: '';
     position: absolute;
-    left: 0;
-    top: 10px;
-    bottom: 10px;
+    left: 8px;
+    top: 14px;
+    bottom: 14px;
     width: 3px;
     border-radius: 2px;
     background: var(--hero-gradient);
@@ -1334,7 +1344,7 @@
     max-width: 90vw;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
     animation: hwModalSlide 0.3s ease;
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
 }
 /* 页面设置弹窗：左右两栏布局，加宽并限制最高高度（超长时内部滚动，避免撑爆视口） */
 .hw-modal.engine-modal {
@@ -1563,13 +1573,13 @@
 /* ============================================================
    Hero 右侧：今日待办清单
    ============================================================ */
-/* 右侧渐变装饰竖线（与左侧对称） */
+/* 右侧渐变装饰竖线（与左侧对称），收进圆角卡片内做右侧强调条 */
 .hero-todo::after {
     content: '';
     position: absolute;
-    right: 0;
-    top: 10px;
-    bottom: 10px;
+    right: 8px;
+    top: 14px;
+    bottom: 14px;
     width: 3px;
     border-radius: 2px;
     background: var(--hero-gradient);
@@ -1578,6 +1588,15 @@
 }
 .hero-todo:hover::after {
     opacity: 0.9;
+}
+/* 悬停同步：与工具卡片一致，使用独立的透明度/模糊度变量（聚焦高亮） */
+.hero-widget:hover,
+.hero-todo:hover {
+    background: color-mix(in srgb, var(--bg-container) calc(var(--tool-card-alpha-hover) * 100%), transparent);
+    backdrop-filter: blur(var(--tool-card-blur-hover));
+    -webkit-backdrop-filter: blur(var(--tool-card-blur-hover));
+    border-color: var(--accent-blue);
+    box-shadow: var(--shadow-tool-card-hover);
 }
 @keyframes todoFadeIn {
     from { opacity: 0; transform: translateX(16px); }
@@ -1804,25 +1823,23 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    border: 1px solid var(--border-light);
-    background: var(--bg-panel);
+    width: auto;
+    height: auto;
+    background: transparent;
+    border: none;
     color: var(--text-secondary);
-    font-size: 1.4rem;
+    font-size: 2.6rem;
     line-height: 1;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow-tool-card);
-    transition: all 0.2s;
+    padding: 6px 8px;
+    transition: color 0.2s;
     z-index: 5;
 }
 .hero-carousel-arrow:hover {
     color: var(--accent-blue);
-    border-color: var(--accent-blue);
 }
 .hero-carousel-prev { left: -12px; }
 .hero-carousel-next { right: -12px; }
@@ -1869,16 +1886,23 @@
     gap: 8px;
     width: 100%;
     max-width: 460px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border-input);
+    /* 与工具卡片一致的半透明磨砂底色，参数随「页面设置」的卡片透明度/模糊度同步 */
+    background: color-mix(in srgb, var(--bg-container) calc(var(--tool-card-alpha) * 100%), transparent);
+    border: 1px solid var(--border-light);
     border-radius: 40px;
     padding: 5px 5px 5px 16px;
     box-shadow: var(--shadow-tool-card);
-    transition: border-color 0.2s, box-shadow 0.2s;
+    backdrop-filter: blur(var(--tool-card-blur));
+    -webkit-backdrop-filter: blur(var(--tool-card-blur));
+    transition: background 0.25s, border-color 0.25s, box-shadow 0.25s, backdrop-filter 0.25s, -webkit-backdrop-filter 0.25s;
 }
 .hero-search-box:focus-within {
     border-color: var(--border-focus);
     box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.12);
+}
+/* 悬停：仅显示蓝色边框高亮，透明度保持常规值（不随悬停变化） */
+.hero-search-box:hover {
+    border-color: var(--accent-blue);
 }
 .hero-search-box > svg {
     flex-shrink: 0;
@@ -1930,7 +1954,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
     background: var(--bg-panel);
     color: var(--text-secondary);
     font-size: 1.1rem;
@@ -2158,7 +2182,7 @@
     gap: 8px;
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid var(--border-light);
+    border: 1px solid transparent;
     background: var(--bg-panel);
     font-size: 0.78rem;
     transition: border-color 0.2s;
@@ -2277,9 +2301,8 @@
         min-height: 196px;
     }
     .hero-carousel-arrow {
-        width: 30px;
-        height: 30px;
-        font-size: 1.1rem;
+        font-size: 2rem;
+        padding: 4px 6px;
     }
     .hero-carousel-prev { left: 2px; }
     .hero-carousel-next { right: 2px; }
