@@ -14,7 +14,7 @@
         'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
         'rdiv.doc.title':     { zh: '电阻分压计算器', en: 'Resistive Divider Calculator' },
-        'rdiv.title':         { zh: '🧮 电阻分压计算器', en: '🧮 Resistive Divider Calculator' },
+        'rdiv.title':         { zh: '电阻分压计算器', en: 'Resistive Divider Calculator' },
         'rdiv.subhead':       { zh: '🔹 常规电阻分压计算器：正向根据 Vin / R1 / R2 求输出电压，反向根据目标 Vout 求分压电阻，并给出 E24 标准电阻推荐。',
                                 en: '🔹 Standard resistive divider calculator: forward Vout from Vin/R1/R2, reverse solve R for a target Vout, with E24 standard-value recommendation.' },
 

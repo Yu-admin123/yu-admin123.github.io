@@ -24,7 +24,7 @@
         'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
         'pcb.doc.title':      { zh: 'PCB 走线宽度计算器', en: 'PCB Trace Width Calculator' },
-        'pcb.title':          { zh: '🖥️ PCB 走线宽度计算器', en: '🖥️ PCB Trace Width Calculator' },
+        'pcb.title':          { zh: 'PCB 走线宽度计算器', en: 'PCB Trace Width Calculator' },
         'pcb.subhead':        { zh: '🔹 默认 IPC-2152 + 内层散热降额 ×2（贴近主流厂商 DFM 惯例）；可切换 IPC-2221 保守基线或调整降额系数对比。正向求线宽 / 反向求电流，并给出电阻、压降与功耗估算。',
                                 en: '🔹 IPC-2152 by default + inner-layer derate ×2 (mainstream DFM practice); switch to IPC-2221 baseline or adjust derate. Forward width / reverse current, plus R/ΔV/Power.' },
 

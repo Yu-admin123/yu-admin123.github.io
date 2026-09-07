@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  NtcCounter.html 页面脚本
 //  主题切换由 theme.js 提供；语言切换由 i18n.js 提供
 //  此处仅监听 'themechange' / 'languagechange' 事件
@@ -14,7 +14,7 @@ window.I18N_STRINGS = {
 
     // 文档 & 页面标题
     'ntc.doc.title':  { zh: 'NTC 电阻计算器', en: 'NTC Resistor Calculator' },
-    'ntc.page.title': { zh: '🔥 NTC 电阻计算器', en: '🔥 NTC Resistor Calculator' },
+    'ntc.page.title': { zh: 'NTC 电阻计算器', en: 'NTC Resistor Calculator' },
     'ntc.subhead':    { zh: '🔹 B 值快速模式 & 三点标定模式 & 两点算 B · 电阻↔温度双向互算 · 分压 & ADC 查表',
                          en: '🔹 B-value mode & 3-point calibration & 2-point B calc · R↔T bidirectional · V-divider & ADC lookup' },
 

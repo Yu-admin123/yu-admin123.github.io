@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  serialPortTool.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 // ============================================================
@@ -13,9 +13,9 @@ window.I18N_STRINGS = {
 
     // Document title
     'serial.doc.title': { zh: '串口调试助手 · 多曲线', en: 'Serial Debug Tool · Multi-Curve' },
+    'serial.page.title':{ zh: '串口调试助手 · 多曲线', en: 'Serial Debug Tool · Multi-Curve' },
 
     // Page header
-    'serial.page.title': { zh: '🔗 串口调试助手', en: '🔗 Serial Debug Tool' },
     'serial.subhead': { zh: '🔹 可自定义波特率 · 实时数据曲线 · 自动回复脚本 · 发送回显', en: '🔹 Custom baud rate · Real-time data curves · Auto-reply script · Send echo' },
 
     // Panel titles

@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  ModbusRTU.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 // ============================================================
@@ -13,9 +13,9 @@ window.I18N_STRINGS = {
 
     // Document title
     'modbus.doc.title': { zh: 'Modbus RTU 串口助手', en: 'Modbus RTU Serial Helper' },
+    'modbus.page.title':{ zh: 'Modbus RTU 串口助手', en: 'Modbus RTU Serial Helper' },
 
     // Page header
-    'modbus.page.title': { zh: '📡 Modbus RTU 串口助手', en: '📡 Modbus RTU Serial Helper' },
     'modbus.subhead': { zh: '🔹 支持 RTU 主站 / 从站模式 · Web Serial API · 自动 CRC 校验 · 寄存器表', en: '🔹 Supports RTU Master / Slave modes · Web Serial API · Auto CRC check · Register table' },
 
     // Panel titles

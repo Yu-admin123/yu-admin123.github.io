@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  ADCConverter.html 页面脚本
 //  主题切换逻辑由 theme.js 提供（全局 setTheme + #themeToggle 点击绑定）
 //  此处仅监听 'themechange' 事件，在主题切换时重绘 Canvas 图表
@@ -15,7 +15,7 @@ window.I18N_STRINGS = {
 
     // 文档标题与页面标题
     'adc.doc.title':  { zh: 'ADC / DAC 转换计算器', en: 'ADC / DAC Converter' },
-    'adc.page.title':  { zh: '⚡ ADC / DAC 转换计算器', en: '⚡ ADC / DAC Converter' },
+    'adc.page.title': { zh: 'ADC / DAC 转换计算器', en: 'ADC / DAC Converter' },
     'adc.subhead':     { zh: '🔹 支持原始值 (DEC/HEX) ↔ 电压值 ↔ 百分比 互转 · 8/10/12/16/24/32 位分辨率 · 可拖拽滑条 & 曲线图', en: '🔹 Raw (DEC/HEX) ↔ Voltage ↔ Percent conversion · 8/10/12/16/24/32-bit resolution · draggable slider & curve chart' },
 
     // 模块① 基本参数

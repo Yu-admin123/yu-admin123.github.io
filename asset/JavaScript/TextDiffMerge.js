@@ -1,4 +1,4 @@
-/* ============================================================
+﻿/* ============================================================
    TextDiffMerge 业务逻辑
    主题切换（setTheme / themeToggle）由 theme.js 提供，
    语言切换由 i18n.js 提供。
@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'common.lang.title':  { zh: '切换语言 / Switch Language', en: 'Switch Language / 切换语言' },
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
     'tdm.doc.title':      { zh: '文本对比与合并工具 · Diff & Merge', en: 'Text Diff & Merge Tool' },
-    'tdm.page.title':     { zh: '📝 文本对比与合并工具', en: '📝 Text Diff & Merge Tool' },
+    'tdm.page.title':     { zh: '文本对比与合并工具 · Diff & Merge', en: 'Text Diff & Merge Tool' },
     'tdm.subhead':        { zh: '🔹 实时对比 · 字符级对比 · 纯前端离线运行 · 文本不上传云端', en: '🔹 Realtime diff · char-level diff · offline · no cloud upload' },
     'tdm.sample':         { zh: '📄 示例', en: '📄 Sample' },
     'tdm.swap':           { zh: '🔄 交换', en: '🔄 Swap' },

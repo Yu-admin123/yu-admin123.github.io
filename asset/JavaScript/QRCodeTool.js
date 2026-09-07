@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  静态文本翻译字典（供 data-i18n 属性 + JS 动态文本使用）
 // ============================================================
 window.I18N_STRINGS = {
@@ -6,7 +6,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'qrcode.doc.title':    { zh: '二维码读写工具', en: 'QR Code Reader/Writer' },
-    'qrcode.page.title':   { zh: '🔲 二维码读写工具', en: '🔲 QR Code Reader/Writer' },
+    'qrcode.page.title':   { zh: '二维码读写工具', en: 'QR Code Reader/Writer' },
     'qrcode.subhead':      { zh: '🔹 离线生成二维码 / 条形码 · 从图片解析二维码 · 支持多种格式 · 全程本地运行', en: '🔹 Generate QR / barcode offline · decode QR from image · multiple formats · fully local' },
 
     'qrcode.gen.title':    { zh: '① 生成二维码 / 条形码', en: '① Generate QR / Barcode' },

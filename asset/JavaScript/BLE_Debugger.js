@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  BLE_Debugger.html 页面脚本
 //  主题切换由 theme.js 提供，语言切换由 i18n.js 提供
 //  此处仅处理蓝牙调试业务逻辑
@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'ble.doc.title':       { zh: '蓝牙调试器', en: 'BLE Debugger' },
-    'ble.page.title':      { zh: '📡 蓝牙调试器', en: '📡 BLE Debugger' },
+    'ble.page.title':      { zh: '蓝牙调试器', en: 'BLE Debugger' },
     'ble.subhead':         { zh: '🔹 基于 Web Bluetooth API · 扫描/连接/读写/通知 · 树形服务浏览器 · Hex Dump', en: '🔹 Web Bluetooth API · scan / connect / read / write / notify · tree explorer · hex dump' },
     'ble.warn.https':      { zh: '⚠️ Web Bluetooth 需要 HTTPS 或 localhost 环境，请使用本地 HTTP 服务器并在浏览器中打开。', en: '⚠️ Web Bluetooth requires HTTPS or localhost. Please use a local HTTP server and open in browser.' },
     'ble.warn.https.detail':{ zh: '当前环境不支持 Web Bluetooth API，请使用 https:// 或 http://localhost 访问。', en: 'Current environment does not support Web Bluetooth API. Use https:// or http://localhost.' },

@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  MermaidDraw.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 //  此处仅处理流程图绘制业务逻辑
@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'flowchart.doc.title':      { zh: '在线流程图', en: 'Flowchart Drawer' },
-    'flowchart.page.title':     { zh: '📊 在线流程图', en: '📊 Flowchart Drawer' },
+    'flowchart.page.title':     { zh: '在线流程图', en: 'Flowchart Drawer' },
     'flowchart.subhead':        { zh: '🔹 基于 Mermaid · 支持在线/离线模式 · 嵌入式开发模板 · 左右分栏实时预览', en: '🔹 Powered by Mermaid · online/offline modes · embedded templates · split-pane live preview' },
 
     // 工具栏

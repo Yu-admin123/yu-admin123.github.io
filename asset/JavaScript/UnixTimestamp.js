@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  静态文本翻译字典（供 data-i18n 属性 + JS 动态文本使用）
 // ============================================================
 window.I18N_STRINGS = {
@@ -6,7 +6,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'unix.doc.title':      { zh: 'Unix 时间戳转换工具', en: 'Unix Timestamp Converter' },
-    'unix.page.title':     { zh: '⏱️ Unix 时间戳转换工具', en: '⏱️ Unix Timestamp Converter' },
+    'unix.page.title':     { zh: 'Unix 时间戳转换工具', en: 'Unix Timestamp Converter' },
     'unix.subhead':        { zh: '🔹 时间戳 ↔ 日期时间 双向转换 · 支持毫秒/微秒 · 多时区 · 实时时钟 · 一键网络同步', en: '🔹 Timestamp ↔ Date-time bidirectional conversion · supports ms/µs · multi-timezone · live clock · one-click network sync' },
     'unix.p1.title':       { zh: '① 时间戳 → 日期时间', en: '① Timestamp → Date-time' },
     'unix.p1.small':       { zh: 'Unix 秒 / 毫秒 / 微秒', en: 'Unix s / ms / µs' },

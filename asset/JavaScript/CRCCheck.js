@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  CRCCheck.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 //  此处仅处理 CRC 计算业务逻辑
@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'crc.doc.title':       { zh: 'CRC 校验计算器', en: 'CRC Checker' },
-    'crc.page.title':      { zh: '🔢 CRC 校验计算器', en: '🔢 CRC Checker' },
+    'crc.page.title':      { zh: 'CRC 校验计算器', en: 'CRC Checker' },
     'crc.subhead':         { zh: '🔹 支持 CRC-8/16/32/64 多种算法 · 字节序可调 · 支持 HEX / ASCII / 文件', en: '🔹 Supports CRC-8/16/32/64 · adjustable byte order · HEX / ASCII / file input' },
     'crc.p1.title':        { zh: '① 输入数据', en: '① Input data' },
     'crc.p1.small':        { zh: 'HEX / ASCII / 文件', en: 'HEX / ASCII / file' },

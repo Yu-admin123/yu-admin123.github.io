@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  WebsocketTool.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 // ============================================================
@@ -10,7 +10,7 @@ window.I18N_STRINGS = {
     'common.lang.title':  { zh: '切换语言 / Switch Language', en: 'Switch Language / 切换语言' },
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
     'ws.doc.title':       { zh: 'WebSocket 测试工具', en: 'WebSocket Tester' },
-    'ws.page.title':      { zh: '🔌 WebSocket 测试工具', en: '🔌 WebSocket Tester' },
+    'ws.page.title':      { zh: 'WebSocket 测试工具', en: 'WebSocket Tester' },
     'ws.subhead':         { zh: '🔹 支持 ws / wss 协议 · 文本 / 十六进制收发 · 消息日志 · 自动重连', en: '🔹 Supports ws / wss protocols · text / hex send-receive · message log · auto-reconnect' },
     'ws.p1.title':        { zh: '① 连接配置', en: '① Connection Config' },
     'ws.p1.small':        { zh: 'WebSocket URL', en: 'WebSocket URL' },

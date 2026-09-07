@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  HttpTool.html 页面脚本
 //  主题切换逻辑由 theme.js 提供（全局 setTheme + #themeToggle 点击绑定）
 //  语言切换由 i18n.js 提供（data-i18n 自动更新 + languagechange 事件）
@@ -11,7 +11,7 @@ window.I18N_STRINGS = {
     'common.lang.title':  { zh: '切换语言 / Switch Language', en: 'Switch Language / 切换语言' },
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
     'http.doc.title':     { zh: 'HTTP 调试助手', en: 'HTTP Debug Helper' },
-    'http.page.title':    { zh: '🌐 HTTP 调试助手', en: '🌐 HTTP Debug Helper' },
+    'http.page.title':    { zh: 'HTTP 调试助手', en: 'HTTP Debug Helper' },
     'http.subhead':       { zh: '🔹 支持 GET / POST / PUT / DELETE / PATCH · 自动解析 URL · 生成 TCP 原始帧', en: '🔹 Supports GET / POST / PUT / DELETE / PATCH · Auto URL parsing · TCP raw frame generation' },
     'http.p1.title':      { zh: '① 请求配置', en: '① Request Config' },
     'http.method.label':  { zh: '方法', en: 'Method' },

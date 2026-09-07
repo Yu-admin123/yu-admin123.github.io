@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  MaterialManager.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 //  物料管家：盒子/物料的增删改查、批量编辑、搜索过滤、
@@ -15,7 +15,7 @@ window.I18N_STRINGS = {
 
     // 文档标题 / 页面标题
     'mat.doc.title':  { zh: '物料管理', en: 'Material Manager' },
-    'mat.page.title': { zh: '📦 物料管理', en: '📦 Material Manager' },
+    'mat.page.title': { zh: '物料管理', en: 'Material Manager' },
     'mat.subhead':    { zh: '🔹 嵌入式电子物料的入库、盘点与低库存预警', en: '🔹 Track electronic components, stocktake and low-stock alerts' },
 
     // 顶部操作 + 工具栏

@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  PID 调试仿真工具 PIDemulator.html 页面脚本
 //  主题切换逻辑由 theme.js 提供（全局 setTheme + #themeToggle 点击绑定）
 //  此处监听 'themechange' 事件，在主题切换时重绘 Canvas 图表
@@ -16,7 +16,7 @@ window.I18N_STRINGS = {
 
     // 文档标题与页面标题
     'pid.doc.title':   { zh: 'PID 调试仿真工具', en: 'PID Tuning Simulator' },
-    'pid.page.title':  { zh: '🎯 PID 调试仿真工具', en: '🎯 PID Tuning Simulator' },
+    'pid.page.title':  { zh: 'PID 调试仿真工具', en: 'PID Tuning Simulator' },
     'pid.subhead':     { zh: '🔹 位置式 PID 控制器 · 一阶惯性+纯滞后对象 · 实时曲线 · 性能指标 · 参数预设 · 🖱️ 滚轮缩放 · 拖拽平移 · 双击重置', en: '🔹 Positional PID controller · First-order inertia + pure delay · Real-time curve · Performance metrics · Presets · 🖱️ Scroll to zoom · Drag to pan · Double-click to reset' },
 
     // 模块① 控制器参数

@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  RadixConverter.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 //  此处仅处理进制转换 / 位操作 / 浮点数业务逻辑
@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'radix.doc.title':       { zh: '进制转换器 · 位操作工具', en: 'Radix Converter · Bit Ops Tool' },
-    'radix.page.title':      { zh: '🔁 进制转换器 · 位操作工具', en: '🔁 Radix Converter · Bit Ops Tool' },
+    'radix.page.title':      { zh: '进制转换器 · 位操作工具', en: 'Radix Converter · Bit Ops Tool' },
     'radix.subhead':         { zh: '🔹 进制实时互转 · 支持 8~64 位数据位宽 · 大端 / 小端字节序切换 · 浮点数转换 · 位设置 · 位域提取 · 循环移位 · 位掩码生成等操作', en: '🔹 Real-time radix conversion · 8~64-bit width · big/little endian · floating-point · bit set/clear · bitfield extract · rotate · mask generation' },
     'radix.tab.convert':     { zh: '进制转换', en: 'Radix' },
     'radix.tab.float':       { zh: '浮点数', en: 'Float' },

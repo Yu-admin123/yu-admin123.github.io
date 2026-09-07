@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  SignalPlotter.html 页面脚本
 //  主题切换逻辑由 theme.js 提供（全局 setTheme + #themeToggle 点击绑定）
 //  此处仅监听 'themechange' 事件，在主题切换时重绘 Canvas 图表
@@ -14,9 +14,9 @@ window.I18N_STRINGS = {
 
     // 文档标题
     'signal.doc.title':    { zh: '数据曲线可视化 - Yu_ToolBox', en: 'Signal Plotter - Yu_ToolBox' },
+    'signal.page.title':   { zh: '数据曲线可视化 - Yu_ToolBox', en: 'Signal Plotter - Yu_ToolBox' },
 
     // 页面标题 / 副标题
-    'signal.page.title':   { zh: '📈 数据曲线可视化', en: '📈 Signal Plotter' },
     'signal.subhead':      { zh: '🔹 信号绘图 · FFT 变换 · 数字滤波分析工具',
                              en: '🔹 Signal Plotting · FFT · Digital Filter Analysis' },
 

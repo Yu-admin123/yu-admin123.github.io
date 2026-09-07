@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  时序秒表 Timing_lab.html 页面脚本
 //  主题切换由 theme.js 提供（全局 setTheme + #themeToggle 绑定），
 //  此处监听 'themechange' 在主题切换时重绘 Canvas 波形图
@@ -17,9 +17,9 @@ window.I18N_STRINGS = {
 
     // 文档标题
     'timing.doc.title': { zh: '时序秒表', en: 'Timing Lab' },
+    'timing.page.title':{ zh: '时序秒表', en: 'Timing Lab' },
 
     // 页面标题
-    'timing.page.title': { zh: '⏲️ 时序秒表', en: '⏲️ Timing Lab' },
     'timing.subhead':    { zh: '🔹 时序测量秒表 · 脉宽测量与打点分析 · 基于 performance.now 微秒级分辨率', en: '🔹 Timing measurement stopwatch · pulse-width & lap analysis · µs resolution via performance.now' },
 
     // 模块① 主秒表

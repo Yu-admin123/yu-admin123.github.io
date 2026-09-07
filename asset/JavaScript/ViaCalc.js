@@ -29,7 +29,7 @@
         'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
         'via.doc.title':      { zh: 'PCB 过孔电流计算器', en: 'PCB Via Current Calculator' },
-        'via.title':          { zh: '🕳️ PCB 过孔电流计算器', en: '🕳️ PCB Via Current Calculator' },
+        'via.title':          { zh: 'PCB 过孔电流计算器', en: 'PCB Via Current Calculator' },
         'via.subhead':        { zh: '🔹 默认采用 IPC-2152 + 圆柱散热修正；通/盲/埋孔按散热环境自动降额。可切换回 IPC-2221 保守基线对比。正向求单孔最大载流，反向求并联过孔数量，并给出电阻、压降与功耗估算。',
                                 en: '🔹 IPC-2152 by default  + adaptive cylindrical thermal factor; through/blind/buried auto-derated. Switch to IPC-2221 baseline. Forward single-via capacity; reverse parallel via count; plus R / ΔV / power.' },
 

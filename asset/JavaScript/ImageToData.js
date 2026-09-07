@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  ImageToData.html 页面脚本
 //  主题切换逻辑由 theme.js 提供（全局 setTheme + #themeToggle 点击绑定）
 //  语言切换由 i18n.js 提供（data-i18n 自动更新 + languagechange 事件）
@@ -13,9 +13,9 @@ window.I18N_STRINGS = {
 
     // 文档标题
     'image.doc.title':     { zh: '图片取模 / 渲染工具', en: 'Image Pixel Extract / Render Tool' },
+    'image.page.title':    { zh: '图片取模 / 渲染工具', en: 'Image Pixel Extract / Render Tool' },
 
     // 页面标题 / 副标题
-    'image.page.title':    { zh: '🎨 图片取模 / 渲染工具', en: '🎨 Image Pixel Extract / Render' },
     'image.subhead':       { zh: '🔹 支持多种颜色格式的互转 · 取模与数组渲染 · 多种扫描方向 · Floyd 抖动',
                              en: '🔹 Multi-format color conversion · Pixel extract & array render · Multiple scan directions · Floyd dithering' },
 

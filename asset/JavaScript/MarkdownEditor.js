@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  MarkdownEditor.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 //  此处处理：实时预览 / VSCode 风格编辑器高亮 / 在线·离线渲染切换
@@ -12,7 +12,7 @@ window.I18N_STRINGS = {
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
 
     'markdown.doc.title':       { zh: 'Markdown 编辑器', en: 'Markdown Editor' },
-    'markdown.page.title':      { zh: '📝 Markdown 编辑器', en: '📝 Markdown Editor' },
+    'markdown.page.title':      { zh: 'Markdown 编辑器', en: 'Markdown Editor' },
     'markdown.subhead':         { zh: '🔹 实时预览 · VSCode 风格代码高亮 · 在线/离线双模式渲染 · 左右分栏', en: '🔹 Live preview · VSCode-style code highlight · online/offline rendering · split-pane' },
 
     // 工具栏

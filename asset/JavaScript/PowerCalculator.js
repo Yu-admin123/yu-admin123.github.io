@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  PowerCalculator.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 // ============================================================
@@ -13,7 +13,7 @@ window.I18N_STRINGS = {
 
     // 文档标题与页面标题
     'power.doc.title':    { zh: '电池功耗计算器', en: 'Battery Power Calculator' },
-    'power.page.title':   { zh: '🔋 电池功耗计算器', en: '🔋 Battery Power Calculator' },
+    'power.page.title':   { zh: '电池功耗计算器', en: 'Battery Power Calculator' },
     'power.subhead':      { zh: '🔹 根据电池估算设备可工作时长（天 / 周 / 月）', en: '🔹 Estimate device runtime from battery (days / weeks / months)' },
 
     // 模块1: 输入参数

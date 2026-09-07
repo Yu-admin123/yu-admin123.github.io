@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  MqttTool.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 // ============================================================
@@ -10,7 +10,7 @@ window.I18N_STRINGS = {
     'common.lang.title':  { zh: '切换语言 / Switch Language', en: 'Switch Language / 切换语言' },
     'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
     'mqtt.doc.title':     { zh: 'MQTT 调试助手', en: 'MQTT Debug Helper' },
-    'mqtt.page.title':    { zh: '📶 MQTT 调试助手', en: '📶 MQTT Debug Helper' },
+    'mqtt.page.title':    { zh: 'MQTT 调试助手', en: 'MQTT Debug Helper' },
     'mqtt.subhead':       { zh: '🔹 基于 MQTT over WebSocket · 支持订阅/发布 · 主题通配符 · 实时消息流', en: '🔹 MQTT over WebSocket · subscribe/publish · topic wildcards · realtime message stream' },
     'mqtt.p1.title':      { zh: '① 连接配置', en: '① Connection Config' },
     'mqtt.label.protocol':{ zh: '协议', en: 'Protocol' },

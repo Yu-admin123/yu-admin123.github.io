@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 //  CanBusTool.html 页面脚本
 //  主题切换逻辑由 theme.js 提供，语言切换由 i18n.js 提供
 // ============================================================
@@ -12,9 +12,9 @@ window.I18N_STRINGS = {
 
     // 文档标题
     'can.doc.title':      { zh: 'CAN 总线助手', en: 'CAN Bus Helper' },
+    'can.page.title':     { zh: 'CAN 总线助手', en: 'CAN Bus Helper' },
 
     // 页面标题 / 副标题
-    'can.page.title':     { zh: '🔗 CAN 总线助手', en: '🔗 CAN Bus Helper' },
     'can.subhead':        { zh: '🔹 CAN 2.0A/B 帧解析 · J1939 协议拆解 · DBC 文件解析 · 信号解码 (Intel/Motorola) · 反向计算 · 模拟收发',
                             en: '🔹 CAN 2.0A/B frame parsing · J1939 disassembly · DBC parsing · Signal decoding (Intel/Motorola) · Reverse calc · TX/RX sim' },
 
