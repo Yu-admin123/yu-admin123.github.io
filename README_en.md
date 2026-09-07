@@ -17,7 +17,7 @@ Yu_ToolBox gathers these everyday needs into a single web page. **Pure front-end
 
 ## 🧰 What's inside
 
-25 tools, covering debugging, software and hardware work:
+27 tools, covering debugging, software, hardware and games:
 
 | Tool | What it does |
 |------|--------------|
@@ -46,6 +46,8 @@ Yu_ToolBox gathers these everyday needs into a single web page. **Pure front-end
 | 🕳️ [PCB Via Current Calculator](./function/ViaCalc.html) | Single-via current / via count |
 | 🔲 [QR Code Reader/Writer](./function/QRCodeTool.html) | Generate QR/barcodes offline, decode QR from images, multi-format |
 | 📦 [Material Manager](./function/MaterialManager.html) | Component intake, stocktake, low-stock alerts, CSV/JSON import & export |
+| 🎮 [Four-Color Fill](./function/Game/FourColorGame.html) | A four-color theorem puzzle: color adjacent regions differently across rising levels, with hints and a timer |
+| 🔥 [Era of Sparks](./function/Game/HuoZhongJiYuan.html) | An idle civilization game: research to unlock tech/xianxia/magic paths; advancing eras grants lasting legacy |
 
 There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu_29211/yu_-tool) (Qt-based, covering serial / Modbus / MQTT / TCP).
 
@@ -55,12 +57,15 @@ There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu
 
 ## ✨ Nice touches
 
-- **Categories + search**: filter by debug / hardware / software / docs / other / navigation — a tool can live in several categories; links in the navigation category are grouped again by sub-category (Electronics / Mechanics / Industrial / UI); search matches names, descriptions and category keywords
+- **Categories + search**: filter by debug / hardware / software / docs / other / navigation / games — a tool can live in several categories; links in the navigation category are grouped again by sub-category (Electronics / Mechanics / Industrial / UI); search matches names, descriptions and category keywords
 - **中文 / English**: switch in one click — even chart axis labels and tooltips follow along
 - **Light / dark theme**: your choice, remembered across pages
-- **Favorites**: star the tools you use often, filter by them in one click, stored locally
-- **Custom search engine**: open "Page Settings" via the ⚙ button at the bottom-right; below the search engine dropdown you can freely add / delete engines (10 built-in ones are locked), supporting both `?q=` and `%s` address formats — newly added engines appear in the dropdown right away and survive a page refresh
-- **Custom background**: the same settings modal lets you upload up to 9 images / videos as the page background (images and videos combined, max 9), click a thumbnail to switch or hover to delete it individually; plus appearance tweaks like card opacity / blur and background transparency
+- **Icon style**: interface icons — tool cards on the home page, page titles, and the like — use**inline SVG** (multi-color flat, theme-aware), never emoji; page body text also tries to stay sparing with emoji, preferring words or inline icons for a consistent look
+- **Favorites**: star the tools you use often, filter by them in one click, stored locally; every category / sub-category header has a ☆ to **favorite / unfavorite the whole category** in one click
+- **Custom websites**: via ⚙ → "Custom Websites" tab, enter a URL, a name, an icon and pick a navigation sub-category to add **any of your own webpages** to the home navigation grid; leave the name blank to auto-use the site domain, leave the icon blank to use the first letter of the name, and icon upload is supported too; click an existing entry to load it back for editing
+- **Custom search engine**: via ⚙ → "Settings" tab you can freely add / delete engines (10 built-in ones are locked), supporting both `?q=` and `%s` address formats; newly added engines appear in the dropdown right away — **the engine switcher on the home search box and the zen-mode search bar stay in sync** — and survive a page refresh
+- **Custom background**: the "Theme" tab lets you upload up to 9 images / videos as the page background (images and videos combined, max 9), click a thumbnail to switch or hover to delete it individually; plus appearance tweaks like card opacity / blur and background transparency, **and the background / transparency also apply in zen mode**
+- **Interface mode (☯)**: the bottom-right floating button switches between **Normal ↔ Zen**. Zen mode is a full screen with just a centered enlarged search bar and the **Chinese-stem-branch clock** (`AM 08:26:34 | 戊辰`); a **theme-switch button** sits at the top-right to flip light / dark directly
 - **Works on any screen**: phone, tablet, desktop
 - **A hidden easter egg**: the mascot's eyes follow your cursor, blink, and fall asleep when idle — click them ten times and see what happens
 - **One-click community**: jump straight to the QQ group (453705020) from the navbar
@@ -69,13 +74,13 @@ There's also a desktop version, [Yu_Tool Desktop Assistant](https://gitee.com/Yu
 
 ## ⚙️ Config Backup (Export / Import)
 
-Open the "Page Settings" modal via the ⚙ floating button at the bottom-right; the **"Config Backup" area on the right** offers **Export Config / Import Config** buttons to back up or restore the whole site (home page + every tool page) in one go. Old single-file JSON backups can also be imported.
+Open the "Page Settings" modal via the ⚙ floating button at the bottom-right (three tabs: **Settings / Theme / Custom Websites**); the **Config Backup** area inside the **Settings** tab offers **Export Config / Import Config** buttons to back up or restore the whole site (home page + every tool page) in one go. Old single-file JSON backups can also be imported.
 
 - **Export**: produces a `yu-toolbox-config-<timestamp>.zip` archive with this layout:
   - `manifest.json` — metadata (app name, version, export time)
   - `background/` — real background image / video files under `media/`, plus `background.json` recording the selected item and the media list (up to 9)
   - `cards/` — one JSON per tool that has independent persisted config (e.g. serialPortTool, HttpTool, ModbusRTU, MaterialManager, MermaidDraw)
-  - `site/` — home page config (theme, language, search engine **and custom engines**, favorites, appearance, category collapse, etc.)
+  - `site/` — home page config (theme, language, search engine **and custom engines**, custom websites, favorites, appearance, category collapse, etc.)
   - `_raw/` — redundancy backup: `localStorage.json` (raw values of every key) and `background-raw.json`; **import uses this as the source of truth** so no key is ever lost
 - **Import**: a second confirmation appears after you pick a backup file; all config is written back and the page reloads.
 
@@ -89,7 +94,7 @@ Pure static project, no build step. Every tool follows the "three-file rule": on
 
 ```
 Yu_ToolBox/
-├── index.html                    # Home page: nav / categories / search / favorites / mascot / ad banner
+├── index.html                    # Home page: nav / categories / search / favorites / mascot / ad banner / settings modal / zen mode
 ├── README.md / README_en.md      # Project docs (Chinese / English)
 ├── LICENSE / NOTICE              # Open-source license and copyright notice
 │
@@ -102,7 +107,7 @@ Yu_ToolBox/
 │   │   ├── common.css            # ★ Shared styles, first stylesheet on every page: theme variables,
 │   │   │                         #   reset, scrollbars, navbar, panels, unified buttons/inputs/
 │   │   │                         #   sliders/checkboxes, code output, status tags, responsive breakpoints
-│   │   ├── index.css             # Home page styles: hero, tool card grid, category buttons, search, favorites, mascot, ad banner
+│   │   ├── index.css             # Home page styles: hero, tool card grid, category buttons, search, favorites, mascot, ad banner, settings modal, zen mode, floating buttons
 │   │   ├── serialPortTool.css    # Serial Port Tool
 │   │   ├── ModbusRTU.css         # Modbus RTU Helper
 │   │   ├── MqttTool.css          # MQTT Helper
@@ -127,14 +132,16 @@ Yu_ToolBox/
 │   │   ├── PcbTrace.css          # PCB Trace Width Calculator
 │   │   ├── ViaCalc.css           # PCB Via Current Calculator
 │   │   ├── QRCodeTool.css        # QR Code Reader/Writer
-│   │   └── MaterialManager.css   # Material Manager
+│   │   ├── MaterialManager.css   # Material Manager
+│   │   └── Game/                 # Styles for game tools (grouped in a subfolder)
+│   │       └── FourColorGame.css  # Four-Color Fill game
 │   │
 │   ├── JavaScript/
 │   │   ├── theme.js              # ★ Shared theming: setTheme + themechange event + icon sync
 │   │   ├── i18n.js               # ★ Shared i18n: I18N dictionary + languagechange event + data-i18n
-│   │   ├── index.js              # Home scripts: toolsData registry + categories/search/favorites + mascot + page settings modal (search engine / appearance / background / config backup)
+│   │   ├── index.js              # Home scripts: toolsData registry + categories/search/whole-category favorites + mascot + settings modal (Settings/Theme/Custom Websites) + zen mode (stem-branch clock · engine switch · theme button)
 │   │   ├── zip-util.js           # Zero-dependency zip read/write (CompressionStream/DecompressionStream + CRC32), used by config backup
-│   │   └── <tool>.js ×25         # Per-tool logic, one-to-one with the CSS files above
+│   │   └── <tool>.js ×26         # Per-tool logic (incl. Game/ subfolder), one-to-one with the CSS files above
 │   │
 │   └── lib/                      # Local third-party libs (offline fallback)
 │       ├── mermaid.min.js        # mermaid v11 (offline rendering for Flowchart Drawer)
@@ -170,7 +177,9 @@ Yu_ToolBox/
     ├── PcbTrace.html             # PCB Trace Width Calculator
     ├── ViaCalc.html              # PCB Via Current Calculator
     ├── QRCodeTool.html           # QR Code Reader/Writer
-    └── MaterialManager.html      # Material Manager
+    ├── MaterialManager.html      # Material Manager
+    └── Game/                     # Entry HTML for game tools (grouped in a subfolder)
+        └── FourColorGame.html    # Four-Color Fill game
 ```
 
 A few conventions worth knowing before touching the code:
@@ -190,7 +199,7 @@ A few conventions worth knowing before touching the code:
 | Markdown Editor | marked + highlight.js (CDN + local lib fallback) | Live preview + code highlighting |
 | QR Code Reader/Writer | qrcode + bwip-js + jsQR (local lib, fully offline) | Multi-format QR/barcode generation & decoding |
 
-The other 19 pages are vanilla JS with zero external dependencies.
+The rest are vanilla JS with zero external dependencies.
 
 ---
 

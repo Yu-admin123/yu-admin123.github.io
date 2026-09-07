@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>四色定理填色</title>
+    <link rel="icon" href="../../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../../asset/CSS/common.css">
+    <link rel="stylesheet" href="../../asset/CSS/Game/FourColorGame.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../../index.html">
+                <div class="brand-icon">
+                    <img src="../../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title fcg-glow"><svg class="page-title-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5a9.5 9.5 0 0 1 9.5 9.5H12z" fill="#3B82F6"/><path d="M12 2.5A9.5 9.5 0 0 0 2.5 12H12z" fill="#EF4444"/><path d="M2.5 12a9.5 9.5 0 0 0 9.5 9.5V12z" fill="#FACC15"/><path d="M12 12h9.5A9.5 9.5 0 0 1 12 21.5z" fill="#10B981"/><circle cx="12" cy="12" r="3" fill="#fff"/></svg><span data-i18n="fcg.page.title">四色定理填色</span></div>
+        <div class="subhead fcg-sub" data-i18n="fcg.subhead">🔹 任意一张地图，四种颜色一定够用 —— 生成随机地图，用最少的步数完成四色填色</div>
+
+        <!-- ===== 一张大卡片：棋盘 + 信息模块合并 ===== -->
+        <div class="fcg-card panel panel-accent fcg-panel">
+            <div class="fcg-main">
+                <!-- ===== 地图主区 ===== -->
+                <div class="fcg-board-panel">
+                <div class="fcg-hud">
+                    <div class="fcg-stat">
+                        <span class="fcg-stat-label" data-i18n="fcg.hud.level">关卡</span>
+                        <span class="fcg-stat-value" id="statLevel">1</span>
+                    </div>
+                    <div class="fcg-stat">
+                        <span class="fcg-stat-label" data-i18n="fcg.hud.progress">进度</span>
+                        <span class="fcg-stat-value" id="statProgress">0/8</span>
+                    </div>
+                    <div class="fcg-stat">
+                        <span class="fcg-stat-label" data-i18n="fcg.hud.time">用时</span>
+                        <span class="fcg-stat-value" id="statTime">00:00</span>
+                    </div>
+                    <div class="fcg-stat">
+                        <span class="fcg-stat-label" data-i18n="fcg.hud.moves">步数</span>
+                        <span class="fcg-stat-value" id="statMoves">0</span>
+                    </div>
+                    <div class="fcg-stat">
+                        <span class="fcg-stat-label" data-i18n="fcg.hud.score">积分</span>
+                        <span class="fcg-stat-value" id="statScore">0</span>
+                    </div>
+                    <div class="fcg-stat fcg-stat-combo" id="comboBox">
+                        <span class="fcg-stat-label" data-i18n="fcg.hud.combo">连击</span>
+                        <span class="fcg-stat-value" id="statCombo">×0</span>
+                    </div>
+                </div>
+
+                <div class="fcg-progress-bar"><div class="fcg-progress-fill" id="progressFill"></div></div>
+
+                <div class="fcg-canvas-wrap" id="canvasWrap">
+                    <canvas id="board"></canvas>
+                    <canvas id="fx" class="fcg-fx"></canvas>
+                    <div class="fcg-toast" id="toast"></div>
+
+                    <!-- 胜利结算浮层 -->
+                    <div class="fcg-win" id="winOverlay">
+                        <div class="fcg-win-card">
+                            <div class="fcg-win-emoji" id="winEmoji">🎉</div>
+                            <div class="fcg-win-title" data-i18n="fcg.win.title">填色完成</div>
+                            <div class="fcg-win-stars" id="winStars">★★★</div>
+                            <div class="fcg-win-rows">
+                                <div class="fcg-win-row"><span data-i18n="fcg.win.time">用时</span><b id="winTime">--</b></div>
+                                <div class="fcg-win-row"><span data-i18n="fcg.win.moves">步数</span><b id="winMoves">--</b></div>
+                                <div class="fcg-win-row"><span data-i18n="fcg.win.score">本关积分</span><b id="winScore">--</b></div>
+                                <div class="fcg-win-row"><span data-i18n="fcg.win.best">历史最佳</span><b id="winBest">--</b></div>
+                            </div>
+                            <div class="fcg-win-badges" id="winBadges"></div>
+                            <div class="fcg-win-actions">
+                                <button class="btn btn-outline btn-sm" id="winReplay" data-i18n="fcg.btn.replay">再来一次</button>
+                                <button class="btn btn-sm" id="winNext" data-i18n="fcg.btn.next">下一关</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 关卡锁定遮罩 -->
+                    <div class="fcg-lock" id="lockOverlay">
+                        <div class="fcg-lock-inner">
+                            <div class="fcg-lock-emoji">🔒</div>
+                            <p data-i18n="fcg.lock.tip">通关上一关即可解锁</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="fcg-palette" id="palette"></div>
+
+                <div class="fcg-tools">
+                    <button class="btn btn-outline btn-sm" id="btnUndo" data-i18n-title="fcg.tool.undo.title" title="撤销">
+                        ↶ <span data-i18n="fcg.tool.undo">撤销</span>
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="btnHint" data-i18n-title="fcg.tool.hint.title" title="提示">
+                        💡 <span data-i18n="fcg.tool.hint">提示</span> <b id="hintLeft">3</b>
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="btnReset" data-i18n-title="fcg.tool.reset.title" title="重来">
+                        ↺ <span data-i18n="fcg.tool.reset">重来</span>
+                    </button>
+                    <button class="btn btn-outline btn-sm" id="btnNew" data-i18n-title="fcg.tool.new.title" title="重新生成一张地图（N）">
+                        🎲 <span data-i18n="fcg.tool.new">换图</span>
+                    </button>
+                    <button class="btn btn-outline btn-sm fcg-toggle" id="btnSound" data-i18n-title="fcg.tool.sound.title" title="音效">
+                        🔊 <span data-i18n="fcg.tool.sound">音效</span>
+                    </button>
+                    <button class="btn btn-outline btn-sm fcg-toggle" id="btnMarks" data-i18n-title="fcg.tool.marks.title" title="色盲友好标记">
+                        ⬤ <span data-i18n="fcg.tool.marks">标记</span>
+                    </button>
+                </div>
+
+                <div class="hint-text fcg-keyhint" data-i18n="fcg.hint.keys">💡 快捷键：1~4 切换颜色 · Z 撤销 · H 提示 · R 重来 · N 换图</div>
+            </div>
+
+                <!-- ===== 信息模块：关卡 / 玩法 / 记录 / 成就 / 关于 ===== -->
+                <div class="fcg-side">
+                    <div class="fcg-info">
+                    <div class="fcg-tabs" id="infoTabs">
+                        <button class="fcg-tab active" data-tab="level" data-i18n="fcg.tab.level">关卡</button>
+                        <button class="fcg-tab" data-tab="play" data-i18n="fcg.tab.play">玩法</button>
+                        <button class="fcg-tab" data-tab="best" data-i18n="fcg.tab.best">记录</button>
+                        <button class="fcg-tab" data-tab="badge" data-i18n="fcg.tab.badge">成就</button>
+                        <button class="fcg-tab" data-tab="about" data-i18n="fcg.tab.about">关于</button>
+                    </div>
+
+                    <!-- 关卡 -->
+                    <div class="fcg-tab-pane active" data-pane="level">
+                        <div class="fcg-level-list" id="levelList"></div>
+                        <div class="fcg-custom">
+                            <span class="fcg-custom-label" data-i18n="fcg.custom.label">自定义板块</span>
+                            <input type="number" id="customCount" class="fcg-custom-input" min="4" max="80" value="20" aria-label="自定义板块数">
+                            <button class="btn btn-sm" id="btnCustom" data-i18n="fcg.custom.go">生成</button>
+                        </div>
+                    </div>
+
+                    <!-- 玩法 -->
+                    <div class="fcg-tab-pane" data-pane="play">
+                        <div class="fcg-pane-title" data-i18n="fcg.p3.rules">怎么玩</div>
+                        <ol class="fcg-rules">
+                            <li data-i18n="fcg.rule.1">点击底部调色板选色，再点地图上的区域填色</li>
+                            <li data-i18n="fcg.rule.2">有公共边界的两个区域不能用同一种颜色</li>
+                            <li data-i18n="fcg.rule.3">只在一个点相交不算相邻，可以同色</li>
+                            <li data-i18n="fcg.rule.4">填满且零冲突即通关，步数越少星级越高</li>
+                        </ol>
+                    </div>
+
+                    <!-- 记录 -->
+                    <div class="fcg-tab-pane" data-pane="best">
+                        <div class="fcg-pane-title" data-i18n="fcg.p3.best">本关最佳</div>
+                        <div class="fcg-best" id="bestBox">
+                            <div class="fcg-best-row"><span data-i18n="fcg.win.time">用时</span><b id="bestTime">--</b></div>
+                            <div class="fcg-best-row"><span data-i18n="fcg.win.moves">步数</span><b id="bestMoves">--</b></div>
+                            <div class="fcg-best-row"><span data-i18n="fcg.win.score">积分</span><b id="bestScore">--</b></div>
+                            <div class="fcg-best-row"><span data-i18n="fcg.best.stars">星级</span><b id="bestStars">--</b></div>
+                        </div>
+                        <div class="fcg-total">
+                            <span data-i18n="fcg.best.total">累计积分</span>
+                            <b id="totalScore">0</b>
+                        </div>
+                    </div>
+
+                    <!-- 成就 -->
+                    <div class="fcg-tab-pane" data-pane="badge">
+                        <div class="fcg-pane-title">
+                            <span data-i18n="fcg.p3.badges">成就</span>
+                            <small id="badgeCount">0/6</small>
+                        </div>
+                        <div class="fcg-badges" id="badgeList"></div>
+                    </div>
+
+                    <!-- 关于 -->
+                    <div class="fcg-tab-pane" data-pane="about">
+                        <div class="fcg-pane-title" data-i18n="fcg.p4.title">关于四色定理</div>
+                        <div class="detail-grid">
+                            <span class="key" data-i18n="fcg.fact.year">提出时间</span>
+                            <span class="val" data-i18n="fcg.fact.yearVal">1852 年，英国学生古德里在给地图填色时提出猜想</span>
+                            <span class="key" data-i18n="fcg.fact.proof">证明时间</span>
+                            <span class="val" data-i18n="fcg.fact.proofVal">1976 年，阿佩尔与哈肯用计算机穷举 1936 种构型完成证明</span>
+                            <span class="key" data-i18n="fcg.fact.meaning">它在说什么</span>
+                            <span class="val" data-i18n="fcg.fact.meaningVal">任意一张画在平面或球面上的地图，四种颜色一定够用</span>
+                            <span class="key" data-i18n="fcg.fact.three">三种够吗</span>
+                            <span class="val" data-i18n="fcg.fact.threeVal">不够。四个两两相邻的区域构成反例，本游戏里经常出现</span>
+                            <span class="key" data-i18n="fcg.fact.planar">平面图</span>
+                            <span class="val" data-i18n="fcg.fact.planarVal">地图本质是平面图，本作用 Voronoi 图生成，天然满足定理前提</span>
+                            <span class="key" data-i18n="fcg.fact.five">五色定理</span>
+                            <span class="val" data-i18n="fcg.fact.fiveVal">五色定理 1890 年已被手算证明，比四色早了 86 年</span>
+                        </div>
+                        <div class="hint-text" style="margin-top:10px;" data-i18n="fcg.fact.tip">
+                            💡 试试看：当你卡住时，往往是因为某个区域被三种颜色包围了 —— 换个远处区域的颜色，连锁调整一下就通了。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="fcg.footer">🔧 四色定理填色 · 随机地图生成 · 14 关 + 自定义 · 本地保存进度</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <script src="../../asset/JavaScript/theme.js"></script>
+    <script src="../../asset/JavaScript/i18n.js"></script>
+    <script src="../../asset/JavaScript/Game/FourColorGame.js"></script>
+</body>
+</html>

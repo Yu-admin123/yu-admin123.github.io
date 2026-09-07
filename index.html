@@ -12,7 +12,7 @@
         document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
     <link rel="stylesheet" href="./asset/CSS/common.css?v=20260825a">
-    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260825p">
+    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260907f">
 </head>
 <body>
     <!-- ===== 导航栏 ===== -->
@@ -160,11 +160,19 @@
                             <h2 class="search-title" data-i18n="index.hero.search.title">搜一下</h2>
                             <p class="search-tip" id="heroSearchTip"></p>
                             <div class="hero-search-box">
+                                <div class="hero-engine-wrap" id="heroEngineWrap">
+                                <button type="button" class="hero-engine-trigger" id="heroEngineTrigger" aria-haspopup="listbox" aria-expanded="false" data-i18n-title="index.engine.label" title="搜索引擎">
+                                    <span id="heroEngineLabel">必应</span>
+                                    <svg class="hero-engine-caret" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                                </button>
+                                <ul class="hero-engine-menu" id="heroEngineMenu" role="listbox" aria-label="搜索引擎"></ul>
+                            </div>
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8" />
                                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                                 </svg>
-                                <input type="text" id="heroSearchInput" placeholder="搜索互联网..." data-i18n-placeholder="index.search.web.placeholder">
+                                <input type="text" id="heroSearchInput" placeholder="搜索互联网..." data-i18n-placeholder="index.search.web.placeholder" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false">
+                                <ul class="hero-suggest-menu" id="heroSuggestMenu" role="listbox" aria-label="搜索建议"></ul>
                                 <button class="hero-search-btn" id="heroSearchBtn" type="button" data-i18n="index.hero.search.go">搜索</button>
                             </div>
                             </div>
@@ -267,7 +275,25 @@
     <!-- 右下角悬浮按钮：返回顶部（上） + 搜索引擎设置（下） -->
     <div class="hero-fab" id="heroFab">
         <button class="hero-fab-btn hero-fab-totop" id="heroFabTop" type="button" title="返回顶部" data-i18n-title="index.fab.top" aria-label="返回顶部">↑</button>
+        <button class="hero-fab-btn hero-fab-mode" id="heroFabMode" type="button" title="界面模式" aria-label="界面模式">☯</button>
         <button class="hero-fab-btn hero-fab-settings" id="heroFabSettings" type="button" title="页面设置" data-i18n-title="index.fab.settings" aria-label="页面设置">⚙</button>
+    </div>
+
+    <!-- ===== 禅 / 导航模式全屏层：常规隐藏，禅/导航时以整屏覆盖显示 ===== -->
+    <div class="zen-layer" id="zenLayer">
+        <button type="button" class="hero-fab-btn zen-theme-btn" id="zenThemeBtn" title="切换主题" aria-label="切换主题">☀️</button>
+        <div class="zen-inner">
+            <div class="zen-clock" id="zenClock">AM 08:26:34 | 戊辰</div>
+            <div class="zen-search">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" id="zenSearchInput" placeholder="搜索互联网..." data-i18n-placeholder="index.search.web.placeholder" autocomplete="off">
+                <span class="zen-engine" id="zenEngineWrap"><button type="button" class="zen-engine-btn" id="zenEngineLabel">必应 ▾</button></span>
+                <button class="hero-search-btn" id="zenSearchBtn" type="button" data-i18n="index.hero.search.go">搜索</button>
+            </div>
+            <div class="zen-favs" id="zenFavs"></div>
+        </div>
     </div>
 
     <!-- 页面设置弹窗（搜索引擎 + 外观：背景图 / 卡片透明度 / 卡片模糊度） -->
@@ -276,69 +302,85 @@
             <h3 class="hw-modal-title">⚙ <span data-i18n="index.engine.title">页面设置</span></h3>
             <p class="engine-modal-tip" data-i18n="index.engine.tip">调整搜索引擎与页面外观，所有改动会保存在本地。</p>
             <div class="engine-body">
-                <div class="engine-cols">
-                    <!-- 左列：搜索引擎 + 外观（透明度 / 模糊度） -->
-                    <div class="engine-col engine-col-left">
-                        <div class="engine-field">
-                            <label for="engineSelect" data-i18n="index.engine.label">搜索引擎</label>
-                            <select id="engineSelect" class="engine-select">
-                                <option value="https://www.bing.com/search?q=">必应</option>
-                                <option value="https://search.bilibili.com/all?keyword=">哔哩哔哩</option>
-                                <option value="https://www.baidu.com/s?wd=">百度</option>
-                                <option value="https://www.google.com/search?q=">谷歌</option>
-                                <option value="https://metaso.cn/?q=">秘塔AI</option>
-                                <option value="https://www.sogou.com/web?query=">搜狗</option>
-                                <option value="https://so.toutiao.com/search?keyword=">头条</option>
-                                <option value="https://www.sm.cn/s?q=">神马</option>
-                                <option value="https://www.so.com/s?q=">360搜索</option>
-                                <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
-                            </select>
-                        </div>
+                <!-- 页签：三个分类 -->
+                <div class="engine-tabs">
+                    <button type="button" class="engine-tab active" data-engine-page="engine" data-i18n="index.engine.tabEngine">设置</button>
+                    <button type="button" class="engine-tab" data-engine-page="skin" data-i18n="index.engine.tabSkin">主题</button>
+                    <button type="button" class="engine-tab" data-engine-page="sites" data-i18n="index.nav.custom">自定义网站</button>
+                </div>
 
-                        <div class="engine-field">
-                            <label data-i18n="index.engine.custom">自定义搜索引擎</label>
-                            <div class="engine-custom-add">
-                                <input type="text" id="customEngineName" class="engine-input" data-i18n-placeholder="index.engine.customName" placeholder="名称" maxlength="30" />
-                                <input type="text" id="customEngineUrl" class="engine-input" data-i18n-placeholder="index.engine.customUrl" placeholder="地址（末尾接 ?q=）" maxlength="500" />
-                                <button type="button" id="customEngineAdd" class="engine-clear-btn" data-i18n="index.engine.customAdd">添加</button>
+                <!-- 页 1：搜索引擎设置 -->
+                <div class="engine-page engine-page-engine active">
+                    <div class="engine-field">
+                        <label for="engineSelect" data-i18n="index.engine.label">搜索引擎</label>
+                        <select id="engineSelect" class="engine-select">
+                            <option value="https://www.bing.com/search?q=">必应</option>
+                            <option value="https://search.bilibili.com/all?keyword=">哔哩哔哩</option>
+                            <option value="https://www.baidu.com/s?wd=">百度</option>
+                            <option value="https://www.google.com/search?q=">谷歌</option>
+                            <option value="https://metaso.cn/?q=">秘塔AI</option>
+                            <option value="https://www.sogou.com/web?query=">搜狗</option>
+                            <option value="https://so.toutiao.com/search?keyword=">头条</option>
+                            <option value="https://www.sm.cn/s?q=">神马</option>
+                            <option value="https://www.so.com/s?q=">360搜索</option>
+                            <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+                        </select>
+                    </div>
+                    <div class="engine-field">
+                        <label data-i18n="index.engine.custom">自定义搜索引擎</label>
+                        <div class="engine-custom-add">
+                            <input type="text" id="customEngineName" class="engine-input" data-i18n-placeholder="index.engine.customName" placeholder="名称" maxlength="30" />
+                            <input type="text" id="customEngineUrl" class="engine-input" data-i18n-placeholder="index.engine.customUrl" placeholder="地址（末尾接 ?q=）" maxlength="500" />
+                            <button type="button" id="customEngineAdd" class="engine-clear-btn" data-i18n="index.engine.customAdd">添加</button>
+                        </div>
+                        <div class="engine-custom-list" id="customEngineList"></div>
+                        <div class="engine-bg-notice" id="engineCustomNotice"></div>
+                    </div>
+
+                    <div class="engine-section-title" data-i18n="index.config.title">配置备份</div>
+                    <div class="engine-config-row">
+                        <button type="button" id="configExportBtn" class="hw-modal-btn hw-modal-btn-reset" data-i18n="index.config.export">导出配置</button>
+                        <button type="button" id="configImportBtn" class="hw-modal-btn hw-modal-btn-reset" data-i18n="index.config.import">导入配置</button>
+                        <input type="file" id="configImportInput" accept="application/zip,.zip,application/json,.json" hidden />
+                    </div>
+                    <div class="engine-bg-notice" id="configNotice"></div>
+                </div>
+
+                <!-- 页 2：主题 -->
+                <div class="engine-page engine-page-skin">
+                    <div class="engine-cols">
+                        <!-- 左列：设置项（通透度 + 卡片透明度/模糊度） -->
+                        <div class="engine-col engine-col-left">
+                            <div class="engine-field engine-field-inline">
+                                <label for="pageBgDim" data-i18n="index.appear.bgDim">页面背景通透度</label>
+                                <div class="engine-row">
+                                    <input type="range" id="pageBgDim" class="engine-range" min="0" max="100" step="1" />
+                                    <span class="engine-range-val" id="pageBgDimVal">70%</span>
+                                </div>
                             </div>
-                            <div class="engine-custom-list" id="customEngineList"></div>
-                            <div class="engine-bg-notice" id="engineCustomNotice"></div>
-                        </div>
 
-                        <div class="engine-section-title" data-i18n="index.appear.title">外观</div>
-
-                        <div class="engine-field engine-field-inline">
-                            <label for="pageBgDim" data-i18n="index.appear.bgDim">页面背景通透度</label>
-                            <div class="engine-row">
-                                <input type="range" id="pageBgDim" class="engine-range" min="0" max="100" step="1" />
-                                <span class="engine-range-val" id="pageBgDimVal">70%</span>
-                            </div>
-                        </div>
-
-                        <div class="engine-slider-grid">
-                            <div class="engine-slider-cell">
+                            <div class="engine-field engine-field-inline">
                                 <label for="cardOpacity" data-i18n="index.appear.opacity">工具卡片透明度</label>
                                 <div class="engine-row">
                                     <input type="range" id="cardOpacity" class="engine-range" min="0" max="100" step="1" />
                                     <span class="engine-range-val" id="cardOpacityVal">100%</span>
                                 </div>
                             </div>
-                            <div class="engine-slider-cell">
+                            <div class="engine-field engine-field-inline">
                                 <label for="cardBlur" data-i18n="index.appear.blur">工具卡片模糊度</label>
                                 <div class="engine-row">
                                     <input type="range" id="cardBlur" class="engine-range" min="0" max="20" step="1" />
                                     <span class="engine-range-val" id="cardBlurVal">0px</span>
                                 </div>
                             </div>
-                            <div class="engine-slider-cell">
+                            <div class="engine-field engine-field-inline">
                                 <label for="cardOpacityHover" data-i18n="index.appear.opacityHover">工具卡片透明度（悬浮）</label>
                                 <div class="engine-row">
                                     <input type="range" id="cardOpacityHover" class="engine-range" min="0" max="100" step="1" />
                                     <span class="engine-range-val" id="cardOpacityHoverVal">100%</span>
                                 </div>
                             </div>
-                            <div class="engine-slider-cell">
+                            <div class="engine-field engine-field-inline">
                                 <label for="cardBlurHover" data-i18n="index.appear.blurHover">工具卡片模糊度（悬浮）</label>
                                 <div class="engine-row">
                                     <input type="range" id="cardBlurHover" class="engine-range" min="0" max="20" step="1" />
@@ -346,29 +388,45 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 右列：背景图 / 预览 + 配置备份 -->
-                    <div class="engine-col engine-col-right">
-                        <div class="engine-field">
-                            <label data-i18n="index.appear.bg">页面背景（图片 / 视频，最多 9 个，点击切换）</label>
-                            <div class="engine-bg-notice engine-bg-filetip" id="bgFileModeTip" style="display:none"></div>
-                            <div class="engine-row">
-                                <input type="file" id="pageBgInput" class="engine-file" accept="image/*,video/*" multiple />
-                                <button type="button" id="pageBgClear" class="engine-clear-btn" data-i18n="index.appear.clear">清除全部</button>
+                        <!-- 右列：文件上传 + 缩略图 -->
+                        <div class="engine-col engine-col-right">
+                            <div class="engine-field">
+                                <label data-i18n="index.appear.bg">页面背景（图片 / 视频，最多 9 个，点击切换）</label>
+                                <div class="engine-bg-notice engine-bg-filetip" id="bgFileModeTip" style="display:none"></div>
+                                <div class="engine-row">
+                                    <input type="file" id="pageBgInput" class="engine-file" accept="image/*,video/*" multiple />
+                                    <button type="button" id="pageBgClear" class="engine-clear-btn" data-i18n="index.appear.clear">清除全部</button>
+                                </div>
+                                <div class="engine-bg-grid" id="pageBgGrid"></div>
+                                <div class="engine-bg-count" id="pageBgCount"></div>
+                                <div class="engine-bg-notice" id="pageBgNotice"></div>
                             </div>
-                            <div class="engine-bg-grid" id="pageBgGrid"></div>
-                            <div class="engine-bg-count" id="pageBgCount"></div>
-                            <div class="engine-bg-notice" id="pageBgNotice"></div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="engine-section-title" data-i18n="index.config.title">配置备份</div>
-                        <div class="engine-config-row">
-                            <button type="button" id="configExportBtn" class="hw-modal-btn hw-modal-btn-reset" data-i18n="index.config.export">导出配置</button>
-                            <button type="button" id="configImportBtn" class="hw-modal-btn hw-modal-btn-reset" data-i18n="index.config.import">导入配置</button>
-                            <input type="file" id="configImportInput" accept="application/zip,.zip,application/json,.json" hidden />
+                <!-- 页 3：自定义网站 -->
+                <div class="engine-page engine-page-sites">
+                    <div class="engine-field">
+                        <label data-i18n="index.nav.custom">自定义网站</label>
+                        <div class="engine-nav-form">
+                            <div class="engine-nav-row">
+                                <input type="text" id="customNavUrl" class="engine-input" data-i18n-placeholder="index.nav.customUrl" placeholder="网址（必填）" maxlength="500" />
+                                <input type="text" id="customNavName" class="engine-input" data-i18n-placeholder="index.nav.customName" placeholder="名称（留空用网站域名）" maxlength="40" />
+                            </div>
+                            <div class="engine-nav-row">
+                                <input type="text" id="customNavIcon" class="engine-input" data-i18n-placeholder="index.nav.customIcon" placeholder="图标地址（留空用名称首字）" maxlength="500" />
+                                <button type="button" id="customNavIconUpload" class="engine-clear-btn" data-i18n="index.nav.customUpload">上传</button>
+                                <input type="file" id="customNavIconFile" accept="image/*" hidden />
+                                <span class="engine-nav-label" data-i18n="index.nav.customCat">导航子分类</span>
+                                <select id="customNavCat" class="engine-select"></select>
+                                <button type="button" id="customNavAdd" class="engine-clear-btn" data-i18n="index.nav.customAdd">添加</button>
+                                <button type="button" id="customNavCancelEdit" class="engine-clear-btn" data-i18n="index.nav.customCancelEdit" hidden>取消</button>
+                            </div>
                         </div>
-                        <div class="engine-bg-notice" id="configNotice"></div>
+                        <div class="engine-custom-list" id="customNavList"></div>
+                        <div class="engine-bg-notice" id="customNavNotice"></div>
                     </div>
                 </div>
             </div>
@@ -383,6 +441,38 @@
     <script src="./asset/JavaScript/theme.js?v=20260825a"></script>
     <script src="./asset/JavaScript/i18n.js?v=20260825a"></script>
     <script src="./asset/JavaScript/zip-util.js?v=20260825f"></script>
-    <script src="./asset/JavaScript/index.js?v=20260825m"></script>
+    <script src="./asset/JavaScript/index.js?v=20260907j"></script>
+    <!-- 工具卡片 SVG 图标精灵：24×24 多色扁平风格，颜色在各图内部定义 -->
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none" aria-hidden="true">
+        <defs>
+            <symbol id="svg-serial-port" viewBox="420 200 1420 744"><path d="M1378.78471179 817.5192792H759.17959491a221.50187307 221.50187307 0 0 1-188.98583468-104.80421135L466.91714832 547.18879143A222.32022967 222.32022967 0 0 1 433.14629603 429.2363164 222.97491506 222.97491506 0 0 1 655.84842555 206.4796294h826.15834126c41.73619024 0 82.54491014 11.67522167 117.89791818 33.77085228 50.51988537 31.53401055 85.70922221 80.79908199 99.13027202 138.73873486s3.43709822 117.67968951-28.09691296 168.19957489l-103.27661189 165.52627641a221.39275872 221.39275872 0 0 1-188.87672037 104.80421136z m-722.88172876-545.57111575c-42.06353323 0-81.56288173 16.36713322-111.24195104 46.04620191S498.61483008 387.22734002 498.61483008 429.2363164c0 29.51539749 8.23812407 58.26699526 23.84145756 83.19959493L625.73290014 678.07130208A156.36068201 156.36068201 0 0 0 759.17959491 752.05074576h619.60511688c54.55711152 0 104.4223115-27.7150125 133.39213792-74.03400055l103.27661189-165.52627702a156.36068201 156.36068201 0 0 0 19.80423142-118.77083163 156.41523888 156.41523888 0 0 0-69.88765946-97.98457242 158.27018075 158.27018075 0 0 0-83.36326675-23.78690068H655.90298303z" fill="#1296db"/><path d="M688.36446393 415.54248105m-60.66750759 0a60.66750818 60.66750818 0 1 0 121.33501577 0 60.66750818 60.66750818 0 1 0-121.33501577 0Z" fill="#1296db"/><path d="M759.39782357 630.66117192m-60.66750817 0a60.66750818 60.66750818 0 1 0 121.33501637 0 60.66750818 60.66750818 0 1 0-121.33501637 0Z" fill="#1296db"/><path d="M1069.82778838 415.54248105m-60.66750817 0a60.66750818 60.66750818 0 1 0 121.33501637 0 60.66750818 60.66750818 0 1 0-121.33501637 0Z" fill="#1296db"/><path d="M1147.46255833 630.66117192m-60.66750819 0a60.66750818 60.66750818 0 1 0 121.33501636 0 60.66750818 60.66750818 0 1 0-121.33501636 0Z" fill="#1296db"/><path d="M875.82269976 415.54248105m-60.66750819 0a60.66750818 60.66750818 0 1 0 121.33501635 0 60.66750818 60.66750818 0 1 0-121.33501635 0Z" fill="#1296db"/><path d="M953.45746969 630.66117192m-60.66750819 0a60.66750818 60.66750818 0 1 0 121.33501637 0 60.66750818 60.66750818 0 1 0-121.33501637 0Z" fill="#1296db"/><path d="M1263.88743449 415.54248105m-60.66750819 0a60.66750818 60.66750818 0 1 0 121.33501638 0 60.66750818 60.66750818 0 1 0-121.33501638 0Z" fill="#1296db"/><path d="M1341.52220443 630.66117192m-60.66750819 0a60.66750818 60.66750818 0 1 0 121.33501637 0 60.66750818 60.66750818 0 1 0-121.33501637 0Z" fill="#1296db"/><path d="M1451.45478406 415.54248105m-60.66750818 0a60.66750818 60.66750818 0 1 0 121.33501636 0 60.66750818 60.66750818 0 1 0-121.33501636 0Z" fill="#1296db"/></symbol>
+            <symbol id="svg-Modbus-check" viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="6.5" rx="1.8" fill="#8B5CF6"/><rect x="14" y="4" width="7" height="6.5" rx="1.8" fill="#3B82F6"/><rect x="3" y="13.5" width="7" height="6.5" rx="1.8" fill="#10B981"/><rect x="14" y="13.5" width="7" height="6.5" rx="1.8" fill="#10B981"/><path d="M10 7.25h4m-1.4-1.4L14 7.25l-1.4 1.4M14 16.75h-4m1.4 1.4L10 16.75l1.4-1.4" stroke="#fff" stroke-width="1.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+            <symbol id="svg-MqttTool" viewBox="0 0 1024 1024"><path d="M219.050667 128.426667c351.189333 47.402667 629.162667 325.333333 676.565333 676.522666a42.709333 42.709333 0 0 1-84.565333 11.434667c-42.282667-313.130667-290.304-561.066667-603.434667-603.392a42.666667 42.666667 0 0 1 11.434667-84.608m2.773333 390.826667A363.093333 363.093333 0 0 1 504.746667 802.133333a42.666667 42.666667 0 0 1-41.813334 51.2H213.333333a42.666667 42.666667 0 0 1-42.666666-42.666666v-249.6a42.666667 42.666667 0 0 1 51.2-41.813334m-1.706667-191.872a576.426667 576.426667 0 0 1 476.586667 476.501334 42.709333 42.709333 0 0 1-84.266667 13.610666A491.093333 491.093333 0 0 0 206.506667 411.648a42.666667 42.666667 0 0 1 13.568-84.266667M853.333333 128a42.666667 42.666667 0 0 1 42.666667 42.666667v170.965333l-0.512 6.698667a42.709333 42.709333 0 0 1-75.733333 19.626666 968.533333 968.533333 0 0 0-163.413334-163.498666A42.666667 42.666667 0 0 1 682.666667 128.256z" fill="#1296db"/></symbol>
+            <symbol id="svg-HttpTool" viewBox="0 0 1024 1024"><path d="M684.672 591.19c3.157-26.155 5.547-52.267 5.547-79.19s-2.39-53.077-5.547-79.19h133.845c6.315 25.345 10.283 51.84 10.283 79.19a326.4 326.4 0 0 1-10.283 79.19M614.571 811.35c23.765-43.947 41.984-91.478 54.656-140.971h116.821a317.952 317.952 0 0 1-171.477 140.97m-9.899-220.16H419.413c-3.968-26.154-6.357-52.266-6.357-79.189s2.39-53.461 6.357-79.19h185.302c3.584 25.729 6.357 52.267 6.357 79.19s-2.773 53.035-6.357 79.19m-92.63 235.989c-32.853-47.488-59.434-100.182-75.648-156.8h151.254c-16.214 56.618-42.752 109.312-75.648 156.8m-158.379-473.6H238.037a313.728 313.728 0 0 1 171.094-140.971c-23.766 43.947-41.6 91.477-55.467 140.97m-115.627 316.8h115.627c13.867 49.494 31.701 97.025 55.467 140.971a317.141 317.141 0 0 1-171.094-140.97m-32.469-79.19A326.4 326.4 0 0 1 195.243 512c0-27.307 3.968-53.888 10.282-79.232h133.846c-3.158 26.155-5.547 52.31-5.547 79.232s2.39 53.035 5.547 79.19M512 196.394c32.853 47.488 59.435 100.565 75.648 157.184H436.395c16.213-56.619 42.752-109.654 75.648-157.184m274.005 157.184H669.227a619.648 619.648 0 0 0-54.614-140.971 316.245 316.245 0 0 1 171.435 140.97M512 116.054c-218.965 0-395.947 178.176-395.947 395.947A395.947 395.947 0 0 0 512 908.032 395.947 395.947 0 0 0 907.99 512a395.947 395.947 0 0 0-395.947-395.99z" fill="#1296db"/></symbol>
+            <symbol id="svg-WebsocketTool" viewBox="0 0 24 24"><path d="M9 3h6v4h3a1.5 1.5 0 0 1 1.5 1.5V20A1.5 1.5 0 0 1 18 21.5H6A1.5 1.5 0 0 1 4.5 20V8.5A1.5 1.5 0 0 1 6 7h3z" fill="#F59E0B"/><rect x="8.5" y="13" width="7" height="5" rx="1" fill="#fff"/><path d="M8.5 15.5h7" stroke="#F59E0B" stroke-width="1"/><path d="M10 18h1.5M12.5 18H14" stroke="#F59E0B" stroke-width=".9" stroke-linecap="round"/></symbol>
+            <symbol id="svg-BLE_Debugger" viewBox="0 0 1024 1024"><path d="M762.88 976.512H258.56c-114.56 0-207.36-92.8-207.36-207.36V264.704c0-114.56 92.8-207.36 207.36-207.36h504.32c114.56 0 207.36 92.8 207.36 207.36v504.448c0 114.56-92.8 207.36-207.36 207.36z" fill="#0079F5"/><path d="M671.488 385.024L512.896 228.736c-12.672-12.544-34.176-3.456-34.176 14.336V439.168l-100.096-93.952c-1.408-1.408-3.712-1.28-5.12 0.128l-28.544 30.336c-1.408 1.408-1.28 3.712 0.128 5.12l133.632 125.44v18.816l-133.504 124.16c-1.408 1.408-1.536 3.712-0.128 5.12l28.416 30.464c1.408 1.408 3.712 1.536 5.12 0.128l100.224-93.184v198.912c0 17.792 21.504 26.88 34.176 14.336L671.488 648.96c7.936-7.808 7.936-20.736 0-28.672L581.12 531.328c-7.936-7.808-7.936-20.736 0-28.672l90.368-89.088c8.064-7.808 8.064-20.736 0-28.544z m-143.872-73.088l87.552 86.272-87.04 80.896-0.512-0.512V311.936z m0 243.328l1.664-1.536 86.656 81.28-88.192 86.912V555.264z" fill="#FFFFFF"/></symbol>
+            <symbol id="svg-CanBusTool" viewBox="0 0 24 24"><path d="M3 12h18" stroke="#64748B" stroke-width="1.6" stroke-linecap="round"/><circle cx="7" cy="12" r="2.3" fill="#3B82F6"/><circle cx="12" cy="12" r="2.3" fill="#F59E0B"/><circle cx="17" cy="12" r="2.3" fill="#10B981"/><circle cx="7" cy="12" r=".8" fill="#fff"/><circle cx="12" cy="12" r=".8" fill="#fff"/><circle cx="17" cy="12" r=".8" fill="#fff"/></symbol>
+            <symbol id="svg-ImageToData-tool" viewBox="0 0 1024 1024"><path d="M978.46874263 45.96622222c28.33485369 0 51.32585339 22.9909997 51.3258534 51.45012907v390.28775443h-103.52163651V149.54999657H97.72704048v724.83786903l286.45542874-279.86881802 72.825545 78.54222602-212.88422969 201.38872983h251.65824V978.03377778H45.5933952a51.45012907 51.45012907 0 0 1-51.32585339-51.45012907V97.35421345a51.76081825 51.76081825 0 0 1 51.32585339-51.38799123h932.93748528zM304.89458915 253.07163307a103.58377435 103.58377435 0 1 1 0 207.16754868 103.58377435 103.58377435 0 0 1 0-207.16754868z" fill="#1296db"/><path d="M562.26951017 706.49142992a16.34225115 16.34225115 0 0 0 16.34225113 17.64714573h434.84058359a16.40438898 16.40438898 0 0 0 16.34225114-16.40438898v-59.34163437a16.34225115 16.34225115 0 0 0-16.34225114-16.40438898h-239.60349961v-78.10726115a9.81777825 9.81777825 0 0 0-15.78301061-7.76722964l-187.15916516 145.58895218a16.34225115 16.34225115 0 0 0-4.03895941 4.66033778 16.34225115 16.34225115 0 0 0-4.59819993 10.12846743z m0 167.21291947a16.34225115 16.34225115 0 0 0 16.34225113 16.34225114h239.54136178v78.16939899a9.81777825 9.81777825 0 0 0 15.84514844 7.76722963l187.09702733-145.58895217a16.34225115 16.34225115 0 0 0 4.10109724-4.66033778 16.34225115 16.34225115 0 0 0-11.80618904-27.77561315h-434.77844575a16.40438898 16.40438898 0 0 0-16.40438898 16.40438897v59.34163437z" fill="#1296db"/></symbol>
+            <symbol id="svg-power-calc" viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2.5" fill="#10B981"/><rect x="19" y="9.5" width="1.6" height="5" rx=".8" fill="#10B981"/><rect x="5.5" y="9.5" width="11" height="5" rx="1" fill="#fff"/><path d="M12 9.5l-2.4 2.5h2.2L10.3 14.5h3.2L12 12h-2.2z" fill="#F59E0B"/></symbol>
+            <symbol id="svg-CRC-check" viewBox="0 0 1024 1024"><path d="M526.933333 42.666667l41.770667 36.266666c55.701333 48.426667 144.832 79.872 264.96 93.482667h0.042667l62.293333 7.104v420.885333c0 145.408-116.288 269.098667-345.6 367.616l-29.248 12.565334-28.714667-13.674667C261.546667 856.661333 149.333333 736.789333 149.333333 600.405333V171.968h70.229334c83.754667 0 172.010667-32.682667 262.293333-97.173333L526.933333 42.666667z m-5.077333 108.330666c-96.64 66.944-193.130667 102.570667-287.189333 106.026667v343.381333c0 97.706667 96.981333 194.090667 288.32 286.506667C713.877333 803.712 810.666667 707.349333 810.666667 600.405333V255.594667c-125.205333-15.765333-222.229333-50.922667-288.810667-104.597334z m112.938667 234.581334a42.666667 42.666667 0 1 1 60.330666 60.330666l-175.125333 175.125334a42.453333 42.453333 0 0 1-30.165333 12.501333 42.453333 42.453333 0 0 1-30.165334-12.501333l-109.44-109.461334a42.666667 42.666667 0 1 1 60.309334-60.330666l79.296 79.296z" fill="#1296db"/></symbol>
+            <symbol id="svg-RadixConverter" viewBox="0 0 1024 1024"><path d="M512 983.466667C251.733333 983.466667 40.533333 772.266667 40.533333 512S251.733333 40.533333 512 40.533333 983.466667 251.733333 983.466667 512C981.333333 772.266667 772.266667 981.333333 512 983.466667z m0-878.933334C288 104.533333 104.533333 288 104.533333 512S288 919.466667 512 919.466667 919.466667 736 919.466667 512C917.333333 288 736 106.666667 512 104.533333z" fill="#1296db"/><path d="M704 473.6H320c-17.066667 0-32-14.933333-32-32s14.933333-32 32-32h298.666667l-42.666667-38.4c-12.8-10.666667-14.933333-32-4.266667-44.8 10.666667-12.8 32-14.933333 44.8-2.133333l106.666667 93.866666c12.8 10.666667 14.933333 32 2.133333 44.8-4.266667 6.4-12.8 10.666667-21.333333 10.666667zM426.666667 708.266667c-8.533333 0-14.933333-2.133333-21.333334-8.533334l-106.666666-93.866666c-12.8-10.666667-14.933333-32-2.133334-44.8 6.4-6.4 14.933333-10.666667 23.466667-10.666667h384c17.066667 0 32 14.933333 32 32s-14.933333 32-32 32H403.2l42.666667 38.4c12.8 10.666667 14.933333 32 2.133333 44.8-4.266667 6.4-12.8 10.666667-21.333333 10.666667z" fill="#1296db"/></symbol>
+            <symbol id="svg-ADCConverter" viewBox="0 0 24 24"><path d="M3 4h3v5H3zM3 13h3v5H3z" fill="#C4B5FD"/><path d="M13.5 4.5L5 13h5l-1 7 8.5-8.5h-5z" fill="#FACC15" stroke="#F59E0B" stroke-width=".6" stroke-linejoin="round"/></symbol>
+            <symbol id="svg-SignalPlotter" viewBox="0 0 24 24"><path d="M4 20V4h16v16z" fill="#EFF6FF"/><path d="M4 20h16" stroke="#94A3B8" stroke-width="1.2"/><path d="M6.5 16l3-4 2.5 2 3.5-6 2.5 4" fill="none" stroke="#3B82F6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9.5" cy="12" r="1.2" fill="#F59E0B"/><circle cx="15.5" cy="8" r="1.2" fill="#10B981"/><circle cx="18" cy="12" r="1.2" fill="#EF4444"/></symbol>
+            <symbol id="svg-PIDController" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="#3B82F6"/><circle cx="12" cy="12" r="5.2" fill="#fff"/><circle cx="12" cy="12" r="2.2" fill="#EF4444"/><path d="M12 3.5V1.5M12 22.5v-2M3.5 12h-2M22.5 12h-2" stroke="#3B82F6" stroke-width="1.6" stroke-linecap="round"/></symbol>
+            <symbol id="svg-UnixTimestamp" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.6"/><path d="M12 7.5V13l3.2 2" fill="none" stroke="#3B82F6" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="13" r="1" fill="#3B82F6"/></symbol>
+            <symbol id="svg-TimingLab" viewBox="0 0 24 24"><path d="M9 3h6" stroke="#94A3B8" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="13.5" r="7.2" fill="#FEE2E2"/><circle cx="12" cy="13.5" r="7.2" fill="none" stroke="#EF4444" stroke-width="1.4"/><path d="M12 8.5v5l3 1.6" fill="none" stroke="#EF4444" stroke-width="1.4" stroke-linecap="round"/><circle cx="12" cy="13.5" r=".9" fill="#EF4444"/></symbol>
+            <symbol id="svg-NtcCounter" viewBox="0 0 24 24"><path d="M12 4v6.5" stroke="#64748B" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="15.5" r="5" fill="#EF4444"/><circle cx="12" cy="15.5" r="2.1" fill="#fff"/><path d="M9.5 7.5h5" stroke="#64748B" stroke-width="1.2" stroke-linecap="round"/></symbol>
+            <symbol id="svg-ResDivider" viewBox="0 0 24 24"><path d="M3 12h3.5M19.5 12H21" stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round"/><path d="M6.5 12l2.5-4 2.5 8 2.5-8 2.5 8 2.5-4" fill="none" stroke="#F59E0B" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="4" cy="12" r=".9" fill="#10B981"/><circle cx="20" cy="12" r=".9" fill="#3B82F6"/></symbol>
+            <symbol id="svg-PcbTrace" viewBox="0 0 24 24"><circle cx="5" cy="12" r="2.4" fill="#F59E0B"/><circle cx="19" cy="12" r="2.4" fill="#F59E0B"/><circle cx="5" cy="12" r=".9" fill="#fff"/><circle cx="19" cy="12" r=".9" fill="#fff"/><path d="M7.5 12h9" stroke="#10B981" stroke-width="2"/><path d="M10 6.5h4" stroke="#10B981" stroke-width="1.4" stroke-linecap="round"/></symbol>
+            <symbol id="svg-ViaCalc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="#06B6D4"/><circle cx="12" cy="12" r="5.2" fill="#fff"/><circle cx="12" cy="12" r="2.4" fill="#06B6D4"/><path d="M12 3.5V1.5M12 22.5v-2M3.5 12h-2M22.5 12h-2" stroke="#06B6D4" stroke-width="1.6" stroke-linecap="round"/></symbol>
+            <symbol id="svg-TextDiffMerge" viewBox="0 0 1024 1024"><path d="M64 821.729L97.185 858.6h346.601l33.185-36.872V202.271l-33.185-36.872H97.185L64 202.271v619.458z m66.37-449.844h276.543v416.658H130.37V371.885z m0-136.429h276.543v70.058H130.37v-70.058z m416.659-33.185v619.457l33.185 36.872h346.601L960 821.729V202.271l-33.185-36.872H580.214l-33.185 36.872z m70.057 446.156H893.63v140.115H617.086V648.427z m0-412.971H893.63V512H617.086V235.456z" fill="#1296db"/></symbol>
+            <symbol id="svg-MermaidDraw" viewBox="0 0 24 24"><rect x="3" y="3.5" width="8" height="5" rx="1.5" fill="#3B82F6"/><rect x="15" y="3.5" width="6" height="5" rx="1.5" fill="#F59E0B"/><rect x="8" y="15.5" width="8" height="5" rx="1.5" fill="#10B981"/><path d="M7 8.5v3h4M18 8.5v3h-4M12 18.5v-3" stroke="#94A3B8" stroke-width="1.2" fill="none" stroke-linecap="round"/></symbol>
+            <symbol id="svg-MarkdownEditor" viewBox="0 0 24 24"><path d="M6 3h9l4 4v13a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V4.5A1.5 1.5 0 0 1 6 3z" fill="#3B82F6"/><path d="M15 3v4h4" fill="#93C5FD"/><path d="M8.5 12.5h1.8l1.7 2.6 1.7-2.6h1.8v5h-1.4v-2.8l-2.1 3h-.1l-2.1-3v2.8H8.5z" fill="#fff"/></symbol>
+            <symbol id="svg-QRCodeTool" viewBox="0 0 1025 1024"><path d="M242.373 916.211 53.86 916.211 53.86 107.79l188.513 0c14.872 0 26.931-12.064 26.931-26.947s-12.059-26.947-26.931-26.947L26.926 53.896C12.056 53.895 0 65.959 0 80.842l0 862.316c0 14.88 12.056 26.947 26.926 26.947l215.447 0c14.872 0 26.931-12.067 26.931-26.95C269.304 928.272 257.245 916.211 242.373 916.211zM997.055 53.895 781.474 53.895c-14.88 0-26.947 12.064-26.947 26.947s12.067 26.947 26.947 26.947l188.632 0 0 808.421L781.474 916.21c-14.88 0-26.947 12.062-26.947 26.945 0 14.883 12.067 26.95 26.947 26.95l215.582 0c14.88 0 26.945-12.067 26.945-26.947L1024.001 80.842C1024 65.959 1011.936 53.895 997.055 53.895zM781.474 512.005c0-14.886-12.064-26.95-26.947-26.95L269.474 485.055c-14.883 0-26.947 12.064-26.947 26.95 0 14.883 12.064 26.945 26.947 26.945l485.053 0C769.409 538.95 781.474 526.888 781.474 512.005z" fill="#1296db"/></symbol>
+            <symbol id="svg-MaterialManager" viewBox="0 0 24 24"><path d="M4 8l8-4 8 4v8l-8 4-8-4z" fill="#FCD34D"/><path d="M4 8l8 4 8-4M12 12v8M8.5 6.2L15.5 9.7" stroke="#F59E0B" stroke-width="1.1" fill="none" stroke-linejoin="round"/><path d="M12 12l-4.2-2.1" stroke="#F59E0B" stroke-width="1.1" stroke-linecap="round"/></symbol>
+            <symbol id="svg-FourColorGame" viewBox="0 0 24 24"><path d="M12 2.5a9.5 9.5 0 0 1 9.5 9.5H12z" fill="#3B82F6"/><path d="M12 2.5A9.5 9.5 0 0 0 2.5 12H12z" fill="#EF4444"/><path d="M2.5 12a9.5 9.5 0 0 0 9.5 9.5V12z" fill="#FACC15"/><path d="M12 12h9.5A9.5 9.5 0 0 1 12 21.5z" fill="#10B981"/><circle cx="12" cy="12" r="3" fill="#fff"/></symbol>
+            <symbol id="svg-HuoZhongJiYuan" viewBox="0 0 24 24"><path d="M12 2.8c0 0-5.8 6.2-5.8 11a5.8 5.8 0 0 0 11.6 0C17.8 9 12 2.8 12 2.8z" fill="#F97316"/><path d="M12 7.5c0 0-3.8 4.2-3.8 6.9a3.8 3.8 0 0 0 7.6 0C15.8 11.7 12 7.5 12 7.5z" fill="#FDE047"/><circle cx="12" cy="14.8" r="1.7" fill="#FFF7ED"/><circle cx="18.6" cy="9.2" r="1" fill="#F59E0B"/><circle cx="5.2" cy="11.6" r="0.85" fill="#EF4444"/><circle cx="16.4" cy="17.6" r="0.7" fill="#F59E0B"/></symbol>
+        </defs>
+    </svg>
 </body>
 </html>

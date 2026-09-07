@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>火种纪元</title>
+    <link rel="icon" href="../../asset/Logo/Yu_Tools.png" type="image/png">
+    <script>
+        const savedTheme = localStorage.getItem('toolbox-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const savedLang = localStorage.getItem('toolbox-lang') || 'zh';
+        document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
+    </script>
+    <link rel="stylesheet" href="../../asset/CSS/common.css">
+    <link rel="stylesheet" href="../../asset/CSS/Game/HuoZhongJiYuan.css">
+    <script>
+        window.I18N_STRINGS = {
+            'common.lang.title':  { zh: '切换语言 / Switch Language', en: 'Switch Language / 切换语言' },
+            'common.theme.title': { zh: '切换主题', en: 'Toggle theme' },
+            'hzj.page.title':     { zh: '火种纪元', en: 'Era of Sparks' },
+            'hzj.subhead':         { zh: '🔥 从火堆到星空的文明放置养成：研究解锁多种发展路线，晋升时代获得永久传承', en: '🔥 An idle civilization game from firepit to stars: research to unlock many paths; advancing eras grants lasting legacy.' },
+            'hzj.footer':          { zh: '🔧 火种纪元 · 分支式文明放置 · 本地存档 · 可导入导出', en: '🔧 Era of Sparks · branching idle civilization · local save · import/export' }
+        };
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a class="navbar-brand" href="../../index.html">
+                <div class="brand-icon">
+                    <img src="../../asset/Logo/Yu_Tools.png" width="36" height="36" loading="lazy" alt="Yu_ToolBox">
+                </div>
+                Yu_ToolBox
+            </a>
+            <div class="navbar-right">
+                <div class="lang-toggle" id="langToggle" title="切换语言 / Switch Language" data-i18n-title="common.lang.title">
+                    <span class="lang-label">EN</span>
+                </div>
+                <div class="theme-toggle" id="themeToggle" title="切换主题" data-i18n-title="common.theme.title">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                    <div class="toggle-track"><div class="toggle-thumb"></div></div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-title"><svg class="page-title-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8c0 0-5.8 6.2-5.8 11a5.8 5.8 0 0 0 11.6 0C17.8 9 12 2.8 12 2.8z" fill="#F97316"/><path d="M12 7.5c0 0-3.8 4.2-3.8 6.9a3.8 3.8 0 0 0 7.6 0C15.8 11.7 12 7.5 12 7.5z" fill="#FDE047"/><circle cx="12" cy="14.8" r="1.7" fill="#FFF7ED"/><circle cx="18.6" cy="9.2" r="1" fill="#F59E0B"/><circle cx="5.2" cy="11.6" r="0.85" fill="#EF4444"/><circle cx="16.4" cy="17.6" r="0.7" fill="#F59E0B"/></svg><span data-i18n="hzj.page.title">火种纪元</span></div>
+        <div class="subhead" data-i18n="hzj.subhead">🔥 从火堆到星空的文明放置养成：研究解锁多种发展路线，晋升时代获得永久传承</div>
+
+        <!-- ===== 一张大卡片：整个游戏 ===== -->
+        <div class="panel panel-accent hzj-panel">
+            <div id="app">
+  <header id="topbar">
+    <div class="logo">
+      <span class="lg" id="logoIcon">🔥</span>
+      <div>
+        <h1>火种纪元</h1>
+        <div class="sub">从火堆到星空的选择</div>
+      </div>
+    </div>
+    <div id="branchBadge"><span class="dot"></span><span id="branchName">命运未定</span></div>
+    <div id="eraBox">
+      <div id="eraName">原始时代</div>
+      <div id="eraBar"><i id="eraBarFill" style="width:0%"></i></div>
+      <div id="eraHint"></div>
+    </div>
+    <div id="saveBox">
+      <span id="saveState">—</span>
+      <span class="tools">
+        <button id="btnExport" title="导出存档">导出</button>
+        <button id="btnImport" title="导入存档">导入</button>
+        <button id="btnReset">重置</button>
+      </span>
+    </div>
+  </header>
+
+  <div id="content">
+    <section id="resbar"></section>
+    <div id="mactRow" class="mact-row"></div>
+    <div id="fxBar" class="fx-bar" style="display:none"></div>
+
+    <div id="hintBox"></div>
+
+      <nav id="tabs">
+        <button data-tab="build" class="active">🏗️ 建筑</button>
+        <button data-tab="research">📜 研究</button>
+        <button data-tab="pop">👥 人口</button>
+        <button data-tab="shop">🛒 文明商店</button>
+        <button data-tab="lore">📖 史册</button>
+      </nav>
+
+      <main>
+        <div id="panel-build" class="panel">
+          <div class="panel-title">🏗️ 建筑 <small>建筑自动产出资源，等级可累加</small></div>
+          <div class="grid" id="buildList"></div>
+        </div>
+        <div id="panel-research" class="panel hidden">
+          <div class="panel-title">📜 研究与科技树 <small>研究解锁建筑/职业/加成，里程碑研究推进时代</small></div>
+          <div id="rsGroup"></div>
+        </div>
+        <div id="panel-pop" class="panel hidden">
+          <div id="popStat"></div>
+          <div class="panel-title">👥 人口分配 <small>分配族人职业；人口越多吃得越多，食物耗尽会减员</small></div>
+          <div id="jobList"></div>
+        </div>
+        <div id="panel-lore" class="panel hidden">
+          <div class="panel-title">📖 文明史册 <small>记载你走过的每一条路</small></div>
+          <div id="loreBox"></div>
+        </div>
+        <div id="panel-shop" class="panel hidden">
+          <div class="panel-title">🛒 文明商店 <small>用 🧱 文明基石 兑换后续材料与永久加成</small></div>
+          <div id="shopBody"></div>
+        </div>
+      </main>
+    </div>
+  </div>
+        </div>
+
+        <div class="footer-note">
+            <span data-i18n="hzj.footer">🔧 火种纪元 · 分支式文明放置 · 本地存档 · 可导入导出</span><br>
+            © <script>document.write(new Date().getFullYear())</script> Yu_ToolBox
+        </div>
+    </div>
+
+    <div id="fx"></div>
+    <div id="toast"></div>
+    <div id="dialog" class="hidden"></div>
+
+    <script src="../../asset/JavaScript/theme.js"></script>
+    <script src="../../asset/JavaScript/i18n.js"></script>
+    <script src="../../asset/JavaScript/Game/HuoZhongJiYuan.js"></script>
+</body>
+</html>
