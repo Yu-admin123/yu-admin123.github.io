@@ -786,7 +786,14 @@ function setLocalSearch(kw) {
     renderTools();
 }
 
-// 本地（本站）工具自动补全的数据匹配：主页与禅模式搜索栏共用，返回 ≤8 个匹配工具标题
+// 打开本地（本站）工具卡片对应的工具：http(s) 走新标签页，其余当前页打开，行为与卡片一致
+function openLocalTool(tool) {
+    if (!tool || !tool.url) return;
+    if (tool.url.startsWith('http')) window.open(tool.url, '_blank', 'noopener');
+    else window.open(tool.url, '_self');
+}
+
+// 本地（本站）工具自动补全的数据匹配：主页与禅模式搜索栏共用，返回 ≤8 个匹配工具对象
 function matchLocalTools(sub) {
     var kw = (sub || '').toLowerCase();
     var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
@@ -799,7 +806,7 @@ function matchLocalTools(sub) {
         var alt = ((lang === 'en' ? (tool.title || '') : (tool.titleEn || '')) || '').toLowerCase();
         if (hay.indexOf(kw) !== -1 || alt.indexOf(kw) !== -1) {
             seen[tool.id] = 1;
-            out.push(title);
+            out.push(tool);
         }
     });
     return out.slice(0, 8);
@@ -3494,7 +3501,8 @@ renderTools();
         var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
         var tagText = (lang === 'en') ? 'SITE' : '本站';
         suggestMenu.innerHTML = '';
-        suggestList.forEach(function (title) {
+        suggestList.forEach(function (tool) {
+            var title = getToolTitle(tool) || '';
             var li = document.createElement('li');
             li.className = 'hero-suggest-item hero-suggest-item-local';
             var tag = document.createElement('span');
@@ -4909,7 +4917,8 @@ renderTools();
         var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
         var tagText = (lang === 'en') ? 'SITE' : '本站';
         zenSuggestMenu.innerHTML = '';
-        zenSuggestList.forEach(function (title) {
+        zenSuggestList.forEach(function (tool) {
+            var title = getToolTitle(tool) || '';
             var li = document.createElement('li');
             li.className = 'hero-suggest-item hero-suggest-item-local';
             var tag = document.createElement('span');
@@ -4921,9 +4930,8 @@ renderTools();
             li.appendChild(txt);
             li.setAttribute('role', 'option');
             li.addEventListener('click', function () {
-                if (zenSearchInput) zenSearchInput.value = '/' + title;
                 closeZenSuggest();
-                zenSearch(); // zenSearch 检测到「/」前缀会转本地搜索
+                openLocalTool(tool); // 禅模式主内容网格被隐藏，直接打开对应工具
             });
             zenSuggestMenu.appendChild(li);
         });
@@ -4959,7 +4967,10 @@ renderTools();
             } else if (e.key === 'Enter') {
                 e.preventDefault();
                 if (zenSuggestOpen && zenSuggestActive >= 0 && zenSuggestList[zenSuggestActive]) {
-                    zenSearchInput.value = '/' + zenSuggestList[zenSuggestActive];
+                    var picked = zenSuggestList[zenSuggestActive];
+                    closeZenSuggest();
+                    openLocalTool(picked); // 禅模式直接打开选中的工具
+                    return;
                 }
                 closeZenSuggest();
                 zenSearch();
