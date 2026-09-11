@@ -1613,6 +1613,17 @@
     transform: translateX(18px);
 }
 
+/* 久坐模式开关：开关 + 当前模式文字 */
+.hw-sit-mode {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.hw-sit-mode-text {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+}
+
 /* 通知权限状态提示 */
 .hw-notif-status {
     font-size: 0.68rem;
@@ -1750,6 +1761,8 @@
     padding: 0;
     flex: 1;
     min-height: 0;
+    /* 固定最大高度：待办积多时在列表内滚动，避免把卡片撑高打乱布局 */
+    max-height: 160px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border-light) transparent;
@@ -2283,6 +2296,43 @@
 }
 .hero-fab-theme svg {
     display: block;
+}
+/* 右下角悬浮：禅模式下久坐时间到→进入休息按钮，默认隐藏，带小红点提醒 */
+.hero-fab-sit {
+    position: relative;
+    display: none;
+    font-size: 0;
+    background: var(--accent-blue);
+    color: #fff;
+}
+.hero-fab-sit svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+.hero-fab-sit.show {
+    display: flex;
+    animation: fabSitPop 0.35s ease;
+}
+.hero-fab-sit .fab-sit-dot {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e74c3c;
+    border: 2px solid #fff;
+    box-sizing: border-box;
+    animation: fabDotPulse 1.4s ease-in-out infinite;
+}
+@keyframes fabSitPop {
+    from { transform: scale(0.4); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+@keyframes fabDotPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
 }
 
 /* ===== 禅 / 导航全屏模式 ===== */

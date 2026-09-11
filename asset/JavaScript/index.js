@@ -112,6 +112,10 @@ window.I18N_STRINGS = {
     'index.hw.waterGoal':    { zh: '每日目标', en: 'Daily goal' },
     'index.hw.sitInterval':    { zh: '久坐间隔', en: 'Sit Interval' },
     'index.hw.sitRest':        { zh: '休息时长', en: 'Rest Duration' },
+    'index.hw.sitMode':        { zh: '久坐模式', en: 'Sit Mode' },
+    'index.hw.sitModeAuto':    { zh: '仅提醒', en: 'Notify only' },
+    'index.hw.sitModeClick':   { zh: '点击休息', en: 'Click to rest' },
+    'index.hw.sitEnterRest':   { zh: '该活动一下了，点击进入休息', en: 'Time to move, click to rest' },
     'index.hw.notifications':  { zh: '桌面通知', en: 'Notifications' },
     'index.hw.save':           { zh: '保存', en: 'Save' },
     'index.hw.cancel':         { zh: '取消', en: 'Cancel' },
@@ -1308,6 +1312,7 @@ renderTools();
         waterGoal: 2000,   // 每日目标 ml
         sitInterval:   60,   // 分钟
         sitRestMin:    5,    // 休息时长（分钟）
+        sitMode: 'click', // 久坐模式：'click'=提醒后点击进入休息（现有），'auto'=仅提醒自动进入休息
         notifications: true
     };
 
@@ -1320,7 +1325,6 @@ renderTools();
     var sitNextTs  = loadNextTs('sit', settings.sitInterval);
     var sitTriggered   = false;   // 阶段1：久坐提醒触发
     var sitResting     = false;   // 阶段2：正在休息倒计时
-    var sitDone        = false;   // 阶段3：休息完成，等待点击回到阶段 0
     var sitRestEndTs   = 0;       // 休息结束时间戳
     // 休息时长（毫秒，随设置动态更新）
     function getSitRestMs() { return Math.max(1, settings.sitRestMin || 5) * 60000; }
@@ -1363,6 +1367,8 @@ renderTools();
         el.inSitRest   = document.getElementById('hwInSitRest');
         el.notifToggle = document.getElementById('hwNotifToggle');
         el.notifStatus = document.getElementById('hwNotifStatus');
+        el.sitModeToggle = document.getElementById('hwSitModeToggle');
+        el.sitModeText   = document.getElementById('hwSitModeText');
 //        el.storageStatus = document.getElementById('hwStorageStatus');
     }
 
@@ -1739,13 +1745,12 @@ renderTools();
         // 喝水：刷新今日累计显示与进度
         updateWater();
 
-        // 久坐三态循环：
-        //   阶段 0 — 正常计时（sitTriggered=false, sitResting=false, sitDone=false）
-        //   阶段 1 — 久坐提醒触发（sitTriggered=true, sitResting=false），点击进入休息
-        //   阶段 2 — 休息倒计时中（sitResting=true），休息结束进入阶段 3
-        //   阶段 3 — 休息完成（sitDone=true），点击回到阶段 0
+        // 久坐循环：
+        //   阶段 0 — 正常计时（sitTriggered=false, sitResting=false）
+        //   阶段 1 — 久坐提醒触发（sitTriggered=true），点击进入休息
+        //   阶段 2 — 休息倒计时中（sitResting=true）；休息结束自动回到阶段 0，无需点击
         // --- 先更新显示 ---
-        if (sitTriggered && !sitResting && !sitDone) {
+        if (sitTriggered && !sitResting) {
             // 阶段 1：久坐提醒
             var sAlert = t('index.hw.sitAlert') || '该活动了！';
             el.sitTimer.textContent = sAlert;
@@ -1765,14 +1770,6 @@ renderTools();
                 var rPct = 100 - (restRemain / getSitRestMs()) * 100;
                 el.sitFill.style.width = Math.min(100, Math.max(0, rPct)) + '%';
             }
-        } else if (sitDone) {
-            // 阶段 3：休息完成，等待点击
-            el.sitItem.classList.remove('resting');
-            el.sitItem.classList.add('rest-done');
-            el.sitItem.classList.add('triggered');
-            var doneText = isEn() ? 'Rest done ✓' : '休息完成 ✓';
-            el.sitTimer.textContent = doneText;
-            el.sitFill.style.width = '100%';
         } else {
             // 阶段 0：正常显示倒计时
             el.sitItem.classList.remove('resting');
@@ -1785,18 +1782,40 @@ renderTools();
         }
 
         // --- 再更新状态（状态变化会影响下一帧显示） ---
-        if (!sitTriggered && !sitResting && !sitDone) {
+        if (!sitTriggered && !sitResting) {
             // 阶段 0：正常倒计时
             if (now >= sitNextTs) {
                 sitTriggered = true;
                 triggerReminder('sit');
+                if (settings.sitMode === 'auto') {
+                    // 仅提醒模式：到点提醒后自动进入休息倒计时，无需点击
+                    sitTriggered = false;
+                    sitResting = true;
+                    sitRestEndTs = Date.now() + getSitRestMs();
+                    el.sitItem.classList.add('resting');
+                }
             }
         } else if (sitResting && now >= sitRestEndTs) {
-            // 阶段 2 → 阶段 3：休息结束进入完成态
+            // 阶段 2 → 阶段 0：休息结束，自动进入下一次久坐计时（无需点击）
             sitResting = false;
-            sitDone = true;
+            sitTriggered = false;
+            sitNextTs = Date.now() + settings.sitInterval * 60000;
+            saveNextTs('sit', sitNextTs);
             el.sitItem.classList.remove('resting');
         }
+        // 禅模式下若下班进度卡已启用且久坐时间已到，用右下角悬浮按钮接管「进入休息」点击
+        updateSitFab();
+    }
+
+    // 右下角悬浮按钮：禅模式 + 下班进度卡启用 + 久坐时间到（等待点击进入休息）时显示
+    function updateSitFab() {
+        var fab = document.getElementById('heroFabSit');
+        if (!fab) return;
+        var on = settings.sitMode !== 'auto'
+            && document.body.classList.contains('mode-zen')
+            && sitTriggered && !sitResting
+            && !!(window.ToolBoxCards && window.ToolBoxCards.isEnabled && window.ToolBoxCards.isEnabled('offwork'));
+        fab.classList.toggle('show', on);
     }
 
     function formatCountdown(ms) {
@@ -1819,7 +1838,7 @@ renderTools();
     }
 
     function handleSitClick() {
-        if (sitTriggered && !sitResting && !sitDone) {
+        if (sitTriggered && !sitResting) {
             // 阶段1 → 阶段2：点击进入休息倒计时
             var restMs = getSitRestMs();
             sitTriggered = false;
@@ -1835,20 +1854,8 @@ renderTools();
                 detail: { zh: '休息 ' + (settings.sitRestMin || 5) + ' 分钟，活动一下再回来 🪑', en: 'Take a ' + (settings.sitRestMin || 5) + '-min break, stretch and come back 🪑' }
             }));
             playBeep(880);
-        } else if (sitDone) {
-            // 阶段3 → 阶段0：点击回到久坐计时
-            sitDone = false;
-            sitTriggered = false;
-            sitNextTs = Date.now() + settings.sitInterval * 60000;
-            saveNextTs('sit', sitNextTs);
-            el.sitItem.classList.remove('triggered');
-            el.sitItem.classList.remove('rest-done');
-            document.dispatchEvent(new CustomEvent('mascot-say', {
-                detail: { zh: '休息结束，继续搬砖 🪑', en: 'Break over, back to work 🪑' }
-            }));
-            playBeep(880);
         }
-        // 其余阶段点击无效
+        // 其余阶段点击无效（休息结束自动进入下一次久坐计时，无需点击）
     }
 
     // ===== 通知 =====
@@ -1966,6 +1973,11 @@ renderTools();
     }
 
     // ===== 设置弹窗 =====
+    function syncSitModeText() {
+        if (!el.sitModeText) return;
+        var on = el.sitModeToggle.classList.contains('on');
+        el.sitModeText.textContent = t(on ? 'index.hw.sitModeClick' : 'index.hw.sitModeAuto') || (on ? '点击休息' : '仅提醒');
+    }
     function openSettings() {
         el.inWorkStart.value = settings.workStart;
         el.inWorkEnd.value   = settings.workEnd;
@@ -1974,6 +1986,8 @@ renderTools();
         el.inSit.value       = settings.sitInterval;
         el.inSitRest.value   = settings.sitRestMin;
         el.notifToggle.classList.toggle('on', settings.notifications);
+        el.sitModeToggle.classList.toggle('on', settings.sitMode !== 'auto');
+        syncSitModeText();
         el.modalOverlay.classList.add('active');
         // 打开设置即更新权限状态，并在用户手势中请求权限（若未授权）
         updateNotifStatus();
@@ -1991,13 +2005,13 @@ renderTools();
         settings.sitInterval  = Math.max(1, parseInt(el.inSit.value,      10) || 60);
         settings.sitRestMin   = Math.max(1, parseInt(el.inSitRest.value,  10) || 5);
         settings.notifications = el.notifToggle.classList.contains('on');
+        settings.sitMode = el.sitModeToggle.classList.contains('on') ? 'click' : 'auto';
 
         // 间隔变化只影响久坐：重置其倒计时（时间戳持久化）
         sitNextTs = Date.now() + settings.sitInterval * 60000;
         saveNextTs('sit', sitNextTs);
         sitTriggered = false;
         sitResting = false;
-        sitDone = false;
         el.sitItem.classList.remove('triggered');
         el.sitItem.classList.remove('resting');
         el.sitItem.classList.remove('rest-done');
@@ -2018,7 +2032,6 @@ renderTools();
         // 久坐：从当前时间重新开始倒计时
         sitTriggered = false;
         sitResting = false;
-        sitDone = false;
         sitNextTs = Date.now() + settings.sitInterval * 60000;
         saveNextTs('sit', sitNextTs);
         el.sitItem.classList.remove('triggered');
@@ -2042,12 +2055,17 @@ renderTools();
         });
         el.waterItem.addEventListener('click', recordWater);
         el.sitItem.addEventListener('click',   function() { handleSitClick(); });
+        document.getElementById('heroFabSit').addEventListener('click', function() { handleSitClick(); });
         el.notifToggle.addEventListener('click', function() {
             var on = !el.notifToggle.classList.contains('on');
             el.notifToggle.classList.toggle('on');
             // 用户手势：开启通知时立即请求权限，授权成功后发一条测试通知
             if (on) requestNotifPermission(true);
             updateNotifStatus();
+        });
+        if (el.sitModeToggle) el.sitModeToggle.addEventListener('click', function() {
+            el.sitModeToggle.classList.toggle('on');
+            syncSitModeText();
         });
 
         // i18n 切换时刷新文本
@@ -2241,11 +2259,18 @@ renderTools();
 
     // 左右两侧（时间 / 待办）强制等高，蓝条严格对称：
     // 取两者中较高的一方，两个容器都设为该高度，避免任一侧内容变化后错位
+    var HERO_DEFAULT_H = 0;
     function syncHeight() {
         var w = document.getElementById('heroWidget');
         var t = document.getElementById('heroTodo');
         if (!w || !t) return;
+        // 第一次运行时以左卡自然高度作为基准（不受待办/备忘录内容影响）；0 表示布局未就绪，暂不记录
+        if (HERO_DEFAULT_H <= 0) {
+            var base = w.offsetHeight;
+            if (base > 0) HERO_DEFAULT_H = base;
+        }
         var h = Math.max(w.offsetHeight, t.offsetHeight);
+        if (HERO_DEFAULT_H > 0 && h > HERO_DEFAULT_H) h = HERO_DEFAULT_H; // 以默认高度为最高高度，超出部分在卡内滚动
         if (h > 0) {
             w.style.height = h + 'px';
             t.style.height = h + 'px';
@@ -2362,6 +2387,11 @@ renderTools();
     window.ToolBoxCards = {
         apply: applyCardConfig,
         syncUI: syncCardSettingsUI,
+        // 供其他 IIFE（如 Hero 提醒）跨作用域查询某卡是否已勾选启用
+        isEnabled: function (card) {
+            if (!cardCfg) return false;
+            return (cardCfg.left || []).concat(cardCfg.right || []).indexOf(card) !== -1;
+        },
         save: function () {
             var cfg = { left: [], right: [] };
             document.querySelectorAll('#engineModalOverlay input[type=checkbox][data-side]').forEach(function (cb) {

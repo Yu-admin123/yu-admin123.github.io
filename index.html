@@ -12,7 +12,7 @@
         document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
     <link rel="stylesheet" href="./asset/CSS/common.css?v=20260908f">
-    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260909b">
+    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260909e">
 </head>
 <body>
     <!-- ===== 导航栏 ===== -->
@@ -309,6 +309,13 @@
                 </div>
             </div>
             <div class="hw-modal-field">
+                <label>🪑 <span data-i18n="index.hw.sitMode">久坐模式</span></label>
+                <div class="hw-sit-mode">
+                    <div class="hw-toggle" id="hwSitModeToggle"></div>
+                    <span class="hw-sit-mode-text" id="hwSitModeText" data-i18n="index.hw.sitModeClick">点击休息</span>
+                </div>
+            </div>
+            <div class="hw-modal-field">
                 <label>🔔 <span data-i18n="index.hw.notifications">桌面通知</span></label>
                 <div class="hw-toggle" id="hwNotifToggle"></div>
             </div>
@@ -364,6 +371,10 @@
 </button>
 <button class="hero-fab-btn hero-fab-mode" id="heroFabMode" type="button" title="界面模式" aria-label="界面模式">☯</button>
 <button class="hero-fab-btn hero-fab-settings" id="heroFabSettings" type="button" title="页面设置" data-i18n-title="index.fab.settings" aria-label="页面设置">⚙</button>
+<button class="hero-fab-btn hero-fab-sit" id="heroFabSit" type="button" title="该活动一下了，点击进入休息" data-i18n-title="index.hw.sitEnterRest" aria-label="进入休息">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h11v7a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9z"/><path d="M15 10h2a2.5 2.5 0 0 1 0 5h-2"/><path d="M8 3c-.5 1 .5 1.5 0 2.5M11.2 3c-.5 1 .5 1.5 0 2.5"/></svg>
+    <span class="fab-sit-dot"></span>
+</button>
 </div>
 
     <!-- ===== 禅 / 导航模式全屏层：常规隐藏，禅/导航时以整屏覆盖显示 ===== -->
@@ -548,7 +559,7 @@
     <script src="./asset/JavaScript/theme.js?v=20260825a"></script>
     <script src="./asset/JavaScript/i18n.js?v=20260825a"></script>
     <script src="./asset/JavaScript/zip-util.js?v=20260825f"></script>
-    <script src="./asset/JavaScript/index.js?v=20260909d"></script>
+    <script src="./asset/JavaScript/index.js?v=20260909i"></script>
     <!-- 工具卡片 SVG 图标精灵：24×24 多色扁平风格，颜色在各图内部定义 -->
     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none" aria-hidden="true">
         <defs>
