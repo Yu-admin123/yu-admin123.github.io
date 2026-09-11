@@ -35,7 +35,7 @@ window.I18N_STRINGS = {
     'index.hero.search.title':  { zh: '搜一下', en: 'Search the Web' },
     'index.hero.search.tipSuffix': { zh: '· 随手搜点资料', en: '· search anything' },
     'index.hero.search.go':     { zh: '搜索', en: 'Search' },
-    'index.search.web.placeholder': { zh: '搜索互联网...', en: 'Search the web...' },
+    'index.search.web.placeholder': { zh: '搜索互联网，以 / 开头搜索本站工具', en: 'Search the web · prefix / to search this site' },
     'index.footer.line1':   { zh: '嵌入式开发者工具箱', en: 'Embedded Developer Toolbox' },
     'index.footer.line2':   { zh: '一站式解决开发中的高频需求 · 欢迎加入技术交流群：', en: 'One-stop solution for high-frequency needs · Join our tech group: ' },
     'index.empty.text':     { zh: '没有找到匹配的工具，试试其他关键词或分类？', en: 'No matching tools found. Try other keywords or categories?' },
@@ -75,7 +75,7 @@ window.I18N_STRINGS = {
     'index.engine.tabSkin':    { zh: '主题', en: 'Theme' },
     'index.fab.top':        { zh: '返回顶部', en: 'Back to top' },
     'index.fab.settings':   { zh: '页面设置', en: 'Page settings' },
-    'index.fab.mode':       { zh: '界面模式：常规 / 禅 / 导航', en: 'Mode: Normal / Zen / Navigate' },
+    'index.fab.mode':       { zh: '界面模式：常规 / 禅', en: 'Mode: Normal / Zen' },
     'index.appear.title':   { zh: '外观', en: 'Appearance' },
     'index.appear.bg':      { zh: '页面背景（图片 / 视频，最多 9 个，点击切换）', en: 'Page Background (image / video, up to 9, click to switch)' },
     'index.appear.clear':   { zh: '清除', en: 'Clear' },
@@ -133,7 +133,43 @@ window.I18N_STRINGS = {
     'index.todo.title':        { zh: '今日待办', en: 'Today\'s Todos' },
     'index.todo.inputPlaceholder': { zh: '输入待办，回车添加', en: 'Type a todo, press Enter' },
     'index.todo.empty':        { zh: '暂无待办，输入后回车添加 ✍️', en: 'No todos yet — type and press Enter ✍️' },
-    'index.todo.clearDone':    { zh: '清除已完成', en: 'Clear done' }
+    'index.todo.clearDone':    { zh: '清除已完成', en: 'Clear done' },
+
+    // Hero 追加卡片：纪念日
+    'index.anniv.title':       { zh: '你在世界已经', en: 'Days on Earth' },
+    'index.anniv.settings':    { zh: '纪念日设置', en: 'Anniversary Settings' },
+    'index.anniv.birthday':    { zh: '出生日期', en: 'Start date' },
+    'index.anniv.empty':       { zh: '未设置日期，点右上角 ⚙', en: 'No date set — tap ⚙ to set' },
+    'index.anniv.days':        { zh: '{d} 天', en: '{d} days' },
+    'index.anniv.born':        { zh: '始于 {d} · {a} 岁', en: 'Since {d} · {a} yrs' },
+    'index.anniv.dur':         { zh: '约 {y} 年 {rd} 天', en: 'About {y} yrs {rd} days' },
+    'index.anniv.durYear':     { zh: '约 {y} 年整', en: 'About {y} yrs' },
+    'index.anniv.lifespan':    { zh: '预期寿命（年）', en: 'Expected lifespan (yrs)' },
+    'index.anniv.life':        { zh: '人生进度', en: 'Life progress' },
+
+    // Hero 追加卡片：倒数日
+    'index.countdown.title':   { zh: '倒数日', en: 'Countdown' },
+    'index.countdown.settings':{ zh: '倒数日设置', en: 'Countdown Settings' },
+    'index.countdown.empty':   { zh: '未设置节点，点右上角 ⚙', en: 'No nodes — tap ⚙ to add' },
+    'index.countdown.add':     { zh: '＋ 添加节点', en: '+ Add node' },
+    'index.countdown.daysLeft':{ zh: '还有 {d} 天', en: '{d} days left' },
+    'index.countdown.isToday': { zh: '就是今天！', en: 'Today!' },
+    'index.countdown.passed':  { zh: '已过 {d} 天', en: '{d} days ago' },
+
+    // Hero 追加卡片：备忘录
+    'index.memo.title':        { zh: '备忘录', en: 'Memo' },
+    'index.memo.ph':           { zh: '点击输入备忘录…', en: 'Click to write…' },
+
+    // 页面设置：小工具卡片选择
+    'index.cards.title':   { zh: '小工具卡片', en: 'Widget Cards' },
+    'index.cards.left':    { zh: '左列', en: 'Left column' },
+    'index.cards.right':   { zh: '右列', en: 'Right column' },
+    'index.cards.offwork': { zh: '下班进度', en: 'End of work' },
+    'index.cards.anniv':   { zh: '你在世界已经', en: 'Days on Earth' },
+    'index.cards.countdown':{ zh: '倒数日', en: 'Countdown' },
+    'index.cards.todo':    { zh: '今日待办', en: 'Todo' },
+    'index.cards.memo':    { zh: '备忘录', en: 'Memo' },
+    'index.cards.tip':     { zh: '每列勾选多个才显示切换箭头；若一列全不选则隐藏该列。', en: 'Check multiple per column to show switcher arrows; uncheck all to hide the column.' }
 };
 
 // ============================================================
@@ -741,8 +777,33 @@ function refreshCatFavStars() {
 //  分类 + 搜索 渲染逻辑
 // ============================================================
 const toolsGrid = document.getElementById('toolsGrid');
-const searchInput = document.getElementById('searchInput');
 const categoryBtns = document.querySelectorAll('.category-btn');
+
+// 页面内搜索关键词：由互联网搜索栏以「/」前缀触发（原导航栏「搜索工具」框已并入互联网搜索栏）
+let localSearchKeyword = '';
+function setLocalSearch(kw) {
+    localSearchKeyword = (kw || '').trim().toLowerCase();
+    renderTools();
+}
+
+// 本地（本站）工具自动补全的数据匹配：主页与禅模式搜索栏共用，返回 ≤8 个匹配工具标题
+function matchLocalTools(sub) {
+    var kw = (sub || '').toLowerCase();
+    var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
+    var seen = {}, out = [];
+    (toolsData.concat(customNavTools())).forEach(function (tool) {
+        if (seen[tool.id]) return;
+        var title = (getToolTitle(tool) || '').trim();
+        if (!title) return;
+        var hay = title.toLowerCase() + '|' + (getToolDesc(tool) || '').toLowerCase() + '|' + (getToolCategory(tool) || '').toLowerCase();
+        var alt = ((lang === 'en' ? (tool.title || '') : (tool.titleEn || '')) || '').toLowerCase();
+        if (hay.indexOf(kw) !== -1 || alt.indexOf(kw) !== -1) {
+            seen[tool.id] = 1;
+            out.push(title);
+        }
+    });
+    return out.slice(0, 8);
+}
 
 let currentCategory = 'all';
 
@@ -842,10 +903,10 @@ categoryBtns.forEach(btn => {
     });
 });
 
-// 搜索输入
-searchInput.addEventListener('input', function() {
-    renderTools();
-});
+// ===== 搜索 =====
+// 本地关键词（localSearchKeyword）由互联网搜索栏以「/」触发提交，见 doSearch / renderLocalSuggest
+// ============================================================
+//  工具卡片渲染
 
 // "全部"模式下，为每个工具确定唯一主分类（用于分组显示）
 // 分组主分类直接取 categoryType 数组的第一个元素：数组模式即以第一个分类为主，
@@ -1032,7 +1093,7 @@ function favIconFallback(tool) {
 }
 
 function renderTools() {
-    const keyword = searchInput.value.trim().toLowerCase();
+    const keyword = localSearchKeyword;
     const lang = window.I18N ? window.I18N.getLang() : 'zh';
 
     // 内置工具 + 自定义网站（两者均参与筛选与分组渲染）
@@ -1258,9 +1319,6 @@ renderTools();
     function getSitRestMs() { return Math.max(1, settings.sitRestMin || 5) * 60000; }
 
     // ===== i18n 辅助 =====
-    var DAY_ZH = ['日','一','二','三','四','五','六'];
-    var DAY_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
     function t(key) {
         return (window.I18N && typeof window.I18N.t === 'function')
             ? window.I18N.t(key) : null;
@@ -1481,6 +1539,26 @@ renderTools();
     // 五鼠遁：日干 → 子时天干索引
     var HOUR_GAN_START  = [0,2,4,6,8,0,2,4,6,8];
 
+    // ===== 二十四节气（用于月柱「节」建月）=====
+    var SOLT             = ['小寒','大寒','立春','雨水','惊蛰','春分','清明','谷雨','立夏','小满','芒种','夏至','小暑','大暑','立秋','处暑','白露','秋分','寒露','霜降','立冬','小雪','大雪','冬至'];
+    var SOLT_MONTH       = [1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12]; // 节气所在公历月
+    var SOLT_INFO        = [0,21208,42467,63836,85337,107014,128867,150921,173149,195551,218072,240693,263343,285989,308563,331033,353350,375494,397447,419210,440795,462224,483532,504758]; // 1900 起各节气分钟偏移
+    var MONTH_NODES      = [0,2,4,6,8,10,12,14,16,18,20,22]; // 12 个「节」：小寒/立春/惊蛰/清明/立夏/芒种/小暑/立秋/白露/寒露/立冬/大雪
+    var MONTH_NODE_ZHI   = [1,2,3,4,5,6,7,8,9,10,11,0];      // 对应月支（子=0）：丑寅卯辰巳午未申酉戌亥子
+    function sTermDay(y, n) {
+        var od = new Date(31556925974.7 * (y - 1900) + SOLT_INFO[n] * 60000 + Date.UTC(1900, 0, 6, 2, 5));
+        return od.getUTCDate();
+    }
+    // 当前月支：取 <= 今天的最近一个「节」对应的月建（立春起寅，默认丑）
+    function solarMonthZhi(y, m, d) {
+        var val = y * 10000 + m * 100 + d, found = 1;
+        for (var i = 0; i < 12; i++) {
+            var nodeVal = y * 10000 + SOLT_MONTH[MONTH_NODES[i]] * 100 + sTermDay(y, MONTH_NODES[i]);
+            if (nodeVal <= val) found = MONTH_NODE_ZHI[i];
+        }
+        return found;
+    }
+
     function lYearDays(y) { var sum = 348; for (var i = 0x8000; i > 0x8; i >>= 1) sum += (LUNAR_INFO[y-1900] & i) ? 1 : 0; return sum + leapDays(y); }
     function leapMonth(y) { return LUNAR_INFO[y-1900] & 0xf; }
     function leapDays(y)  { return leapMonth(y) ? ((LUNAR_INFO[y-1900] & 0x10000) ? 30 : 29) : 0; }
@@ -1509,14 +1587,17 @@ renderTools();
         if (offset < 0) { offset += temp; --j; }
         return { month: j, day: offset + 1, isLeap: isLeap };
     }
+    // 导出农历工具，供 Hero 追加卡片（工资卡农历节日倒计时）复用
+    window.heroLunar = { solar2lunar: solar2lunar };
 
     var NSTR1 = ['日','一','二','三','四','五','六','七','八','九','十'];
     function lunarDayName(d) {
         if (d === 10) return '初十';
         if (d === 20) return '二十';
         if (d === 30) return '三十';
-        var t = ['','初','十','廿','卅'][Math.floor(d / 10)];
-        return t + NSTR1[d % 10];
+        // 十位前缀：1-9 初、11-19 十、21-29 廿（30 及以上用 卅）
+        var p = d < 10 ? '初' : (d < 20 ? '十' : (d < 30 ? '廿' : '卅'));
+        return p + NSTR1[d % 10];
     }
     var LUNAR_MONTHS = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
     function lunarMonthName(m, isLeap) { return (isLeap ? '闰' : '') + LUNAR_MONTHS[m - 1] + '月'; }
@@ -1544,22 +1625,23 @@ renderTools();
         var d = new Date();
         var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate();
 
-        // 农历月日：并入日期行（去掉“农历”前缀）
+        // 农历月日 + 星期：并入日期行
         var L = solar2lunar(y, m, day);
-        el.date.textContent += ' · ' + lunarMonthName(L.month, L.isLeap) + lunarDayName(L.day);
+        var DAY_ZH = ['周日','周一','周二','周三','周四','周五','周六'];
+        el.date.textContent += ' · ' + lunarMonthName(L.month, L.isLeap) + lunarDayName(L.day) + ' · ' + DAY_ZH[d.getDay()];
 
         // 年 / 月 / 日 干支
         var yGan = (y - 4) % 10, yZhi = (y - 4) % 12;
-        // 月干支：基于农历月（正月=寅）
-        var mZhi = (L.month + 1) % 12;
-        var mGan = (MONTH_GAN_START[((y - 4) % 10 + 10) % 10] + (L.month - 1)) % 10;
+        // 月干支：按「节」建月（立春起寅，白露后入酉月等），非农历月序
+        var mZhi = solarMonthZhi(y, m, day);
+        var mGan = (MONTH_GAN_START[((y - 4) % 10 + 10) % 10] + (mZhi - 2) + 10) % 10;
         // 日干支
         var dayCyclical = Math.round(Date.UTC(y, m - 1, 1) / 86400000) + 25577 + (day - 1);
         var dGan = ((dayCyclical % 10) + 10) % 10;
         var dZhi = ((dayCyclical % 12) + 12) % 12;
 
         el.lunarGz.textContent =
-            GAN[yGan] + ZHI[yZhi] + '[' + ZODIAC[yZhi] + ']年 ' +
+            GAN[yGan] + ZHI[yZhi] + ZODIAC[yZhi] + '年 ' +
             GAN[mGan] + ZHI[mZhi] + '月 ' +
             GAN[dGan] + ZHI[dZhi] + '日 ';
 
@@ -1587,11 +1669,10 @@ renderTools();
         var d = new Date();
         el.clock.textContent = pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
 
-        var days = isEn() ? DAY_EN : DAY_ZH;
-        var dayStr = isEn() ? days[d.getDay()] : '| 周'+ days[d.getDay()];
         var month = d.getMonth() + 1;
         var date = d.getDate();
-        el.date.textContent = month + '/' + date + ' ' + dayStr;
+        // 日期行：西历月日（农历月日由 updateLunar 追加）
+        el.date.textContent = month + '/' + date;
 
         updateLunar();
     }
@@ -2164,11 +2245,133 @@ renderTools();
         }
     }
 
+    // Hero 可切换卡片组：点向上/向下箭头在 .swipe-card 之间循环切换（未来追加卡片自动生效）
+    // filterFn：可选，用于只对「已勾选启用」的卡片进行切换（隐藏的卡片不会出现在轮播里）
+    function setupCardSwitcher(downBtnId, upBtnId, cardsId, onChange, filterFn) {
+        var downBtn = document.getElementById(downBtnId);
+        var upBtn = document.getElementById(upBtnId);
+        var cards = document.getElementById(cardsId);
+        if (!downBtn || !cards) return;
+        var all = Array.prototype.slice.call(cards.querySelectorAll('.swipe-card'));
+        var isVisible = filterFn || function () { return true; };
+        var go = function (dir) {
+            var list = all.filter(isVisible);
+            if (!list.length) return;
+            var curIdx = all.findIndex(function (c) { return c.classList.contains('swipe-card-active'); });
+            var curPos = curIdx >= 0 ? list.indexOf(all[curIdx]) : -1;
+            if (curPos < 0) curPos = 0;
+            var next = list[((curPos + dir) % list.length + list.length) % list.length];
+            all.forEach(function (c) { c.classList.remove('swipe-card-active'); });
+            next.classList.add('swipe-card-active');
+            if (onChange) onChange();
+        };
+        downBtn.addEventListener('click', function () { go(1); });   // 下箭头：往下翻
+        if (upBtn) upBtn.addEventListener('click', function () { go(-1); });   // 上箭头：往上回翻
+    }
+
+    // ===== 小工具卡片可见性与切换箭头控制（在页面设置的「小工具卡片」里配置） =====
+    var CARD_KEY = 'hero-card-visible';
+    var CARD_DEFAULT = { left: ['offwork', 'anniv', 'countdown'], right: ['todo', 'memo'] };
+    var CARD_SIDES = [
+        { side: 'left',  cardsId: 'widgetCards', wrapId: 'heroWidget', downId: 'widgetCardsSwitch',     upId: 'widgetCardsSwitchUp' },
+        { side: 'right', cardsId: 'todoCards',   wrapId: 'heroTodo',   downId: 'todoCardsSwitch',       upId: 'todoCardsSwitchUp' }
+    ];
+    // 当前生效的卡片配置：由 applyCardConfig 维护，供切换箭头判断可见卡片
+    var cardCfg = null;
+    function loadCardConfig() {
+        try {
+            var o = JSON.parse(localStorage.getItem(CARD_KEY) || '{}');
+            var cfg = { left: [], right: [] };
+            CARD_SIDES.forEach(function (meta) {
+                var list = o[meta.side];
+                cfg[meta.side] = Array.isArray(list)
+                    ? CARD_DEFAULT[meta.side].filter(function (c) { return list.indexOf(c) !== -1; })
+                    : CARD_DEFAULT[meta.side].slice();
+            });
+            return cfg;
+        } catch (e) {
+            return { left: CARD_DEFAULT.left.slice(), right: CARD_DEFAULT.right.slice() };
+        }
+    }
+    function saveCardConfig(cfg) {
+        cardCfg = { left: cfg.left.slice(), right: cfg.right.slice() };
+        try { localStorage.setItem(CARD_KEY, JSON.stringify({ left: cfg.left, right: cfg.right })); } catch (e) {}
+    }
+    // 依据配置应用到页面：隐藏未勾选的卡片、控制切换箭头、整列全不选则隐藏该侧卡片容器
+    function applyCardConfig() {
+        if (!cardCfg) cardCfg = loadCardConfig();
+        CARD_SIDES.forEach(function (meta) {
+            var cards = document.getElementById(meta.cardsId);
+            var wrap = document.getElementById(meta.wrapId);
+            var down = document.getElementById(meta.downId);
+            var up = document.getElementById(meta.upId);
+            if (!cards) return;
+            var enabled = cardCfg[meta.side];
+            var visible = [];
+            Array.prototype.forEach.call(cards.querySelectorAll('.swipe-card'), function (card) {
+                var on = enabled.indexOf(card.getAttribute('data-card')) !== -1;
+                if (on) visible.push(card);
+                else card.classList.remove('swipe-card-active');
+            });
+            var first = visible[0];
+            // 保证当前显示的是已启用卡片（跨配置切换时若旧激活卡被取消，则退回第一张）
+            if (first && !first.classList.contains('swipe-card-active')) {
+                cards.querySelectorAll('.swipe-card').forEach(function (c) { c.classList.remove('swipe-card-active'); });
+                first.classList.add('swipe-card-active');
+            }
+            var n = visible.length;
+            if (n === 0) {
+                if (wrap) wrap.style.display = 'none';      // 整列全不选 → 隐藏该侧小工具卡片
+                if (down) down.style.display = 'none';
+                if (up)   up.style.display = 'none';
+            } else {
+                if (wrap) wrap.style.display = '';          // 恢复该列
+                var show = n > 1;                           // 勾选多个才显示切换箭头
+                if (down) down.style.display = show ? '' : 'none';
+                if (up)   up.style.display = show ? '' : 'none';
+            }
+        });
+        syncHeight();
+    }
+    // 把设置弹窗里的勾选状态同步为当前生效配置
+    function syncCardSettingsUI() {
+        var cfg = loadCardConfig();
+        document.querySelectorAll('#engineModalOverlay input[type=checkbox][data-side]').forEach(function (cb) {
+            cb.checked = (cfg[cb.getAttribute('data-side')] || []).indexOf(cb.getAttribute('data-card')) !== -1;
+        });
+    }
+    // 页面加载时从存储读取并应用
+    function initCardConfig() {
+        cardCfg = loadCardConfig();
+        // 切换箭头仅轮播「已启用」的卡片
+        CARD_SIDES.forEach(function (meta) {
+            setupCardSwitcher(meta.downId, meta.upId, meta.cardsId, syncHeight, function (c) {
+                return (cardCfg[meta.side] || []).indexOf(c.getAttribute('data-card')) !== -1;
+            });
+        });
+        applyCardConfig();
+    }
+    // 暴露给页面设置 IIFE：保存（从弹窗收集勾选）与打开时回显
+    window.ToolBoxCards = {
+        apply: applyCardConfig,
+        syncUI: syncCardSettingsUI,
+        save: function () {
+            var cfg = { left: [], right: [] };
+            document.querySelectorAll('#engineModalOverlay input[type=checkbox][data-side]').forEach(function (cb) {
+                if (cb.checked) cfg[cb.getAttribute('data-side')].push(cb.getAttribute('data-card'));
+            });
+            saveCardConfig(cfg);
+            applyCardConfig();
+        }
+    };
+
     function init() {
         if (!document.getElementById('heroTodo')) return;
         cacheDom();
         render();
         syncHeight();
+        // Hero 左右卡片切换：按「小工具卡片」配置加载可见卡片与箭头，并应用可见性
+        initCardConfig();
         // 实时跟随任意一侧尺寸变化（字体加载、待办增减等），保证始终等高
         if (window.ResizeObserver) {
             var _hw = document.getElementById('heroWidget');
@@ -3153,6 +3356,12 @@ renderTools();
         if (!searchInput) return;
         var q = searchInput.value.trim();
         if (!q) { searchInput.focus(); return; }
+        // 以「/」开头 = 在当前页面内搜索工具（本地关键词），不再跳转互联网
+        if (q.charAt(0) === '/') {
+            closeSuggest();
+            setLocalSearch(q.slice(1));
+            return;
+        }
         var url = getEngineUrl();
         // 支持 %s 占位符（用户粘贴的搜索地址常含 ?q=%s）；否则在地址后直接拼接查询词
         var target = (url.indexOf('%s') !== -1) ? url.replace('%s', encodeURIComponent(q)) : (url + encodeURIComponent(q));
@@ -3172,7 +3381,8 @@ renderTools();
             } else if (e.key === 'Enter') {
                 if (suggestOpen && suggestActive >= 0 && suggestList[suggestActive]) {
                     e.preventDefault();
-                    searchInput.value = suggestList[suggestActive];
+                    // 本地补全建议需补回「/」前缀才能在本地搜索
+                    searchInput.value = (suggestLocal ? '/' : '') + suggestList[suggestActive];
                 }
                 closeSuggest();
                 doSearch();
@@ -3188,6 +3398,7 @@ renderTools();
     var suggestMenu = document.getElementById('heroSuggestMenu');
     if (suggestMenu) document.body.appendChild(suggestMenu); // 挂 body 脱离轮播裁剪
     var suggestTimer = null, suggestSeq = 0, suggestActive = -1, suggestList = [], suggestCbId = 0, suggestOpen = false, suggestCache = {};
+    var suggestLocal = false; // 当前建议是否为本地(本站)补全；本地补全不回退互联网
     // 有公开 suggest 接口的引擎；其余（含自定义）一律兜底百度
     var SUGGEST_MAP = { baidu: 'baidu', google: 'google', bing: 'bing', so360: 'so360' };
 
@@ -3242,7 +3453,7 @@ renderTools();
         suggestList = list.slice(0, 8);
         if (!suggestList.length) { closeSuggest(); return; }
         if (!searchInput || !suggestMenu) return;
-        var ir = searchInput.getBoundingClientRect();
+        suggestLocal = false;
         suggestMenu.innerHTML = '';
         suggestList.forEach(function (term) {
             var li = document.createElement('li');
@@ -3257,6 +3468,12 @@ renderTools();
             suggestMenu.appendChild(li);
         });
         suggestActive = -1;
+        positionSuggestMenu();
+    }
+    // 将建议列表固定到搜索栏下方，空间不足自动对齐视口
+    function positionSuggestMenu() {
+        if (!searchInput || !suggestMenu) return;
+        var ir = searchInput.getBoundingClientRect();
         var w = Math.max(ir.width, 240);
         var left = ir.left;
         if (left + w > window.innerWidth - 8) left = Math.max(8, window.innerWidth - w - 8);
@@ -3265,6 +3482,38 @@ renderTools();
         suggestMenu.style.width = Math.round(w) + 'px';
         suggestOpen = true;
         suggestMenu.classList.add('open');
+        if (searchInput) searchInput.setAttribute('aria-expanded', 'true');
+    }
+    // 本地（本站）工具自动补全：输入以「/」开头时展示工具名补全建议
+    function renderLocalSuggest(sub) {
+        if (!searchInput || !suggestMenu) return;
+        var items = matchLocalTools(sub);
+        if (!items.length) { closeSuggest(); return; }
+        suggestList = items.slice(0, 8);
+        suggestLocal = true;
+        var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
+        var tagText = (lang === 'en') ? 'SITE' : '本站';
+        suggestMenu.innerHTML = '';
+        suggestList.forEach(function (title) {
+            var li = document.createElement('li');
+            li.className = 'hero-suggest-item hero-suggest-item-local';
+            var tag = document.createElement('span');
+            tag.className = 'suggest-local-tag';
+            tag.textContent = tagText;
+            li.appendChild(tag);
+            var txt = document.createElement('span');
+            txt.textContent = title;
+            li.appendChild(txt);
+            li.setAttribute('role', 'option');
+            li.addEventListener('click', function () {
+                if (searchInput) searchInput.value = '/' + title;
+                closeSuggest();
+                doSearch(); // doSearch 检测到「/」前缀会转本地搜索
+            });
+            suggestMenu.appendChild(li);
+        });
+        suggestActive = -1;
+        positionSuggestMenu();
     }
     function setSuggestActive(idx) {
         if (!suggestMenu) return;
@@ -3277,14 +3526,17 @@ renderTools();
         if (target && target.scrollIntoView) target.scrollIntoView({ block: 'nearest' });
     }
     function closeSuggest() {
-        suggestOpen = false; suggestActive = -1; suggestList = [];
+        suggestOpen = false; suggestActive = -1; suggestList = []; suggestLocal = false;
         if (suggestMenu) suggestMenu.classList.remove('open');
         if (searchInput) searchInput.setAttribute('aria-expanded', 'false');
     }
     if (searchInput) {
         searchInput.addEventListener('input', function () {
-            var q = searchInput.value.trim();
-            if (!q) { closeSuggest(); return; }
+            var raw = searchInput.value.trim();
+            // 以「/」开头 → 本站工具自动补全（不发网络请求）
+            if (raw.charAt(0) === '/') { renderLocalSuggest(raw.slice(1)); return; }
+            var q = raw;
+            if (!q) { if (localSearchKeyword) setLocalSearch(''); closeSuggest(); return; }
             if (suggestCache[q]) { renderSuggest(suggestCache[q]); return; } // 命中缓存：立即显示，零网络等待
             clearTimeout(suggestTimer);
             suggestTimer = setTimeout(function () {
@@ -4185,6 +4437,8 @@ renderTools();
         saveAppearance(appearDraft);
         applyAppearance(appearDraft);
         updateSearchTip();
+        // 保存「小工具卡片」勾选并应用到页面
+        if (window.ToolBoxCards) window.ToolBoxCards.save();
         if (engineOverlay) engineOverlay.classList.remove('active');
     }
 
@@ -4239,6 +4493,8 @@ renderTools();
             if (customNavUrl) customNavUrl.value = '';
             if (customNavName) customNavName.value = '';
             if (customNavIcon) customNavIcon.value = '';
+            // 打开时回显「小工具卡片」勾选状态
+            if (window.ToolBoxCards) window.ToolBoxCards.syncUI();
             renderCustomNavList();
         });
     }
@@ -4503,12 +4759,13 @@ renderTools();
     // ============================================================
     //  界面模式：常规 / 禅 / 导航（右下角悬浮按钮循环切换，记忆选择）
     //  · 常规：现有完整布局
-    //  · 禅：  仅居中放大搜索栏 + 上方时间（如 AM 08:26:34 | 戊辰）
+    //  · 禅：  仅居中放大搜索栏 + 上方时间（如 AM 10:58:59 | 巳时）
     //  · 导航：在禅的基础上将搜索栏上移，下方展示收藏卡片
     // ============================================================
     var MODE_KEY = 'toolbox-ui-mode';
     var zenLayer = document.getElementById('zenLayer');
     var zenClock = document.getElementById('zenClock');
+    var zenClockTime = document.getElementById('zenClockTime');
     var zenSearchInput = document.getElementById('zenSearchInput');
     var zenSearchBtn = document.getElementById('zenSearchBtn');
     var zenEngineLabel = document.getElementById('zenEngineLabel');
@@ -4542,21 +4799,17 @@ renderTools();
         if (h >= 1)  return 1;
         return 0;
     }
-    // 当前时辰干支（如「戊辰」）
-    function zenGzText() {
+    // 当前时辰（地支 + 时，如「巳时」）
+    function zenShiChenText() {
         var d = new Date();
-        var dayCyclical = Math.round(Date.UTC(d.getFullYear(), d.getMonth(), 1) / 86400000) + 25577 + (d.getDate() - 1);
-        var dGan = ((dayCyclical % 10) + 10) % 10;
-        var hz = zShiChen(d.getHours());
-        var hGan = (ZHOUR_GAN_START[dGan] + hz) % 10;
-        return ZGAN[hGan] + ZZHI[hz];
+        return ZZHI[zShiChen(d.getHours())] + '时';
     }
     function updateZenClock() {
         if (!zenClock) return;
         var d = new Date();
         var h = d.getHours();
         var hh = h % 12; if (hh === 0) hh = 12;
-        zenClock.textContent = (h < 12 ? 'AM' : 'PM') + ' ' + zpad(hh) + ':' + zpad(d.getMinutes()) + ':' + zpad(d.getSeconds()) + ' | ' + zenGzText();
+        if (zenClockTime) zenClockTime.textContent = (h < 12 ? 'AM' : 'PM') + ' ' + zpad(hh) + ':' + zpad(d.getMinutes()) + ':' + zpad(d.getSeconds()) + ' · ' + zenShiChenText();
     }
 
     // 渲染收藏卡片（导航模式）
@@ -4619,14 +4872,109 @@ renderTools();
         if (!zenSearchInput) return;
         var q = zenSearchInput.value.trim();
         if (!q) { zenSearchInput.focus(); return; }
+        // 以「/」开头 = 在当前页面内搜索工具（本地关键词），不再跳转互联网
+        if (q.charAt(0) === '/') { setLocalSearch(q.slice(1)); return; }
         var url = getEngineUrl();
         var target = (url.indexOf('%s') !== -1) ? url.replace('%s', encodeURIComponent(q)) : (url + encodeURIComponent(q));
         window.open(target, '_blank', 'noopener');
     }
     if (zenSearchBtn) zenSearchBtn.addEventListener('click', zenSearch);
-    if (zenSearchInput) zenSearchInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') { e.preventDefault(); zenSearch(); }
+    // ===== 禅模式本地(本站)自动补全：输入以「/」开头时展示工具名补全建议 =====
+    var zenSuggestMenu = document.getElementById('zenSuggestMenu');
+    if (zenSuggestMenu) document.body.appendChild(zenSuggestMenu); // 挂 body，避免被禅层 overflow 裁剪
+    var zenSuggestActive = -1, zenSuggestList = [], zenSuggestOpen = false;
+    function positionZenSuggest() {
+        if (!zenSearchInput || !zenSuggestMenu) return;
+        var ir = zenSearchInput.getBoundingClientRect();
+        var w = Math.max(ir.width, 240);
+        var left = ir.left;
+        if (left + w > window.innerWidth - 8) left = Math.max(8, window.innerWidth - w - 8);
+        zenSuggestMenu.style.left = Math.round(left) + 'px';
+        zenSuggestMenu.style.top = Math.round(ir.bottom + 8) + 'px';
+        zenSuggestMenu.style.width = Math.round(w) + 'px';
+        zenSuggestOpen = true;
+        zenSuggestMenu.classList.add('open');
+        if (zenSearchInput) zenSearchInput.setAttribute('aria-expanded', 'true');
+    }
+    function closeZenSuggest() {
+        zenSuggestOpen = false; zenSuggestActive = -1; zenSuggestList = [];
+        if (zenSuggestMenu) zenSuggestMenu.classList.remove('open');
+        if (zenSearchInput) zenSearchInput.setAttribute('aria-expanded', 'false');
+    }
+    function renderZenLocalSuggest(sub) {
+        if (!zenSearchInput || !zenSuggestMenu) return;
+        var items = matchLocalTools(sub);
+        if (!items.length) { closeZenSuggest(); return; }
+        zenSuggestList = items.slice(0, 8);
+        var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
+        var tagText = (lang === 'en') ? 'SITE' : '本站';
+        zenSuggestMenu.innerHTML = '';
+        zenSuggestList.forEach(function (title) {
+            var li = document.createElement('li');
+            li.className = 'hero-suggest-item hero-suggest-item-local';
+            var tag = document.createElement('span');
+            tag.className = 'suggest-local-tag';
+            tag.textContent = tagText;
+            li.appendChild(tag);
+            var txt = document.createElement('span');
+            txt.textContent = title;
+            li.appendChild(txt);
+            li.setAttribute('role', 'option');
+            li.addEventListener('click', function () {
+                if (zenSearchInput) zenSearchInput.value = '/' + title;
+                closeZenSuggest();
+                zenSearch(); // zenSearch 检测到「/」前缀会转本地搜索
+            });
+            zenSuggestMenu.appendChild(li);
+        });
+        zenSuggestActive = -1;
+        positionZenSuggest();
+    }
+    function setZenSuggestActive(idx) {
+        if (!zenSuggestMenu) return;
+        var items = zenSuggestMenu.querySelectorAll('.hero-suggest-item');
+        if (idx >= items.length) idx = items.length - 1;
+        if (idx < 0) idx = 0;
+        zenSuggestActive = idx;
+        Array.prototype.forEach.call(items, function (el, i) { el.classList.toggle('active', i === idx); });
+        var t = items[idx];
+        if (t && t.scrollIntoView) t.scrollIntoView({ block: 'nearest' });
+    }
+    if (zenSearchInput) {
+        zenSearchInput.addEventListener('input', function () {
+            var raw = zenSearchInput.value.trim();
+            if (raw.charAt(0) === '/') { renderZenLocalSuggest(raw.slice(1)); return; }
+            if (!raw && localSearchKeyword) setLocalSearch(''); // 清空搜索内容 → 复原页面内筛选
+            closeZenSuggest();
+        });
+        zenSearchInput.addEventListener('keydown', function (e) {
+            if (zenSuggestOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+                e.preventDefault();
+                var n = zenSuggestList.length;
+                if (!n) return;
+                var idx = zenSuggestActive < 0
+                    ? (e.key === 'ArrowDown' ? 0 : n - 1)
+                    : (zenSuggestActive + (e.key === 'ArrowDown' ? 1 : -1) + n) % n;
+                setZenSuggestActive(idx);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (zenSuggestOpen && zenSuggestActive >= 0 && zenSuggestList[zenSuggestActive]) {
+                    zenSearchInput.value = '/' + zenSuggestList[zenSuggestActive];
+                }
+                closeZenSuggest();
+                zenSearch();
+            } else if (e.key === 'Escape' && zenSuggestOpen) {
+                e.preventDefault();
+                closeZenSuggest();
+            }
+        });
+        zenSearchInput.addEventListener('focus', function () { if (zenSearchInput) zenSearchInput.setAttribute('aria-expanded', zenSuggestOpen ? 'true' : 'false'); });
+    }
+    document.addEventListener('click', function (e) {
+        if (zenSuggestOpen && zenSuggestMenu && e.target !== zenSearchInput && !zenSuggestMenu.contains(e.target)) closeZenSuggest();
     });
+    window.addEventListener('scroll', closeZenSuggest, true);
+    window.addEventListener('resize', closeZenSuggest);
 
     function applyUiMode() {
         var mode = getUiMode();
@@ -4650,7 +4998,11 @@ renderTools();
     var zenThemeBtn = document.getElementById('zenThemeBtn');
     function updateZenThemeIcon() {
         if (!zenThemeBtn) return;
-        zenThemeBtn.textContent = document.documentElement.getAttribute('data-theme') === 'dark' ? '🌙' : '☀️';
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var svg = dark
+            ? '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 13.6A8.5 8.5 0 1 1 10.4 3.2a6.9 6.9 0 0 0 10.4 10.4z"/></svg>'
+            : '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.6v2M12 19.4v2M2.6 12h2M19.4 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/></svg>';
+        zenThemeBtn.innerHTML = svg;
     }
     if (zenThemeBtn) zenThemeBtn.addEventListener('click', function () {
         var cur = document.documentElement.getAttribute('data-theme');
@@ -4668,3 +5020,311 @@ renderTools();
     applyUiMode();
 
     })();
+
+// ============================================================
+//  Hero 追加卡片：纪念日 / 倒数日 / 工资 / 备忘录
+//  独立 IIFE；localStorage + Cookie 双存储，刷新不丢失
+// ============================================================
+(function () {
+    'use strict';
+
+    var ANNIV_KEY = 'hero-extra-anniv';
+    var CD_KEY    = 'hero-extra-countdown';
+    var MEMO_KEY  = 'hero-extra-memo';
+    var OFF_KEY   = 'hero-widget-settings';   // 复用下班进度的工作时段(workStart/workEnd)
+
+    // ===== 存储（localStorage 优先，Cookie 兜底，与其余模块一致） =====
+    function storageGet(key) {
+        try {
+            var v = localStorage.getItem(key);
+            if (v !== null && v !== undefined) return v;
+        } catch (e) {}
+        try {
+            var esc = key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var m = document.cookie.match(new RegExp('(?:^|;\\s*)' + esc + '=([^;]*)'));
+            if (m && m[1]) {
+                try { return decodeURIComponent(m[1]); } catch (e2) { return m[1]; }
+            }
+        } catch (e) {}
+        return null;
+    }
+    function storageSet(key, val) {
+        try { localStorage.setItem(key, val); } catch (e) {}
+        try {
+            document.cookie = key + '=' + encodeURIComponent(val) +
+                '; expires=' + new Date(Date.now() + 365 * 86400000).toUTCString() +
+                '; path=/; SameSite=Lax';
+        } catch (e) {}
+    }
+    function loadJSON(key, def) {
+        try { var r = storageGet(key); return r ? JSON.parse(r) : def; }
+        catch (e) { return def; }
+    }
+    function t(key) {
+        return (window.I18N && typeof window.I18N.t === 'function') ? window.I18N.t(key) : null;
+    }
+    function $(id) { return document.getElementById(id); }
+
+    // ===== 各卡片状态 =====
+    var anniv = loadJSON(ANNIV_KEY, null);          // { birthday: 'YYYY-MM-DD' }
+    if (!anniv || !/^\d{4}-\d{2}-\d{2}$/.test(String(anniv.birthday || ''))) anniv = { birthday: '1970-01-01' };
+    var nodes = loadJSON(CD_KEY, []);               // [{ name, date }]
+    if (!Array.isArray(nodes)) nodes = [];
+
+    // ===== 弹窗通用：显示 / 隐藏 / 点遮罩关闭 / Esc 关闭 =====
+    function openModal(id) { var o = $(id); if (o) o.classList.add('active'); }
+    function closeModal(id) { var o = $(id); if (o) o.classList.remove('active'); }
+    function bindOverlayClose(id) {
+        var o = $(id);
+        if (!o) return;
+        o.addEventListener('click', function (e) { if (e.target === o) o.classList.remove('active'); });
+    }
+    function bindEsc() {
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Escape') return;
+            ['annivModalOverlay', 'countdownModalOverlay'].forEach(function (id) {
+                var o = $(id);
+                if (o && o.classList.contains('active')) o.classList.remove('active');
+            });
+        });
+    }
+
+    // ========== 纪念日：你在世界已经多少天 ==========
+    function renderAnniv() {
+        var big = $('annivDays'), dur = $('annivDur'), empty = $('annivEmpty');
+        if (!big) return;
+        var b = anniv && /^\d{4}-\d{2}-\d{2}$/.test(String(anniv.birthday || ''));
+        if (!b) {
+            big.style.display = 'none';
+            if (dur) dur.style.display = 'none';
+            if (empty) empty.hidden = false;
+            return;
+        }
+        var parts = anniv.birthday.split('-');
+        var birth = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+        var today = new Date();
+        var t0 = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        var days = Math.round((t0 - birth) / 86400000);
+        if (days < 0) days = 0;
+        big.style.display = '';
+        if (empty) empty.hidden = true;
+        big.textContent = t('index.anniv.days') ? t('index.anniv.days').replace('{d}', days) : (days + ' 天');
+        // 辅助行：换算成 年+天
+        if (dur) {
+            dur.style.display = '';
+            var y = Math.floor(days / 365.25);
+            var rd = Math.round(days - y * 365.25);
+            var txt;
+            if (y <= 0) txt = (t('index.anniv.days') || '{d} 天').replace('{d}', days);
+            else if (rd <= 0) txt = (t('index.anniv.durYear') || '约 {y} 年整').replace('{y}', y);
+            else txt = (t('index.anniv.dur') || '约 {y} 年 {rd} 天').replace('{y}', y).replace('{rd}', rd);
+            dur.textContent = txt;
+        }
+        // 人生进度：已走过预期寿命的百分比 + 进度条（未设寿命时默认 80 岁）
+        var life = $('annivLife'), fill = $('annivLifeFill'), lifeText = $('annivLifeText');
+        if (life) {
+            life.hidden = false;
+            var lifespan = +anniv.lifespan || 80;
+            var pct = Math.max(0, Math.min(100, days / (lifespan * 365.25) * 100));
+            if (fill) fill.style.width = pct.toFixed(2) + '%';
+            if (lifeText) lifeText.textContent = pct.toFixed(1) + '%';
+        }
+    }
+
+    // ========== 倒数日：多条节点 ==========
+    function dayDiff(targetDate) {
+        var p = targetDate.split('-');
+        var t0 = new Date(+p[0], +p[1] - 1, +p[2]);
+        var now = new Date();
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        return Math.round((t0 - today) / 86400000);
+    }
+    function renderNodes() {
+        var list = $('countdownList'), empty = $('countdownEmpty');
+        if (!list) return;
+        var valid = nodes.filter(function (n) {
+            return n && n.name && /^\d{4}-\d{2}-\d{2}$/.test(String(n.date || ''));
+        });
+        if (!valid.length) {
+            list.innerHTML = '';
+            if (empty) empty.hidden = false;
+            return;
+        }
+        if (empty) empty.hidden = true;
+        valid.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+        list.innerHTML = valid.map(function (n) {
+            var diff = dayDiff(n.date);
+            var txt, cls = '';
+            if (diff === 0)      { txt = t('index.countdown.isToday') || '就是今天！'; cls = 'today'; }
+            else if (diff > 0)   { txt = t('index.countdown.daysLeft') ? t('index.countdown.daysLeft').replace('{d}', diff) : ('还有 ' + diff + ' 天'); }
+            else                 { txt = t('index.countdown.passed') ? t('index.countdown.passed').replace('{d}', -diff) : ('已过 ' + (-diff) + ' 天'); cls = 'passed'; }
+            return '<div class="cd-row">' +
+                        '<span class="cd-name">' + esc(n.name) + '</span>' +
+                        '<span class="cd-date">' + n.date + '</span>' +
+                        '<span class="cd-days ' + cls + '">' + txt + '</span>' +
+                   '</div>';
+        }).join('');
+    }
+    function esc(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // ========== 备忘录 ==========
+    function loadMemo() {
+        var m = $('memoArea');
+        if (m) m.innerText = storageGet(MEMO_KEY) || '';
+    }
+    function saveMemoNow() {
+        var m = $('memoArea');
+        if (m) storageSet(MEMO_KEY, m.innerText);
+    }
+    var memoTimer = null;
+    function bindMemo() {
+        var m = $('memoArea');
+        if (!m) return;
+        m.addEventListener('input', function () {
+            clearTimeout(memoTimer);
+            memoTimer = setTimeout(saveMemoNow, 500);
+        });
+        m.addEventListener('blur', saveMemoNow);
+    }
+
+    // ========== 纪念日设置弹窗 ==========
+    function bindAnniv() {
+        var btn = $('annivSettingsBtn');
+        if (btn) btn.addEventListener('click', function () {
+            var inp = $('annivInBirth');
+            if (inp) inp.value = anniv.birthday || '';
+            var lifeIn = $('annivInLifespan');
+            if (lifeIn) lifeIn.value = anniv.lifespan || 80;
+            openModal('annivModalOverlay');
+        });
+        var save = $('annivModalSave');
+        if (save) save.addEventListener('click', function () {
+            var inp = $('annivInBirth');
+            anniv.birthday = inp && inp.value ? inp.value : null;
+            var lifeIn = $('annivInLifespan');
+            if (lifeIn) {
+                var lv = parseInt(lifeIn.value, 10);
+                anniv.lifespan = (isNaN(lv) || lv < 1 || lv > 300) ? null : lv;
+            }
+            storageSet(ANNIV_KEY, JSON.stringify(anniv));
+            closeModal('annivModalOverlay');
+            renderAnniv();
+        });
+        var cancel = $('annivModalCancel');
+        if (cancel) cancel.addEventListener('click', function () { closeModal('annivModalOverlay'); });
+    }
+
+    // ========== 倒数日设置弹窗 ==========
+    var editingNodes = null;   // 弹窗内临时编辑的节点列表（打开时从 nodes 拷贝）
+    function renderCdRows() {
+        var rows = $('countdownRows');
+        if (!rows) return;
+        rows.innerHTML = '';
+        if (!editingNodes) editingNodes = nodes.slice();
+        if (!editingNodes.length) editingNodes.push({ name: '', date: '' });
+        editingNodes.forEach(function (node, i) {
+            var wrap = document.createElement('div');
+            wrap.className = 'cd-row-edit';
+            var nameIn = document.createElement('input');
+            nameIn.type = 'text';
+            nameIn.placeholder = '名称';
+            nameIn.value = node.name || '';
+            var dateIn = document.createElement('input');
+            dateIn.type = 'date';
+            dateIn.value = node.date || '';
+            var del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'cd-row-del';
+            del.textContent = '✕';
+            del.addEventListener('click', function () {
+                if (!editingNodes) editingNodes = nodes.slice();
+                editingNodes.splice(i, 1);
+                renderCdRows();
+            });
+            // 输入实时写回 editingNodes（保存时还会直接从 DOM 再捞一遍，双保险）
+            nameIn.addEventListener('input', function () { node.name = nameIn.value; });
+            dateIn.addEventListener('input', function () { node.date = dateIn.value; });
+            wrap.appendChild(nameIn);
+            wrap.appendChild(dateIn);
+            wrap.appendChild(del);
+            rows.appendChild(wrap);
+        });
+    }
+    // 保存时直接从弹窗 DOM 行读取输入值，避免事件冒泡/合成事件导致的丢失
+    function collectCdRows() {
+        var out = [];
+        var wraps = document.querySelectorAll('#countdownRows .cd-row-edit');
+        for (var i = 0; i < wraps.length; i++) {
+            var inp = wraps[i].querySelector('input[type="text"]');
+            var dat = wraps[i].querySelector('input[type="date"]');
+            var name = (inp && inp.value ? inp.value : '').trim();
+            var date = dat ? dat.value : '';
+            if (name && /^\d{4}-\d{2}-\d{2}$/.test(String(date || ''))) {
+                out.push({ name: name, date: date });
+            }
+        }
+        return out;
+    }
+    function bindCountdown() {
+        var btn = $('countdownSettingsBtn');
+        if (btn) btn.addEventListener('click', function () {
+            editingNodes = null;      // 重新从已存数据拷贝
+            renderCdRows();
+            openModal('countdownModalOverlay');
+        });
+        var add = $('countdownAdd');
+        if (add) add.addEventListener('click', function () {
+            editingNodes.push({ name: '', date: '' });
+            renderCdRows();
+        });
+        var save = $('countdownModalSave');
+        if (save) save.addEventListener('click', function () {
+            nodes = collectCdRows();
+            storageSet(CD_KEY, JSON.stringify(nodes));
+            editingNodes = null;
+            closeModal('countdownModalOverlay');
+            renderNodes();
+        });
+        var cancel = $('countdownModalCancel');
+        if (cancel) cancel.addEventListener('click', function () {
+            nodes = loadJSON(CD_KEY, []) || [];
+            if (!Array.isArray(nodes)) nodes = [];
+            editingNodes = null;
+            closeModal('countdownModalOverlay');
+        });
+    }
+
+
+    // ========== 启动 ==========
+    function init() {
+        if (!$('heroWidget')) return;
+        bindAnniv();
+        bindCountdown();
+        bindMemo();
+        renderAnniv();
+        renderNodes();
+        bindOverlayClose('annivModalOverlay');
+        bindOverlayClose('countdownModalOverlay');
+        bindEsc();
+        // 每分钟刷新（跨天自动校正）
+        setInterval(function () {
+            renderAnniv();
+            renderNodes();
+        }, 60000);
+        // i18n 切换时刷新文案
+        document.addEventListener('languagechange', function () {
+            renderAnniv();
+            renderNodes();
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();

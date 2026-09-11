@@ -159,6 +159,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    overflow-x: auto;   /* 内容超过视口时提供横向滚动（单行不换行） */
     transition: background 0.25s, border-color 0.25s;
 }
 .navbar-inner {
@@ -169,6 +170,10 @@ body {
     align-items: center;
     height: 60px;
     gap: 12px;
+    flex-wrap: nowrap;      /* 页眉内容始终单行 */
+    white-space: nowrap;
+    /* 铺满容器激活 space-between：左 Logo、右按钮，中间留白（内容不足时不挤到一起） */
+    width: 100%;
 }
 .navbar-brand {
     display: flex;
@@ -471,9 +476,9 @@ body {
 }
 .nav-chat.collapsed .nav-chat-bubble { display: none; }
 .nav-chat.collapsed .nav-chat-tab    { display: inline-flex; }
-/* 窄屏：对话框隐藏，避免挤压导航 */
-@media (max-width: 700px) {
-    .nav-chat { display: none; }
+/* 分辨率不足时：优先隐藏吉祥物（眼睛 + 对话框），留出空间；分类在更窄时再隐藏 */
+@media (max-width: 900px) {
+    .nav-eye, .nav-chat { display: none; }
 }
 
 .navbar-right {
@@ -942,20 +947,12 @@ body {
 /* ===== 响应式（导航栏） ===== */
 @media (max-width: 820px) {
     .navbar-inner {
-        height: auto;
-        min-height: 52px;
-        padding: 8px 0;
-        flex-wrap: wrap;
         gap: 8px;
-    }
-    .navbar-brand {
-        font-size: 1rem;
     }
     .navbar-right {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;   /* 保持单行，不再换行独占整行 */
         gap: 8px;
-        width: 100%;
-        justify-content: flex-start;
+        justify-content: flex-end;
     }
 }
 
