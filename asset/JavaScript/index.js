@@ -5017,6 +5017,7 @@ renderTools();
     var zenSuggestMenu = document.getElementById('zenSuggestMenu');
     if (zenSuggestMenu) document.body.appendChild(zenSuggestMenu); // 挂 body，避免被禅层 overflow 裁剪
     var zenSuggestActive = -1, zenSuggestList = [], zenSuggestOpen = false;
+    var zenSugTimer = null, zenSugSeq = 0, zenSugCache = {}, zenSugMode = null; // zenSugMode: 'local'|'web'
     function positionZenSuggest() {
         if (!zenSearchInput || !zenSuggestMenu) return;
         var ir = zenSearchInput.getBoundingClientRect();
@@ -5031,7 +5032,7 @@ renderTools();
         if (zenSearchInput) zenSearchInput.setAttribute('aria-expanded', 'true');
     }
     function closeZenSuggest() {
-        zenSuggestOpen = false; zenSuggestActive = -1; zenSuggestList = [];
+        zenSuggestOpen = false; zenSuggestActive = -1; zenSuggestList = []; zenSugMode = null;
         if (zenSuggestMenu) zenSuggestMenu.classList.remove('open');
         if (zenSearchInput) zenSearchInput.setAttribute('aria-expanded', 'false');
     }
@@ -5040,6 +5041,7 @@ renderTools();
         var items = matchLocalTools(sub);
         if (!items.length) { closeZenSuggest(); return; }
         zenSuggestList = items.slice(0, 8);
+        zenSugMode = 'local';
         var lang = (document.documentElement.getAttribute('lang') === 'en') ? 'en' : 'zh';
         var tagText = (lang === 'en') ? 'SITE' : '本站';
         zenSuggestMenu.innerHTML = '';
@@ -5079,6 +5081,28 @@ renderTools();
         zenSuggestActive = -1;
         positionZenSuggest();
     }
+    // 禅模式网页搜索补全：非「/」输入时复用 suggestJsonp，展示搜索引擎建议
+    function renderZenWebSuggest(list) {
+        if (!zenSearchInput || !zenSuggestMenu) return;
+        if (!list || !list.length) { closeZenSuggest(); return; }
+        zenSuggestList = list.slice(0, 8);
+        zenSugMode = 'web';
+        zenSuggestMenu.innerHTML = '';
+        zenSuggestList.forEach(function (term) {
+            var li = document.createElement('li');
+            li.className = 'hero-suggest-item';
+            li.textContent = term;
+            li.setAttribute('role', 'option');
+            li.addEventListener('click', function () {
+                if (zenSearchInput) zenSearchInput.value = term;
+                closeZenSuggest();
+                zenSearch();
+            });
+            zenSuggestMenu.appendChild(li);
+        });
+        zenSuggestActive = -1;
+        positionZenSuggest();
+    }
     function setZenSuggestActive(idx) {
         if (!zenSuggestMenu) return;
         var items = zenSuggestMenu.querySelectorAll('.hero-suggest-item');
@@ -5092,9 +5116,23 @@ renderTools();
     if (zenSearchInput) {
         zenSearchInput.addEventListener('input', function () {
             var raw = zenSearchInput.value.trim();
+            // 以「/」开头 → 本地工具自动补全（不发网络请求）
             if (raw.charAt(0) === '/') { renderZenLocalSuggest(raw.slice(1)); return; }
-            if (!raw && localSearchKeyword) setLocalSearch(''); // 清空搜索内容 → 复原页面内筛选
-            closeZenSuggest();
+            if (!raw) { if (localSearchKeyword) setLocalSearch(''); closeZenSuggest(); return; }
+            if (zenSugCache[raw]) { renderZenWebSuggest(zenSugCache[raw]); return; } // 命中缓存：立即显示
+            clearTimeout(zenSugTimer);
+            zenSugTimer = setTimeout(function () {
+                zenSugSeq++;
+                var my = zenSugSeq;
+                suggestJsonp(raw, function (list) {
+                    if (my !== zenSugSeq) return;
+                    zenSugCache[raw] = list; // 缓存结果，再次输入同词秒出
+                    var keys = Object.keys(zenSugCache);
+                    if (keys.length > 120) delete zenSugCache[keys[0]];
+                    renderZenWebSuggest(list);
+                    if (zenSuggestOpen && zenSearchInput) zenSearchInput.setAttribute('aria-expanded', 'true');
+                });
+            }, 110);
         });
         zenSearchInput.addEventListener('keydown', function (e) {
             if (zenSuggestOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
@@ -5110,7 +5148,12 @@ renderTools();
                 if (zenSuggestOpen && zenSuggestActive >= 0 && zenSuggestList[zenSuggestActive]) {
                     var picked = zenSuggestList[zenSuggestActive];
                     closeZenSuggest();
-                    openLocalTool(picked); // 禅模式直接打开选中的工具
+                    if (zenSugMode === 'web') {
+                        if (zenSearchInput) zenSearchInput.value = picked;
+                        zenSearch(); // 网页建议项 → 网页搜索
+                    } else {
+                        openLocalTool(picked); // 禅模式直接打开选中的工具
+                    }
                     return;
                 }
                 closeZenSuggest();
