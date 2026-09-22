@@ -1445,6 +1445,8 @@
     width: 720px;
     height: 560px;
     max-height: 86vh;
+    /* 背景透明度跟随「外观→设置弹窗透明度」；内容文字保持不透明 --settings-modal-alpha：0~1 */
+    background: color-mix(in srgb, var(--bg-panel) calc(var(--settings-modal-alpha, 1) * 100%), transparent);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -1541,6 +1543,15 @@
     align-items: center;
     gap: 8px;
     transition: color 0.25s;
+}
+/* 设置弹窗标题栏作为拖拽把手：可拖动移动弹窗位置 */
+.hw-modal.engine-modal .hw-modal-title {
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
+}
+.hw-modal.engine-modal .hw-modal-title.dragging {
+    cursor: grabbing;
 }
 .hw-modal-field {
     display: flex;
@@ -2224,13 +2235,32 @@
     background-color: color-mix(in srgb, var(--accent-blue) 14%, var(--bg-panel));
     color: var(--accent-blue);
 }
-/* 本地(本站)补全建议：左侧带「本站/SITE」标签，右侧工具名可截断 */
-.hero-suggest-item-local > span:last-child {
+/* 本地(本站)补全建议：左侧带「本站/SITE」标签，右侧工具名可截断，尾部为收藏星标 */
+.hero-suggest-item-local > span:nth-child(2) {
     flex: 1;
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.hero-suggest-fav {
+    flex: none;
+    margin-left: 8px;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 2px 4px;
+    border-radius: 6px;
+    color: var(--text-light);
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s, transform 0.15s;
+}
+.hero-suggest-fav:hover {
+    color: #f59e0b;
+    transform: scale(1.2);
+}
+.hero-suggest-fav.active {
+    color: #f59e0b;
 }
 .suggest-local-tag {
     flex: none;
@@ -2478,7 +2508,8 @@ body.mode-nav .footer {
 /* 禅模式：内容垂直居中，极简，不显示收藏；搜索栏固定 720px 宽 */
 body.mode-zen .zen-inner {
     justify-content: center;
-    transform: translateY(-160px);
+    /* 默认抬高 -160px；再叠加 --zen-offset（设置「外观→禅搜索框垂直位置」控制），负=上移，正=下移 */
+    transform: translateY(calc(-160px + var(--zen-offset, 0px)));
 }
 body.mode-zen .zen-favs {
     display: none;

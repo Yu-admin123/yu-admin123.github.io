@@ -81,6 +81,8 @@ window.I18N_STRINGS = {
     'index.appear.clear':   { zh: '清除', en: 'Clear' },
     'index.appear.opacity': { zh: '工具卡片透明度', en: 'Card Opacity' },
     'index.appear.blur':    { zh: '工具卡片模糊度', en: 'Card Blur' },
+    'index.appear.zenOffset': { zh: '禅搜索框垂直位置', en: 'Zen Search Vertical Position' },
+    'index.appear.settingsOpacity': { zh: '设置弹窗透明度', en: 'Settings Popup Opacity' },
     'index.appear.bgCount':   { zh: '已选 {n} / 9', en: '{n} / 9 selected' },
     'index.appear.bgFull':    { zh: '已达上限：最多上传 9 个背景（图片或视频合计）', en: 'Limit reached: up to 9 backgrounds (images or videos combined)' },
     'index.appear.bgSkipped': { zh: '已达上限，{n} 个文件被忽略（最多 9 个）', en: '{n} files were skipped (max 9)' },
@@ -3542,6 +3544,21 @@ renderTools();
             var txt = document.createElement('span');
             txt.textContent = title;
             li.appendChild(txt);
+            // 收藏星标：位于建议文本之后，点击仅切换收藏，不触发打开
+            var fav = document.createElement('span');
+            fav.className = 'hero-suggest-fav';
+            fav.textContent = isFav(tool.id) ? '★' : '☆';
+            fav.classList.toggle('active', isFav(tool.id));
+            fav.title = window.I18N ? window.I18N.t(isFav(tool.id) ? 'index.fav.remove' : 'index.fav.add') : (isFav(tool.id) ? '取消收藏' : '收藏');
+            fav.addEventListener('click', function (e) {
+                e.stopPropagation();
+                toggleFav(tool.id);
+                var f = isFav(tool.id);
+                fav.textContent = f ? '★' : '☆';
+                fav.classList.toggle('active', f);
+                fav.title = window.I18N ? window.I18N.t(f ? 'index.fav.remove' : 'index.fav.add') : (f ? '取消收藏' : '收藏');
+            });
+            li.appendChild(fav);
             li.setAttribute('role', 'option');
             li.addEventListener('click', function () {
                 if (searchInput) searchInput.value = '/' + title;
@@ -3725,9 +3742,9 @@ renderTools();
     var BG_DB_NAME = 'yu-toolbox-bg';
     var BG_DB_STORE = 'bg';
     var BG_META_ID = '__meta__';   // 存 {id:'__meta__', currentId}
-    var DEFAULT_APPEAR = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0 };
+    var DEFAULT_APPEAR = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0, zenOffset: 0, settingsOpacity: 100 };
     // 内存中的当前外观草稿：跨弹窗打开保持，不被 localStorage 的空值覆盖
-    var appearDraft = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0 };
+    var appearDraft = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0, zenOffset: 0, settingsOpacity: 100 };
     // 背景列表与当前选中（图片 / 视频均可，可切换）
     var bgImages = [];        // [{id, type:'image'|'video', dataURL}]
     var bgCurrentId = null;
@@ -3749,6 +3766,10 @@ renderTools();
     var cardBlurHoverVal = document.getElementById('cardBlurHoverVal');
     var pageBgDim = document.getElementById('pageBgDim');
     var pageBgDimVal = document.getElementById('pageBgDimVal');
+    var zenOffset = document.getElementById('zenOffset');
+    var zenOffsetVal = document.getElementById('zenOffsetVal');
+    var settingsOpacityEl = document.getElementById('settingsOpacity');
+    var settingsOpacityVal = document.getElementById('settingsOpacityVal');
 
     // 读取透明度/模糊度（小数据，存 localStorage）；背景图由 IndexedDB 异步载入
     function loadAppearance() {
@@ -3761,6 +3782,8 @@ renderTools();
                 appearDraft.bgClarity = (typeof obj.bgClarity === 'number' && obj.bgClarity >= 0 && obj.bgClarity <= 100) ? obj.bgClarity : 70;
                 appearDraft.opacityHover = (typeof obj.opacityHover === 'number' && obj.opacityHover >= 0 && obj.opacityHover <= 100) ? obj.opacityHover : 100;
                 appearDraft.blurHover = (typeof obj.blurHover === 'number' && obj.blurHover >= 0 && obj.blurHover <= 20) ? obj.blurHover : 0;
+                appearDraft.zenOffset = (typeof obj.zenOffset === 'number' && obj.zenOffset >= -240 && obj.zenOffset <= 240) ? obj.zenOffset : 0;
+                appearDraft.settingsOpacity = (typeof obj.settingsOpacity === 'number' && obj.settingsOpacity >= 0 && obj.settingsOpacity <= 100) ? obj.settingsOpacity : 100;
             }
         } catch (e) {}
     }
@@ -3935,6 +3958,10 @@ renderTools();
         var clarity = (typeof a.bgClarity === 'number') ? a.bgClarity : 70;
         var dimPct = 100 - clarity;
         document.documentElement.style.setProperty('--page-bg-dim', dimPct + '%');
+        // 禅模式搜索框垂直位置（相对默认居中的偏移，向上为负，向下为正）
+        document.documentElement.style.setProperty('--zen-offset', ((typeof a.zenOffset === 'number') ? a.zenOffset : 0) + 'px');
+        // 设置弹窗背景透明度（0~1，仅背景，文字保持不透明）
+        document.documentElement.style.setProperty('--settings-modal-alpha', String(((typeof a.settingsOpacity === 'number') ? a.settingsOpacity : 100) / 100));
         // 页面背景 → 独立全屏层（图片用 backgroundImage，视频用 <video> 元素，避免与主题脚本的 body 背景互相覆盖）
         var bgLayer = getBgLayer();
         var vid = getBgVideo(bgLayer);
@@ -3961,7 +3988,7 @@ renderTools();
     // 透明度/模糊度（小）存 localStorage；背景图列表（大）存 IndexedDB
     function saveAppearance(a) {
         try {
-            localStorage.setItem(APPEAR_KEY, JSON.stringify({ opacity: a.opacity, blur: a.blur, bgClarity: a.bgClarity, opacityHover: a.opacityHover, blurHover: a.blurHover }));
+            localStorage.setItem(APPEAR_KEY, JSON.stringify({ opacity: a.opacity, blur: a.blur, bgClarity: a.bgClarity, opacityHover: a.opacityHover, blurHover: a.blurHover, zenOffset: a.zenOffset, settingsOpacity: a.settingsOpacity }));
         } catch (e) {}
         saveBgList();
     }
@@ -4350,9 +4377,22 @@ renderTools();
             pageBgDim.value = String(appearDraft.bgClarity);
             if (pageBgDimVal) pageBgDimVal.textContent = appearDraft.bgClarity + '%';
         }
+        if (zenOffset) {
+            zenOffset.value = String(appearDraft.zenOffset);
+            if (zenOffsetVal) zenOffsetVal.textContent = fmtZenOffset(appearDraft.zenOffset);
+        }
+        if (settingsOpacityEl) {
+            settingsOpacityEl.value = String(appearDraft.settingsOpacity);
+            if (settingsOpacityVal) settingsOpacityVal.textContent = appearDraft.settingsOpacity + '%';
+        }
         renderBgGrid();
         updateBgCount();
         if (pageBgInput) pageBgInput.value = '';
+    }
+    // 禅搜索框垂直偏移的显示格式：正数带 '+'，0/负数原样（负=上移，正=下移）
+    function fmtZenOffset(v) {
+        v = (typeof v === 'number') ? v : 0;
+        return (v > 0 ? '+' : '') + v + 'px';
     }
     // 实时预览：拖动滑块立即反映到页面
     if (cardOpacity) {
@@ -4392,6 +4432,22 @@ renderTools();
         pageBgDim.addEventListener('input', function () {
             appearDraft.bgClarity = parseInt(pageBgDim.value, 10) || 0;
             if (pageBgDimVal) pageBgDimVal.textContent = appearDraft.bgClarity + '%';
+            applyAppearance(appearDraft);
+        });
+    }
+    // 禅搜索框垂直位置（实时移动，负=上移，正=下移）
+    if (zenOffset) {
+        zenOffset.addEventListener('input', function () {
+            appearDraft.zenOffset = parseInt(zenOffset.value, 10) || 0;
+            if (zenOffsetVal) zenOffsetVal.textContent = fmtZenOffset(appearDraft.zenOffset);
+            applyAppearance(appearDraft);
+        });
+    }
+    // 设置弹窗背景透明度（实时，仅背景，文字不透明）
+    if (settingsOpacityEl) {
+        settingsOpacityEl.addEventListener('input', function () {
+            appearDraft.settingsOpacity = parseInt(settingsOpacityEl.value, 10) || 0;
+            if (settingsOpacityVal) settingsOpacityVal.textContent = appearDraft.settingsOpacity + '%';
             applyAppearance(appearDraft);
         });
     }
@@ -4510,6 +4566,14 @@ renderTools();
                 renderBgUI();
             }
             engineOverlay.classList.add('active');
+            // 复位弹窗位置：清除拖拽时写入的 inline 样式，恢复 overlay 垂直/水平居中
+            var engModal = engineOverlay.querySelector('.engine-modal');
+            if (engModal) {
+                engModal.style.position = '';
+                engModal.style.left = '';
+                engModal.style.top = '';
+                engModal.style.margin = '';
+            }
             // 每次打开默认回到第一个页签（搜索引擎设置）
             var firstTab = document.querySelector('.engine-tab[data-engine-page="engine"]');
             if (firstTab) {
@@ -4540,7 +4604,7 @@ renderTools();
     if (engineReset) {
         engineReset.addEventListener('click', function () {
             setEngineUrl(ENGINES[DEFAULT_ENGINE]);
-            appearDraft = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0 };
+            appearDraft = { bg: '', opacity: 100, blur: 0, bgClarity: 70, opacityHover: 100, blurHover: 0, zenOffset: 0, settingsOpacity: 100 };
             bgImages = [];
             bgCurrentId = null;
             saveAppearance(appearDraft);
@@ -4555,6 +4619,38 @@ renderTools();
             if (engineOverlay) engineOverlay.classList.remove('active');
         });
     }
+    // 设置弹窗可拖拽：按住标题栏拖动，弹窗跟随移动（首次拖动时从居中转为绝对定位）
+    (function () {
+        var ov = document.getElementById('engineModalOverlay');
+        var modal = ov ? ov.querySelector('.engine-modal') : null;
+        if (!modal) return;
+        var title = modal.querySelector('.hw-modal-title');
+        if (!title) return;
+        var dragging = false, sx = 0, sy = 0, sl = 0, st = 0;
+        title.addEventListener('mousedown', function (e) {
+            if (e.button !== 0) return;              // 仅左键
+            var r = modal.getBoundingClientRect();
+            modal.style.position = 'fixed';          // 脱离 overlay 的 flex 居中，改用显式坐标
+            modal.style.left = r.left + 'px';
+            modal.style.top = r.top + 'px';
+            modal.style.margin = '0';
+            dragging = true;
+            sx = e.clientX; sy = e.clientY;
+            sl = r.left; st = r.top;
+            title.classList.add('dragging');
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', function (e) {
+            if (!dragging) return;
+            modal.style.left = Math.round(sl + (e.clientX - sx)) + 'px';
+            modal.style.top = Math.round(st + (e.clientY - sy)) + 'px';
+        });
+        document.addEventListener('mouseup', function () {
+            if (!dragging) return;
+            dragging = false;
+            title.classList.remove('dragging');
+        });
+    })();
     if (engineOverlay) {
         engineOverlay.addEventListener('click', function (e) {
             if (e.target === engineOverlay) engineOverlay.classList.remove('active');
@@ -4958,6 +5054,21 @@ renderTools();
             var txt = document.createElement('span');
             txt.textContent = title;
             li.appendChild(txt);
+            // 收藏星标：位于建议文本之后，点击仅切换收藏，不触发打开
+            var fav = document.createElement('span');
+            fav.className = 'hero-suggest-fav';
+            fav.textContent = isFav(tool.id) ? '★' : '☆';
+            fav.classList.toggle('active', isFav(tool.id));
+            fav.title = window.I18N ? window.I18N.t(isFav(tool.id) ? 'index.fav.remove' : 'index.fav.add') : (isFav(tool.id) ? '取消收藏' : '收藏');
+            fav.addEventListener('click', function (e) {
+                e.stopPropagation();
+                toggleFav(tool.id);
+                var f = isFav(tool.id);
+                fav.textContent = f ? '★' : '☆';
+                fav.classList.toggle('active', f);
+                fav.title = window.I18N ? window.I18N.t(f ? 'index.fav.remove' : 'index.fav.add') : (f ? '取消收藏' : '收藏');
+            });
+            li.appendChild(fav);
             li.setAttribute('role', 'option');
             li.addEventListener('click', function () {
                 closeZenSuggest();
