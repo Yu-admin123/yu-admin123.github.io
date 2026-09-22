@@ -12,7 +12,7 @@
         document.documentElement.setAttribute('lang', savedLang === 'zh' ? 'zh-CN' : 'en');
     </script>
     <link rel="stylesheet" href="./asset/CSS/common.css?v=20260908f">
-    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260909e">
+    <link rel="stylesheet" href="./asset/CSS/index.css?v=20260909h">
 </head>
 <body>
     <!-- ===== 导航栏 ===== -->
@@ -505,6 +505,20 @@
                                     <span class="engine-range-val" id="cardBlurHoverVal">0px</span>
                                 </div>
                             </div>
+                            <div class="engine-field engine-field-inline">
+                                <label for="zenOffset" data-i18n="index.appear.zenOffset">禅搜索框垂直位置</label>
+                                <div class="engine-row">
+                                    <input type="range" id="zenOffset" class="engine-range" min="-240" max="240" step="1" value="0" />
+                                    <span class="engine-range-val" id="zenOffsetVal">0px</span>
+                                </div>
+                            </div>
+                            <div class="engine-field engine-field-inline">
+                                <label for="settingsOpacity" data-i18n="index.appear.settingsOpacity">设置弹窗透明度</label>
+                                <div class="engine-row">
+                                    <input type="range" id="settingsOpacity" class="engine-range" min="0" max="100" step="1" value="100" />
+                                    <span class="engine-range-val" id="settingsOpacityVal">100%</span>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 右列：文件上传 + 缩略图 -->
@@ -559,7 +573,7 @@
     <script src="./asset/JavaScript/theme.js?v=20260825a"></script>
     <script src="./asset/JavaScript/i18n.js?v=20260825a"></script>
     <script src="./asset/JavaScript/zip-util.js?v=20260825f"></script>
-    <script src="./asset/JavaScript/index.js?v=20260909i"></script>
+    <script src="./asset/JavaScript/index.js?v=20260909o"></script>
     <!-- 工具卡片 SVG 图标精灵：24×24 多色扁平风格，颜色在各图内部定义 -->
     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="display:none" aria-hidden="true">
         <defs>
